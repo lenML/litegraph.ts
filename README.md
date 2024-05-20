@@ -9,6 +9,13 @@ Experimental port/refactor of litegraph.js (base on [litegraph.ts](https://githu
 - [ ] Refactor contextmenu to enable the ability to customize the contextmenu
 - [ ] Refactor scheduler to support step execution as well as sub-graph (graph theory) controls
 
+
+## install
+
+```
+npm install @litegraph-ts/core @litegraph-ts/nodes-basic
+```
+
 ## Example Usage
 
 ``` typescript
