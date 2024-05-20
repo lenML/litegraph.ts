@@ -1,8 +1,13 @@
 # litegraph.ts
 
-Experimental port/refactor of litegraph.js to TypeScript with ESM module support.
+Experimental port/refactor of litegraph.js (base on [litegraph.ts](https://github.com/space-nuko/litegraph.ts)) to TypeScript with ESM module support.
 
 **NOTE:** The API/serialization format is not 100% compatible with vanilla litegraph.js. It's subject to change during development.
+
+**NOTE2:** This project is mainly about publishing litegraph.ts to npm and carrying out some ongoing renovations and refactoring of this library, with plans as follows:
+- [ ] Add an event bus to LGraph / LGraphCanvas
+- [ ] Refactor contextmenu to enable the ability to customize the contextmenu
+- [ ] Refactor scheduler to support step execution as well as sub-graph (graph theory) controls
 
 ## Example Usage
 
