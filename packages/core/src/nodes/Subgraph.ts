@@ -7,7 +7,7 @@ import type { LActionOptions, LGraphNodeCloneData, OptionalSlots, PropertyLayout
 import LGraphNode from "../LGraphNode";
 import LLink from "../LLink";
 import LiteGraph from "../LiteGraph";
-import { BuiltInSlotShape, SlotType, type NodeMode, type Vector2, LinkID, NodeID, BuiltInSlotType } from "../types";
+import { BuiltInSlotShape, SlotType, type NodeMode, type Vector2, LinkID, NodeID, BuiltInSlotType, SlotShape } from "../types";
 import { UUID } from "../types";
 import { toHashMap } from "../utils";
 import GraphInput from "./GraphInput";
@@ -250,41 +250,39 @@ export default class Subgraph extends LGraphNode {
     };
 
     override onDrawBackground(ctx: CanvasRenderingContext2D, graphcanvas: LGraphCanvas, canvas: HTMLCanvasElement, pos: Vector2) {
-        // if (this.flags.collapsed)
-        //     return;
-        // var y = this.size[1] - LiteGraph.NODE_TITLE_HEIGHT + 0.5;
-        // const can_interact = graphcanvas.allow_interaction && !graphcanvas.read_only;
-        // // button
-        // var over = LiteGraph.isInsideRectangle(pos[0], pos[1], this.pos[0], this.pos[1] + y, this.size[0], LiteGraph.NODE_TITLE_HEIGHT) && can_interact;
-        // let overleft = LiteGraph.isInsideRectangle(pos[0], pos[1], this.pos[0], this.pos[1] + y, this.size[0] / 2, LiteGraph.NODE_TITLE_HEIGHT)
-        // ctx.fillStyle = over ? "#555" : "#222";
-        // ctx.beginPath();
-        // if (this.shape == BuiltInSlotShape.BOX_SHAPE) {
-        //     if (overleft) {
-        //         ctx.rect(0, y, this.size[0] / 2 + 1, LiteGraph.NODE_TITLE_HEIGHT);
-        //     } else {
-        //         ctx.rect(this.size[0] / 2, y, this.size[0] / 2 + 1, LiteGraph.NODE_TITLE_HEIGHT);
-        //     }
-        // }
-        // else {
-        //     if (overleft) {
-        //         ctx.roundRect(0, y, this.size[0] / 2 + 1, LiteGraph.NODE_TITLE_HEIGHT, [0, 0, 8, 8]);
-        //     } else {
-        //         ctx.roundRect(this.size[0] / 2, y, this.size[0] / 2 + 1, LiteGraph.NODE_TITLE_HEIGHT, [0, 0, 8, 8]);
-        //     }
-        // }
-        // if (over) {
-        //     ctx.fill();
-        // } else {
-        //     ctx.fillRect(0, y, this.size[0] + 1, LiteGraph.NODE_TITLE_HEIGHT);
-        // }
-
+        if (this.flags.collapsed)
+            return;
+        var y = this.size[1] - LiteGraph.NODE_TITLE_HEIGHT + 0.5;
         // button
-        // ctx.textAlign = "center";
-        // ctx.font = "24px Arial";
-        // ctx.fillStyle = over ? "#DDD" : "#999";
-        // ctx.fillText("+", this.size[0] * 0.25, y + 24);
-        // ctx.fillText("+", this.size[0] * 0.75, y + 24);
+        var over = LiteGraph.isInsideRectangle(pos[0], pos[1], this.pos[0], this.pos[1] + y, this.size[0], LiteGraph.NODE_TITLE_HEIGHT);
+        let overleft = LiteGraph.isInsideRectangle(pos[0], pos[1], this.pos[0], this.pos[1] + y, this.size[0] / 2, LiteGraph.NODE_TITLE_HEIGHT)
+        ctx.fillStyle = over ? "#555" : "#222";
+        ctx.beginPath();
+        if (this.shape == BuiltInSlotShape.BOX_SHAPE) {
+            if (overleft) {
+                ctx.rect(0, y, this.size[0] / 2 + 1, LiteGraph.NODE_TITLE_HEIGHT);
+            } else {
+                ctx.rect(this.size[0] / 2, y, this.size[0] / 2 + 1, LiteGraph.NODE_TITLE_HEIGHT);
+            }
+        }
+        else {
+            if (overleft) {
+                ctx.roundRect(0, y, this.size[0] / 2 + 1, LiteGraph.NODE_TITLE_HEIGHT, [0,0, 8,8]);
+            } else {
+                ctx.roundRect(this.size[0] / 2, y, this.size[0] / 2 + 1, LiteGraph.NODE_TITLE_HEIGHT, [0,0, 8,8]);
+            }
+        }
+        if (over) {
+            ctx.fill();
+        } else {
+            ctx.fillRect(0, y, this.size[0] + 1, LiteGraph.NODE_TITLE_HEIGHT);
+        }
+        // button
+        ctx.textAlign = "center";
+        ctx.font = "24px Arial";
+        ctx.fillStyle = over ? "#DDD" : "#999";
+        ctx.fillText("+", this.size[0] * 0.25, y + 16);
+        ctx.fillText("+", this.size[0] * 0.75, y + 16);
     }
 
     // override onMouseDown(e, localpos, graphcanvas)
@@ -296,25 +294,22 @@ export default class Subgraph extends LGraphNode {
     // 	}
     // }
 
-    // override onMouseDown(e: MouseEventExt, localpos: Vector2, graphcanvas: LGraphCanvas): boolean | undefined {
-    //     var y = this.size[1] - LiteGraph.NODE_TITLE_HEIGHT + 0.5;
-    //     console.log(0)
-    //     if (localpos[1] > y) {
-    //         if (localpos[0] < this.size[0] / 2) {
-    //             console.log(1)
-    //             graphcanvas.showSubgraphPropertiesDialog(this);
-    //         } else {
-    //             console.log(2)
-    //             graphcanvas.showSubgraphPropertiesDialogRight(this);
-    //         }
-    //     }
-    //     return false;
-    // }
+    override onMouseDown(e: MouseEventExt, localpos: Vector2, graphcanvas: LGraphCanvas): boolean | undefined {
+        var y = this.size[1] - LiteGraph.NODE_TITLE_HEIGHT + 0.5;
+        if (localpos[1] > y) {
+            if (localpos[0] < this.size[0] / 2) {
+                graphcanvas.showSubgraphPropertiesDialog(this);
+            } else {
+                graphcanvas.showSubgraphPropertiesDialogRight(this);
+            }
+        }
+        return false;
+    }
 
     override computeSize(): Vector2 {
         var num_inputs = this.inputs ? this.inputs.length : 0;
         var num_outputs = this.outputs ? this.outputs.length : 0;
-        return [200, Math.max(num_inputs, num_outputs) * LiteGraph.NODE_SLOT_HEIGHT + LiteGraph.NODE_SLOT_HEIGHT * 0.5];
+        return [200, Math.max(num_inputs, num_outputs) * LiteGraph.NODE_SLOT_HEIGHT + LiteGraph.NODE_SLOT_HEIGHT];
     }
 
     //**** INPUTS ***********************************
@@ -672,7 +667,10 @@ export default class Subgraph extends LGraphNode {
         else if (type === BuiltInSlotType.ACTION)
             type = BuiltInSlotType.EVENT;
 
-        console.warn("[Subgraph] addGraphInput", name, type, outerType, pos)
+        // console.warn("[Subgraph] addGraphInput", name, type, outerType, pos)
+
+        // NOTE: add call needs to be before setProperty
+        this.subgraph.add(innerNode);
 
         // These will run onPropertyChanged.
         innerNode.setProperty("name", name)
@@ -680,7 +678,6 @@ export default class Subgraph extends LGraphNode {
 
         innerNode.properties.subgraphID = this.id
 
-        this.subgraph.add(innerNode);
         const nodeSize = innerNode.computeSize();
         if (pos)
             innerNode.pos = [pos[0] - nodeSize[0] * 0.5, pos[1] - nodeSize[1] * 0.5];
@@ -731,7 +728,7 @@ export default class Subgraph extends LGraphNode {
 
     removeGraphInput(inputName: string) {
         const inputSlot = this.findInputSlotIndexByName(inputName);
-        if (inputSlot == null) {
+        if (inputSlot === -1) {
             console.error("[Subgraph] No input in slot!", inputName)
             return;
         }
@@ -746,17 +743,15 @@ export default class Subgraph extends LGraphNode {
         }
         else {
             console.warn("[Subgraph] No GraphInputs found on input removal", inputName)
-
-            // remove the input ourselves since no subgraph hook was triggered
-            const index = this.findInputSlotIndexByName(inputName)
-            if (index !== -1)
-                this.removeInput(index);
         }
+        // remove the input ourselves since no subgraph hook was triggered
+        this.removeInput(inputSlot);
+        this.subgraph.removeInput(inputName);
     }
 
     removeGraphOutput(outputName: string) {
         const outputSlot = this.findOutputSlotIndexByName(outputName);
-        if (outputSlot == null) {
+        if (outputSlot === -1) {
             console.error("[Subgraph] No output in slot!", outputName)
             return;
         }
@@ -771,12 +766,10 @@ export default class Subgraph extends LGraphNode {
         }
         else {
             console.warn("[Subgraph] No GraphOutputs found on output removal", outputName)
-
-            // remove the output ourselves since no subgraph hook was triggered
-            const index = this.findOutputSlotIndexByName(outputName)
-            if (index !== -1)
-                this.removeOutput(index);
         }
+        // remove the output ourselves since no subgraph hook was triggered
+        this.removeOutput(outputSlot);
+        this.subgraph.removeOutput(outputName);
     }
 
     getValidGraphInputName(baseName: string): string {

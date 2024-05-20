@@ -1073,8 +1073,8 @@ export default class LGraphCanvas_UI {
             dialog.style.left = canvas.width * 0.5 + offsetx + "px";
             dialog.style.top = canvas.height * 0.5 + offsety + "px";
         }
-        console.warn(dialog.style.left, dialog.style.top)
-        console.warn(event)
+        // console.warn(dialog.style.left, dialog.style.top)
+        // console.warn(event)
 
         setTimeout(function() {
             input.focus();

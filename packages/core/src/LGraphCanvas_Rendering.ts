@@ -394,7 +394,7 @@ export default class LGraphCanvas_Rendering {
         ctx.fillText("Graph Inputs", 20, 34);
         // var pos = this.mouse;
 
-        if (this.drawButton(w - 20, 20, 20, 20, "X", "#151515", undefined, undefined, true)) {
+        if (this.drawButton(w - 20, 20, 20, 20, "X", "#151515")) {
             this.closeSubgraph();
             return;
         }
@@ -407,15 +407,36 @@ export default class LGraphCanvas_Rendering {
                 if (input.not_subgraph_input)
                     continue;
 
+                //input button clicked
+                if (this.drawButton(20, y + 2, w - 20, h - 2)) {
+                    var type = "graph/input";
+                    this.graph.beforeChange();
+                    var newnode = LiteGraph.createNode(type);
+                    if (newnode) {
+                        subgraph.add(newnode);
+                        this.block_click = false;
+                        this.last_click_position = null;
+                        this.selectNodes([newnode]);
+                        this.node_dragged = newnode;
+                        this.dragging_canvas = false;
+                        newnode.setProperty("name", input.name);
+                        newnode.setProperty("type", input.type);
+                        this.node_dragged.pos[0] = this.graph_mouse[0] - 5;
+                        this.node_dragged.pos[1] = this.graph_mouse[1] - 5;
+                        this.graph.afterChange();
+                    }
+                    else
+                        console.error("graph input node not found:", type);
+                }
                 ctx.fillStyle = "#9C9";
                 ctx.beginPath();
-                ctx.arc(w - 16, y, 5, 0, 2 * Math.PI);
+                ctx.arc(w - 16, y + h * 0.5, 5, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.fillStyle = "#AAA";
                 ctx.fillText(input.name, 30, y + h * 0.75);
                 // var tw = ctx.measureText(input.name);
                 ctx.fillStyle = "#777";
-                ctx.fillText(getLitegraphTypeName(input.type), 130, y + h * 0.75);
+                ctx.fillText(String(input.type), 130, y + h * 0.75);
                 y += h;
             }
         //add + button
@@ -444,7 +465,7 @@ export default class LGraphCanvas_Rendering {
         var tw = ctx.measureText(title_text).width
         ctx.fillText(title_text, (canvas_w - tw) - 20, 34);
         // var pos = this.mouse;
-        if (this.drawButton(canvas_w - w, 20, 20, 20, "X", "#151515", undefined, undefined, true)) {
+        if (this.drawButton(canvas_w - w, 20, 20, 20, "X", "#151515")) {
             this.closeSubgraph();
             return;
         }
@@ -457,15 +478,36 @@ export default class LGraphCanvas_Rendering {
                 if (output.not_subgraph_output)
                     continue;
 
+                //output button clicked
+                if (this.drawButton(canvas_w - w, y + 2, w - 20, h - 2)) {
+                    var type = "graph/output";
+                    this.graph.beforeChange();
+                    var newnode = LiteGraph.createNode(type);
+                    if (newnode) {
+                        subgraph.add(newnode);
+                        this.block_click = false;
+                        this.last_click_position = null;
+                        this.selectNodes([newnode]);
+                        this.node_dragged = newnode;
+                        this.dragging_canvas = false;
+                        newnode.setProperty("name", output.name);
+                        newnode.setProperty("type", output.type);
+                        this.node_dragged.pos[0] = this.graph_mouse[0] - 5;
+                        this.node_dragged.pos[1] = this.graph_mouse[1] - 5;
+                        this.graph.afterChange();
+                    }
+                    else
+                        console.error("graph input node not found:", type);
+                }
                 ctx.fillStyle = "#9C9";
                 ctx.beginPath();
-                ctx.arc(canvas_w - w + 16, y, 5, 0, 2 * Math.PI);
+                ctx.arc(canvas_w - w + 16, y + h * 0.5, 5, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.fillStyle = "#AAA";
                 ctx.fillText(output.name, canvas_w - w + 30, y + h * 0.75);
                 // var tw = ctx.measureText(input.name);
                 ctx.fillStyle = "#777";
-                ctx.fillText(getLitegraphTypeName(output.type), canvas_w - w + 130, y + h * 0.75);
+                ctx.fillText(String(output.type), canvas_w - w + 130, y + h * 0.75);
                 y += h;
             }
         //add + button
@@ -481,34 +523,43 @@ export default class LGraphCanvas_Rendering {
         hovercolor: string = "#555",
         textcolor: string = LiteGraph.NODE_TEXT_COLOR,
         ignore_readonly: boolean = false): boolean {
-        const can_interact = !this.block_click && (ignore_readonly || (this.allow_interaction && !this.read_only))
-        var ctx = this.ctx;
-        var pos = this.offset_mouse;
-        var hover = can_interact && LiteGraph.isInsideRectangle(pos[0], pos[1], x, y, w, h);
-        pos = this.last_click_position_offset;
-        var clicked = can_interact && pos && this.pointer_is_down && LiteGraph.isInsideRectangle(pos[0], pos[1], x, y, w, h);
-
-        ctx.fillStyle = hover ? hovercolor : bgcolor;
-        if (clicked)
-            ctx.fillStyle = "#AAA";
-        ctx.beginPath();
-        ctx.roundRect(x, y, w, h, [4]);
-        ctx.fill();
-
-        if (text != null) {
-            if (text.constructor == String) {
-                ctx.fillStyle = textcolor;
-                ctx.textAlign = "center";
-                ctx.font = ((h * 0.65) | 0) + "px Arial";
-                ctx.fillText(text, x + w * 0.5, y + h * 0.75);
-                ctx.textAlign = "left";
+            var ctx = this.ctx;
+            bgcolor = bgcolor || LiteGraph.NODE_DEFAULT_COLOR;
+            hovercolor = hovercolor || "#555";
+            textcolor = textcolor || LiteGraph.NODE_TEXT_COLOR;
+            var pos = this.ds.convertOffsetToCanvas(this.graph_mouse);
+            var hover = LiteGraph.isInsideRectangle( pos[0], pos[1], x,y,w,h );
+            pos = this.last_click_position ? [this.last_click_position[0], this.last_click_position[1]] : null;
+            if(pos) {
+                var rect = this.canvas.getBoundingClientRect();
+                pos[0] -= rect.left;
+                pos[1] -= rect.top;
             }
-        }
-
-        var was_clicked = clicked && can_interact;
-        if (clicked)
-            this.blockClick();
-        return was_clicked;
+            var clicked = pos && LiteGraph.isInsideRectangle( pos[0], pos[1], x,y,w,h );
+    
+            ctx.fillStyle = hover ? hovercolor : bgcolor;
+            if(clicked)
+                ctx.fillStyle = "#AAA";
+            ctx.beginPath();
+            ctx.roundRect(x,y,w,h,[4] );
+            ctx.fill();
+    
+            if(text != null)
+            {
+                if(text.constructor == String)
+                {
+                    ctx.fillStyle = textcolor;
+                    ctx.textAlign = "center";
+                    ctx.font = ((h * 0.65)|0) + "px Arial";
+                    ctx.fillText( text, x + w * 0.5,y + h * 0.75 );
+                    ctx.textAlign = "left";
+                }
+            }
+    
+            var was_clicked = clicked && !this.block_click;
+            if(clicked)
+                this.blockClick();
+            return was_clicked;
     }
 
     /** draws every group area in the background */

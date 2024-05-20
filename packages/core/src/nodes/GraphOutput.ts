@@ -215,9 +215,10 @@ export default class GraphOutput extends LGraphNode {
     }
 
     override onRemoved() {
-        if (this.nameInGraph) {
-            this.graph.removeOutput(this.nameInGraph);
-        }
+        // NOTE: this is not necessary, because there might be multiple input nodes, removing one should not affect the others
+        // if (this.nameInGraph) {
+        //     this.graph.removeOutput(this.nameInGraph);
+        // }
     }
 }
 
