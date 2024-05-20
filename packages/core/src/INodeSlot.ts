@@ -1,5 +1,5 @@
-import type { Dir, SlotShape, SlotType, Vector2 } from "./types"
-import LLink from "./LLink"
+import type { Dir, SlotShape, SlotType, Vector2 } from "./types";
+import LLink from "./LLink";
 
 /** https://github.com/jagenjo/litegraph.js/tree/master/guides#node-slots */
 export default interface INodeSlot {
@@ -14,7 +14,7 @@ export default interface INodeSlot {
     nameLocked?: boolean;
     optional?: boolean;
     _data?: any;
-    pos?: Vector2
+    pos?: Vector2;
     slot_index?: number;
     removable?: boolean;
     properties: Record<string, any>;
@@ -34,7 +34,7 @@ export type SlotInPosition = {
     output?: INodeOutputSlot;
     slot: number;
     link_pos: Vector2;
-}
+};
 
 export type SlotIndex = number;
 export type SlotNameOrIndex = string | SlotIndex;

@@ -1,8 +1,8 @@
-import LGraph from "./LGraph"
-import LGraphCanvas from "./LGraphCanvas"
-import LGraphNode from "./LGraphNode"
-import LiteGraph from "./LiteGraph"
-import type { Vector2, Vector4 } from "./types"
+import LGraph from "./LGraph";
+import LGraphCanvas from "./LGraphCanvas";
+import LGraphNode from "./LGraphNode";
+import LiteGraph from "./LiteGraph";
+import type { Vector2, Vector4 } from "./types";
 
 export type SerializedLGraphGroup = {
     title: LGraphGroup["title"];
@@ -17,7 +17,7 @@ export default class LGraphGroup {
     font: string;
     fontSize: number = LiteGraph.DEFAULT_GROUP_FONT_SIZE;
     private _nodes: LGraphNode[] = [];
-    graph?: LGraph = null
+    graph?: LGraph = null;
     private _bounding: Float32Array = new Float32Array([10, 10, 140, 80]);
 
     get bounding(): Float32Array {
@@ -57,8 +57,8 @@ export default class LGraphGroup {
         this.color = LGraphCanvas.node_colors.pale_blue
             ? LGraphCanvas.node_colors.pale_blue.groupcolor
             : "#AAA";
-        this._pos = this._bounding.subarray(0, 2)
-        this._size = this._bounding.subarray(2, 4)
+        this._pos = this._bounding.subarray(0, 2);
+        this._size = this._bounding.subarray(2, 4);
     }
 
     configure(o: SerializedLGraphGroup): void {
@@ -77,10 +77,10 @@ export default class LGraphGroup {
                 Math.round(b[0]),
                 Math.round(b[1]),
                 Math.round(b[2]),
-                Math.round(b[3])
+                Math.round(b[3]),
             ],
             color: this.color,
-            font: this.font
+            font: this.font,
         };
     }
 
@@ -117,9 +117,10 @@ export default class LGraphGroup {
         x: number,
         y: number,
         margin: number = 0,
-        skipTitle: boolean = false
+        skipTitle: boolean = false,
     ): boolean {
-        var margin_top = this.graph && this.graph.isLive() ? 0 : LiteGraph.NODE_TITLE_HEIGHT;
+        var margin_top =
+            this.graph && this.graph.isLive() ? 0 : LiteGraph.NODE_TITLE_HEIGHT;
         if (skipTitle) {
             margin_top = 0;
         }

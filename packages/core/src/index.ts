@@ -1,4 +1,4 @@
-export { default as LiteGraph } from "./LiteGraph"
+export { default as LiteGraph } from "./LiteGraph";
 
 export { default as ContextMenu } from "./ContextMenu";
 export { default as DragAndScale } from "./DragAndScale";

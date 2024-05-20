@@ -3,7 +3,7 @@ export enum Dir {
     DOWN,
     LEFT,
     RIGHT,
-    CENTER
+    CENTER,
 }
 
 export enum NodeMode {
@@ -11,10 +11,10 @@ export enum NodeMode {
     ON_EVENT,
     NEVER,
     ON_TRIGGER,
-    ON_REQUEST
+    ON_REQUEST,
 }
-export const NODE_MODE_NAMES = ["Always", "On Event", "Never", "On Trigger"] // helper, will add "On Request" and more in the future
-export const NODE_MODE_COLORS = ["#666", "#422", "#333", "#224", "#626"] // use with node_box_coloured_by_mode
+export const NODE_MODE_NAMES = ["Always", "On Event", "Never", "On Trigger"]; // helper, will add "On Request" and more in the future
+export const NODE_MODE_COLORS = ["#666", "#422", "#333", "#224", "#626"]; // use with node_box_coloured_by_mode
 
 export type UUID = string;
 export type NodeID = number | UUID;
@@ -42,16 +42,21 @@ export enum BuiltInSlotShape {
     ARROW_SHAPE,
     GRID_SHAPE,
 }
-export type SlotShape =
-    BuiltInSlotShape
-    | number; // For custom shapes
+export type SlotShape = BuiltInSlotShape | number; // For custom shapes
 
-export const SLOT_SHAPE_NAMES = ["default", "box", "round", "circle", "card", "arrow", "square"];
-
+export const SLOT_SHAPE_NAMES = [
+    "default",
+    "box",
+    "round",
+    "circle",
+    "card",
+    "arrow",
+    "square",
+];
 
 export enum LConnectionKind {
     INPUT,
-    OUTPUT
+    OUTPUT,
 }
 
 export enum LinkRenderMode {
@@ -59,13 +64,13 @@ export enum LinkRenderMode {
     LINEAR_LINK,
     SPLINE_LINK,
 }
-export const LinkRenderModeNames = ["Straight", "Linear", "Spline"]
+export const LinkRenderModeNames = ["Straight", "Linear", "Spline"];
 
 export enum TitleMode {
     NORMAL_TITLE = 0,
     NO_TITLE,
     TRANSPARENT_TITLE,
-    AUTOHIDE_TITLE
+    AUTOHIDE_TITLE,
 }
 
 export enum BuiltInSlotType {
@@ -73,15 +78,32 @@ export enum BuiltInSlotType {
     EVENT = -2, //for outputs
     ACTION = -1, //for inputs
 
-    DEFAULT = 0
+    DEFAULT = 0,
 }
 
 export type SlotType =
-    BuiltInSlotType
-    | "" | "*" | "array" | "object" | "number" | "string" | "enum" | "boolean" | "table"
+    | BuiltInSlotType
+    | ""
+    | "*"
+    | "array"
+    | "object"
+    | "number"
+    | "string"
+    | "enum"
+    | "boolean"
+    | "table"
     | string;
 
-export const BASE_SLOT_TYPES = ["*", "array", "object", "number", "string", "enum", "boolean", "table"];
+export const BASE_SLOT_TYPES = [
+    "*",
+    "array",
+    "object",
+    "number",
+    "string",
+    "enum",
+    "boolean",
+    "table",
+];
 
 export type Version = number;
 

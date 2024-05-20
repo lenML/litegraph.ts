@@ -66,9 +66,6 @@ importers:
 
   packages/core:
     dependencies:
-      '@litegraph-ts/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
       '@types/uuid':
         specifier: ^9.0.1
         version: 9.0.1
@@ -91,6 +88,9 @@ importers:
       jest:
         specifier: ^29.5.0
         version: 29.5.0
+      prettier:
+        specifier: ^3.2.5
+        version: 3.2.5
       typescript:
         specifier: ^5.0.3
         version: 5.0.3
@@ -107,9 +107,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@litegraph-ts/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
       typescript:
         specifier: ^5.0.3
         version: 5.0.3
@@ -3273,6 +3270,12 @@ packages:
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+    dev: true
+
+  /prettier@3.2.5:
+    resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
+    engines: {node: '>=14'}
+    hasBin: true
     dev: true
 
   /pretty-format@27.5.1:

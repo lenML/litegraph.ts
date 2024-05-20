@@ -1,17 +1,17 @@
-import LGraphNode from "./LGraphNode"
-import LiteGraph from "./LiteGraph"
-import type { MouseEventExt, CustomEventExt, EventExt } from "./DragAndScale"
+import LGraphNode from "./LGraphNode";
+import LiteGraph from "./LiteGraph";
+import type { MouseEventExt, CustomEventExt, EventExt } from "./DragAndScale";
 import INodeSlot, { SlotInPosition } from "./INodeSlot";
 import LGraphCanvas from "./LGraphCanvas";
 
 export interface ContextMenuRoot extends HTMLDivElement {
-    closing_timer?: number
+    closing_timer?: number;
     close: () => void;
 }
 
 export interface IContextMenuItem {
     content: string;
-    value?: any,
+    value?: any;
     callback?: ContextMenuEventListener;
     /** Used as innerHTML for extra child element */
     title?: string;
@@ -42,16 +42,19 @@ export interface IContextMenuOptions {
 }
 
 export enum ContextMenuSpecialItem {
-    SEPARATOR
+    SEPARATOR,
 }
 export type ContextMenuExtraArg = LGraphNode | any;
-export type ContextMenuItem = IContextMenuItem | string | ContextMenuSpecialItem;
+export type ContextMenuItem =
+    | IContextMenuItem
+    | string
+    | ContextMenuSpecialItem;
 export type ContextMenuEventListener = (
     value: IContextMenuItem,
     options: IContextMenuOptions,
     event: MouseEventExt,
     parentMenu?: ContextMenu,
-    extra?: ContextMenuExtraArg
+    extra?: ContextMenuExtraArg,
 ) => boolean | void;
 
 export default class ContextMenu {
@@ -62,7 +65,7 @@ export default class ContextMenu {
         element: HTMLElement,
         event_name: string,
         params: any,
-        origin?: any
+        origin?: any,
     ): Event {
         var evt = document.createEvent("CustomEvent");
         evt.initCustomEvent(event_name, true, true, params); //canBubble, cancelable, detail
@@ -75,7 +78,10 @@ export default class ContextMenu {
         //else nothing seems binded here so nothing to do
         return evt;
     }
-    static isCursorOverElement(event: MouseEventExt, element: HTMLElement): boolean {
+    static isCursorOverElement(
+        event: MouseEventExt,
+        element: HTMLElement,
+    ): boolean {
         var left = event.clientX;
         var top = event.clientY;
         var rect = element.getBoundingClientRect();
@@ -96,7 +102,10 @@ export default class ContextMenu {
     static closeAllContextMenus(refWindow: Window): void {
         refWindow = refWindow || window;
 
-        var elements = refWindow.document.querySelectorAll<ContextMenuRoot>(".litecontextmenu");
+        var elements =
+            refWindow.document.querySelectorAll<ContextMenuRoot>(
+                ".litecontextmenu",
+            );
         if (!elements.length) {
             return;
         }
@@ -108,7 +117,11 @@ export default class ContextMenu {
         }
     }
 
-    constructor(values: ContextMenuItem[], options: IContextMenuOptions = {}, window?: Window) {
+    constructor(
+        values: ContextMenuItem[],
+        options: IContextMenuOptions = {},
+        window?: Window,
+    ) {
         this.options = options;
         var that = this;
 
@@ -116,7 +129,7 @@ export default class ContextMenu {
         if (options.parentMenu) {
             if (options.parentMenu.constructor !== this.constructor) {
                 console.error(
-                    "parentMenu must be of class ContextMenu, ignoring it"
+                    "parentMenu must be of class ContextMenu, ignoring it",
                 );
                 options.parentMenu = null;
             } else {
@@ -127,14 +140,18 @@ export default class ContextMenu {
         }
 
         var eventClass = null;
-        if (options.event) //use strings because comparing classes between windows doesnt work
+        if (options.event)
+            //use strings because comparing classes between windows doesnt work
             eventClass = options.event.constructor.name;
-        if (eventClass !== "MouseEvent" &&
+        if (
+            eventClass !== "MouseEvent" &&
             eventClass !== "CustomEvent" &&
             eventClass !== "PointerEvent"
         ) {
             console.error(
-                "Event passed to ContextMenu is not of type MouseEvent or CustomEvent. Ignoring it. (" + eventClass + ")"
+                "Event passed to ContextMenu is not of type MouseEvent or CustomEvent. Ignoring it. (" +
+                    eventClass +
+                    ")",
             );
             options.event = null;
         }
@@ -147,22 +164,24 @@ export default class ContextMenu {
         // root.style.minWidth = "100px";
         // root.style.minHeight = "100px";
         root.style.pointerEvents = "none";
-        setTimeout(function() {
+        setTimeout(function () {
             root.style.pointerEvents = "auto";
         }, 100); //delay so the mouse up event is not caught by this element
 
         //this prevents the default context browser menu to open in case this menu was created when pressing right button
-        LiteGraph.pointerListenerAdd(root, "up",
-            function(e) {
+        LiteGraph.pointerListenerAdd(
+            root,
+            "up",
+            function (e) {
                 //console.log("pointerevents: ContextMenu up root prevent");
                 e.preventDefault();
                 return true;
             },
-            true
+            true,
         );
         root.addEventListener(
             "contextmenu",
-            function(e) {
+            function (e) {
                 if (e.button != 2) {
                     //right button
                     return false;
@@ -170,15 +189,17 @@ export default class ContextMenu {
                 e.preventDefault();
                 return false;
             },
-            true
+            true,
         );
 
         root.close = () => {
             root.parentNode.removeChild(root);
-        }
+        };
 
-        LiteGraph.pointerListenerAdd(root, "down",
-            function(e: MouseEvent) {
+        LiteGraph.pointerListenerAdd(
+            root,
+            "down",
+            function (e: MouseEvent) {
                 //console.log("pointerevents: ContextMenu down");
                 if (e.button == 2) {
                     that.close();
@@ -186,7 +207,7 @@ export default class ContextMenu {
                     return true;
                 }
             },
-            true
+            true,
         );
 
         function on_mouse_wheel(e) {
@@ -220,12 +241,9 @@ export default class ContextMenu {
         for (let i = 0; i < values.length; i++) {
             let value = values[i];
             let name: string = "";
-            if (value === ContextMenuSpecialItem.SEPARATOR)
-                name = "";
-            else if (typeof value === "string")
-                name = value;
-            else
-                name = value.content;
+            if (value === ContextMenuSpecialItem.SEPARATOR) name = "";
+            else if (typeof value === "string") name = value;
+            else name = value.content;
             this.addItem(name, value, options);
         }
 
@@ -242,7 +260,7 @@ export default class ContextMenu {
           //that.close(e);
           });*/
 
-        LiteGraph.pointerListenerAdd(root, "enter", function(e) {
+        LiteGraph.pointerListenerAdd(root, "enter", function (e) {
             //console.log("pointerevents: ContextMenu enter");
             if (root.closing_timer) {
                 clearTimeout(root.closing_timer);
@@ -261,8 +279,7 @@ export default class ContextMenu {
 
         if (root_document.fullscreenElement)
             root_document.fullscreenElement.appendChild(root);
-        else
-            root_document.body.appendChild(root);
+        else root_document.body.appendChild(root);
 
         //compute best position
         var left = options.left || 0;
@@ -282,12 +299,20 @@ export default class ContextMenu {
             var body_rect = document.body.getBoundingClientRect();
             var root_rect = root.getBoundingClientRect();
             if (body_rect.height == 0)
-                console.error("document.body height is 0. That is dangerous, set html,body { height: 100%; }");
+                console.error(
+                    "document.body height is 0. That is dangerous, set html,body { height: 100%; }",
+                );
 
-            if (body_rect.width && left > body_rect.width - root_rect.width - 10) {
+            if (
+                body_rect.width &&
+                left > body_rect.width - root_rect.width - 10
+            ) {
                 left = body_rect.width - root_rect.width - 10;
             }
-            if (body_rect.height && top > body_rect.height - root_rect.height - 10) {
+            if (
+                body_rect.height &&
+                top > body_rect.height - root_rect.height - 10
+            ) {
                 top = body_rect.height - root_rect.height - 10;
             }
         }
@@ -307,7 +332,7 @@ export default class ContextMenu {
     addItem(
         name: string,
         value: ContextMenuItem,
-        options: IContextMenuOptions = {}
+        options: IContextMenuOptions = {},
     ): HTMLDivElement {
         var that = this;
 
@@ -316,8 +341,7 @@ export default class ContextMenu {
 
         var disabled = false;
 
-        if (typeof value === "string")
-            value = { content: value }
+        if (typeof value === "string") value = { content: value };
 
         if (value === ContextMenuSpecialItem.SEPARATOR) {
             element.classList.add("separator");
@@ -370,14 +394,13 @@ export default class ContextMenu {
 
         //menu option clicked
         function inner_onclick(_e: MouseEvent) {
-            let index = parseInt(this.dataset["value"])
+            let index = parseInt(this.dataset["value"]);
             var value = ctxMenu.values[index];
             if (LiteGraph.debug)
                 console.debug("ContextMenu inner_onclick", index, value);
 
-            const graphCanvas = LGraphCanvas.active_canvas
-            if (!graphCanvas)
-                return;
+            const graphCanvas = LGraphCanvas.active_canvas;
+            if (!graphCanvas) return;
             const e = graphCanvas.adjustMouseEvent(_e);
 
             var close_parent = true;
@@ -394,7 +417,7 @@ export default class ContextMenu {
                     options,
                     e,
                     that,
-                    options.node
+                    options.node,
                 );
                 if (r === true) {
                     close_parent = false;
@@ -415,7 +438,7 @@ export default class ContextMenu {
                         options,
                         e,
                         that,
-                        options.extra
+                        options.extra,
                     );
                     if (r === true) {
                         close_parent = false;
@@ -433,7 +456,7 @@ export default class ContextMenu {
                             value.submenu.ignore_item_callbacks,
                         title: value.submenu.title,
                         extra: value.submenu.extra,
-                        autoopen: options.autoopen
+                        autoopen: options.autoopen,
                     });
                     close_parent = false;
                 }
@@ -460,7 +483,11 @@ export default class ContextMenu {
                 e &&
                 !ContextMenu.isCursorOverElement(e, this.parentMenu.root)
             ) {
-                ContextMenu.trigger(this.parentMenu.root, LiteGraph.pointerevents_method + "leave", e);
+                ContextMenu.trigger(
+                    this.parentMenu.root,
+                    LiteGraph.pointerevents_method + "leave",
+                    e,
+                );
             }
         }
         if (this.current_submenu) {

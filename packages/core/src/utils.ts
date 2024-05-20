@@ -8,15 +8,18 @@ interface CanvasRenderingContext2D {
         width: number,
         height: number,
         radius: number,
-        radiusLow: number
+        radiusLow: number,
     ): void;
 }
 
 export function clamp(v: number, a: number, b: number): number {
     return a > v ? a : b < v ? b : v;
-};
+}
 
-export function toHashMap<T>(arr: T[], toKey: (T) => string): Record<string, T> {
+export function toHashMap<T>(
+    arr: T[],
+    toKey: (T) => string,
+): Record<string, T> {
     return arr.reduce((acc, obj) => {
         const key = toKey(obj);
         acc[key] = obj;
@@ -24,7 +27,10 @@ export function toHashMap<T>(arr: T[], toKey: (T) => string): Record<string, T> 
     }, {});
 }
 
-export function getStaticProperty<T>(type: new (...args: any[]) => any, name: string): T {
+export function getStaticProperty<T>(
+    type: new (...args: any[]) => any,
+    name: string,
+): T {
     if (name in type) {
         return type[name] as T;
     }
@@ -39,8 +45,7 @@ export function getStaticPropertyOnInstance<T>(type: any, name: string): T {
 }
 
 function onDrag(e: MouseEvent, el: HTMLElement) {
-    if (e.target !== el)
-        return
+    if (e.target !== el) return;
 
     let offsetX = e.clientX - parseInt(window.getComputedStyle(el).left);
     let offsetY = e.clientY - parseInt(window.getComputedStyle(el).top);
@@ -50,44 +55,44 @@ function onDrag(e: MouseEvent, el: HTMLElement) {
             // In case pointer moved off the element when the mouse was
             // released, so mouseup on this elementnever triggers
             reset();
-            return
+            return;
         }
 
-        el.style.top = (e.clientY - offsetY) + 'px';
-        el.style.left = (e.clientX - offsetX) + 'px';
-    }
+        el.style.top = e.clientY - offsetY + "px";
+        el.style.left = e.clientX - offsetX + "px";
+    };
 
     const reset = () => {
-        window.removeEventListener('mousemove', mouseMoveHandler);
-        window.removeEventListener('mouseup', reset);
-    }
+        window.removeEventListener("mousemove", mouseMoveHandler);
+        window.removeEventListener("mouseup", reset);
+    };
 
-    window.addEventListener('mousemove', mouseMoveHandler);
-    window.addEventListener('mouseup', reset);
+    window.addEventListener("mousemove", mouseMoveHandler);
+    window.addEventListener("mouseup", reset);
 }
 
 export function makeDraggable(el: HTMLElement): HTMLElement {
-    el.addEventListener('mousedown', (e) => onDrag(e, el));
-    el.classList.add("draggable")
-    return el
+    el.addEventListener("mousedown", (e) => onDrag(e, el));
+    el.classList.add("draggable");
+    return el;
 }
 
 export function getLitegraphTypeName(type: SlotType): string {
     if (type === BuiltInSlotType.EVENT) {
-        return "Event"
-    }
-    else if (type === BuiltInSlotType.ACTION) {
-        return "Action"
-    }
-    else if (type === BuiltInSlotType.DEFAULT) {
-        return "Default"
+        return "Event";
+    } else if (type === BuiltInSlotType.ACTION) {
+        return "Action";
+    } else if (type === BuiltInSlotType.DEFAULT) {
+        return "Default";
     }
     return type;
 }
 
 export function isValidLitegraphType(type: any): type is SlotType {
-    return type === BuiltInSlotType.EVENT
-        || type === BuiltInSlotType.ACTION
-        || type === BuiltInSlotType.DEFAULT
-        || typeof type === "string"
+    return (
+        type === BuiltInSlotType.EVENT ||
+        type === BuiltInSlotType.ACTION ||
+        type === BuiltInSlotType.DEFAULT ||
+        typeof type === "string"
+    );
 }

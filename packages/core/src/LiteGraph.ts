@@ -1,5 +1,13 @@
 import type LGraph from "./LGraph";
-import type { LGraphNodeConstructor, LGraphNodeConstructorFactory, NodeTypeSpec, PropertyLayout, SearchboxExtra, SerializedLGraphNode, SlotLayout } from "./LGraphNode";
+import type {
+    LGraphNodeConstructor,
+    LGraphNodeConstructorFactory,
+    NodeTypeSpec,
+    PropertyLayout,
+    SearchboxExtra,
+    SerializedLGraphNode,
+    SlotLayout,
+} from "./LGraphNode";
 import { default as LGraphNode } from "./LGraphNode";
 import type { PointerEventsMethod, SlotType, Vector2, Vector4 } from "./types";
 import { NodeMode } from "./types";
@@ -9,9 +17,9 @@ import { getStaticProperty } from "./utils";
 type TypeID = number;
 
 export type LiteGraphCreateNodeOptions = {
-    constructorArgs?: any[],
-    instanceProps?: Record<any, any>
-}
+    constructorArgs?: any[];
+    instanceProps?: Record<any, any>;
+};
 
 export default class LiteGraph {
     static VERSION: number = 10.0;
@@ -63,7 +71,8 @@ export default class LiteGraph {
     /** node types by string */
     static registered_node_types: Record<string, LGraphNodeConstructor> = {};
     /** used for dropping files in the canvas */
-    static node_types_by_file_extension: Record<string, LGraphNodeConstructor> = {};
+    static node_types_by_file_extension: Record<string, LGraphNodeConstructor> =
+        {};
     /** node types by class name */
     static Nodes: Record<string, LGraphNodeConstructor> = {};
     /** used to store vars between graphs **/
@@ -108,9 +117,9 @@ export default class LiteGraph {
     // slot types OUT
     static slot_types_out: Array<string> = [];
     // specify for each IN slot type a(/many) default node(s), use single string, array, or object (with node, title, parameters, ..) like for search
-    static slot_types_default_in: Record<string, NodeTypeSpec[]> = {}
+    static slot_types_default_in: Record<string, NodeTypeSpec[]> = {};
     // specify for each OUT slot type a(/many) default node(s), use single string, array, or object (with node, title, parameters, ..) like for search
-    static slot_types_default_out: Record<string, NodeTypeSpec[]> = {}
+    static slot_types_default_out: Record<string, NodeTypeSpec[]> = {};
 
     // [true!] very handy, ALT click to clone and drag the new node
     static alt_drag_do_clone_nodes: boolean = false;
@@ -147,7 +156,9 @@ export default class LiteGraph {
     static serialize_slot_data: boolean = false;
 
     /** Register a node class so it can be listed when the user wants to create a new one */
-    static registerNodeType<T extends LGraphNode>(config: LGraphNodeConstructor): void {
+    static registerNodeType<T extends LGraphNode>(
+        config: LGraphNodeConstructor,
+    ): void {
         if (LiteGraph.debug) {
             console.log("Node registered: " + config.type);
         }
@@ -156,10 +167,10 @@ export default class LiteGraph {
         const type = config.type;
 
         if (!type) {
-            throw ("Config has no type: " + config);
+            throw "Config has no type: " + config;
         }
         if (LiteGraph.debug) {
-            console.debug(classname, type)
+            console.debug(classname, type);
         }
 
         if (config.category == null || config.category === "") {
@@ -181,7 +192,8 @@ export default class LiteGraph {
             for (let i in config.supported_extensions) {
                 const ext = config.supported_extensions[i];
                 if (ext && ext.constructor === String) {
-                    LiteGraph.node_types_by_file_extension[ext.toLowerCase()] = config;
+                    LiteGraph.node_types_by_file_extension[ext.toLowerCase()] =
+                        config;
                 }
             }
         }
@@ -205,20 +217,25 @@ export default class LiteGraph {
         // }
     }
 
-    static onNodeTypeRegistered?(type: string, regConfig: LGraphNodeConstructor): void;
-    static onNodeTypeReplaced?(type: string, regConfig: LGraphNodeConstructor, prev: LGraphNodeConstructor): void;
+    static onNodeTypeRegistered?(
+        type: string,
+        regConfig: LGraphNodeConstructor,
+    ): void;
+    static onNodeTypeReplaced?(
+        type: string,
+        regConfig: LGraphNodeConstructor,
+        prev: LGraphNodeConstructor,
+    ): void;
 
     /** removes a node type from the system */
     static unregisterNodeType(type: string | LGraphNodeConstructor): void {
         let regConfig: LGraphNodeConstructor;
         if (typeof type === "string") {
             regConfig = LiteGraph.registered_node_types[type];
-        }
-        else {
+        } else {
             regConfig = type;
         }
-        if (!regConfig)
-            throw ("node type not found: " + type);
+        if (!regConfig) throw "node type not found: " + type;
         delete LiteGraph.registered_node_types[regConfig.type];
         if ((regConfig.constructor as any).name)
             delete LiteGraph.Nodes[(regConfig.constructor as any).name];
@@ -230,7 +247,11 @@ export default class LiteGraph {
      * @param {String|Object} type name of the node or the node constructor itself
      * @param {String} slot_type name of the slot type (variable type), eg. string, number, array, boolean, ..
      */
-    static registerNodeAndSlotType(type: string | LGraphNodeConstructor | LGraphNode, slot_type: SlotType, out: boolean = false) {
+    static registerNodeAndSlotType(
+        type: string | LGraphNodeConstructor | LGraphNode,
+        slot_type: SlotType,
+        out: boolean = false,
+    ) {
         let regConfig: LGraphNodeConstructor;
 
         if (typeof type === "string") {
@@ -240,22 +261,24 @@ export default class LiteGraph {
             // else {
             //     regConfig = type;
             // }
-        }
-        else if ("type" in type)
-            regConfig = LiteGraph.registered_node_types[type.type]
+        } else if ("type" in type)
+            regConfig = LiteGraph.registered_node_types[type.type];
         else {
             regConfig = type;
         }
 
         if (!regConfig) {
-            throw "Node not registered!" + type
+            throw "Node not registered!" + type;
         }
 
         var sCN = (regConfig.class as any).__litegraph_type__;
 
         if (typeof slot_type == "string") {
             var aTypes = slot_type.split(",");
-        } else if (slot_type == BuiltInSlotType.EVENT || slot_type == BuiltInSlotType.ACTION) {
+        } else if (
+            slot_type == BuiltInSlotType.EVENT ||
+            slot_type == BuiltInSlotType.ACTION
+        ) {
             var aTypes = ["_event_"];
         } else {
             var aTypes = ["*"];
@@ -266,8 +289,11 @@ export default class LiteGraph {
             if (sT === "") {
                 sT = "*";
             }
-            var registerTo = out ? "registered_slot_out_types" : "registered_slot_in_types";
-            if (typeof this[registerTo][sT] == "undefined") this[registerTo][sT] = { nodes: [] };
+            var registerTo = out
+                ? "registered_slot_out_types"
+                : "registered_slot_in_types";
+            if (typeof this[registerTo][sT] == "undefined")
+                this[registerTo][sT] = { nodes: [] };
             this[registerTo][sT].nodes.push(sCN);
 
             // check if is a new type
@@ -366,34 +392,35 @@ export default class LiteGraph {
      * @param name a name to distinguish from other nodes
      * @param options to set options
      */
-    static createNode<T extends LGraphNode>(type: string | LGraphNodeConstructorFactory<T>, title?: string, options: LiteGraphCreateNodeOptions = {}): T {
+    static createNode<T extends LGraphNode>(
+        type: string | LGraphNodeConstructorFactory<T>,
+        title?: string,
+        options: LiteGraphCreateNodeOptions = {},
+    ): T {
         let regConfig: LGraphNodeConstructor | null = null;
         let typeID: string; // serialization ID like "basic/const"
 
         if (typeof type === "string") {
             typeID = type;
-        }
-        else {
-            typeID = (type as any).__LITEGRAPH_TYPE__
+        } else {
+            typeID = (type as any).__LITEGRAPH_TYPE__;
             if (!typeID) {
                 console.error(type);
-                throw "Node was not registered yet!"
+                throw "Node was not registered yet!";
             }
         }
 
         regConfig = LiteGraph.registered_node_types[typeID];
 
         if (!regConfig) {
-            console.warn(
-                'GraphNode type "' + type + '" not registered.'
-            );
+            console.warn('GraphNode type "' + type + '" not registered.');
             return null;
         }
 
         title = title || regConfig.title || typeID;
 
         var node: T = null;
-        const args = options.constructorArgs || []
+        const args = options.constructorArgs || [];
 
         if (LiteGraph.catch_exceptions) {
             try {
@@ -406,7 +433,7 @@ export default class LiteGraph {
             node = new regConfig.class(title, ...args) as T;
         }
 
-        node.class = regConfig.class
+        node.class = regConfig.class;
         node.type = typeID;
 
         if (!node.title && title) {
@@ -426,7 +453,10 @@ export default class LiteGraph {
             //call onresize?
         }
         if (!node.pos) {
-            node.pos = [LiteGraph.DEFAULT_POSITION[0], LiteGraph.DEFAULT_POSITION[1]]
+            node.pos = [
+                LiteGraph.DEFAULT_POSITION[0],
+                LiteGraph.DEFAULT_POSITION[1],
+            ];
         }
         if (!node.mode) {
             node.mode = NodeMode.ALWAYS;
@@ -439,17 +469,23 @@ export default class LiteGraph {
             }
         }
 
-        const propertyLayout = getStaticProperty<PropertyLayout>(regConfig.class, "propertyLayout")
+        const propertyLayout = getStaticProperty<PropertyLayout>(
+            regConfig.class,
+            "propertyLayout",
+        );
         if (propertyLayout) {
             if (LiteGraph.debug)
                 console.debug("Found property layout!", propertyLayout);
             for (const item of propertyLayout) {
                 const { name, defaultValue, type, options } = item;
-                node.addProperty(name, defaultValue, type, options)
+                node.addProperty(name, defaultValue, type, options);
             }
         }
 
-        const slotLayout = getStaticProperty<SlotLayout>(regConfig.class, "slotLayout")
+        const slotLayout = getStaticProperty<SlotLayout>(
+            regConfig.class,
+            "slotLayout",
+        );
         if (slotLayout) {
             if (LiteGraph.debug)
                 console.debug("Found slot layout!", slotLayout);
@@ -479,8 +515,12 @@ export default class LiteGraph {
      * Returns a registered node type with a given name
      * @param type full name of the node class. p.e. "math/sin"
      */
-    static getNodeType<T extends LGraphNode>(type: string): LGraphNodeConstructor<T> {
-        return LiteGraph.registered_node_types[type] as LGraphNodeConstructor<T>;
+    static getNodeType<T extends LGraphNode>(
+        type: string,
+    ): LGraphNodeConstructor<T> {
+        return LiteGraph.registered_node_types[
+            type
+        ] as LGraphNodeConstructor<T>;
     }
 
     /**
@@ -492,7 +532,7 @@ export default class LiteGraph {
      */
     static getNodeTypesInCategory(
         category: string,
-        filter: string
+        filter: string,
     ): LGraphNodeConstructor[] {
         var r = [];
         for (var i in LiteGraph.registered_node_types) {
@@ -511,7 +551,9 @@ export default class LiteGraph {
         }
 
         if (LiteGraph.auto_sort_node_types) {
-            r.sort(function(a, b) { return a.title.localeCompare(b.title) });
+            r.sort(function (a, b) {
+                return a.title.localeCompare(b.title);
+            });
         }
 
         return r;
@@ -528,8 +570,7 @@ export default class LiteGraph {
         for (var i in LiteGraph.registered_node_types) {
             var type = LiteGraph.registered_node_types[i];
             if (type.category && !type.hide_in_node_lists) {
-                if (type.filter != filter)
-                    continue;
+                if (type.filter != filter) continue;
                 categories[type.category] = 1;
             }
         }
@@ -614,11 +655,13 @@ export default class LiteGraph {
         if (type_a == "" || type_a === "*") type_a = BuiltInSlotType.DEFAULT;
         if (type_b == "" || type_b === "*") type_b = BuiltInSlotType.DEFAULT;
         if (
-            !type_a //generic output
-            || !type_b // generic input
-            || type_a == type_b //same type (is valid for triggers)
-            || (type_a == BuiltInSlotType.EVENT && type_b == BuiltInSlotType.ACTION)
-            || (type_a == BuiltInSlotType.ACTION && type_b == BuiltInSlotType.EVENT)
+            !type_a || //generic output
+            !type_b || // generic input
+            type_a == type_b || //same type (is valid for triggers)
+            (type_a == BuiltInSlotType.EVENT &&
+                type_b == BuiltInSlotType.ACTION) ||
+            (type_a == BuiltInSlotType.ACTION &&
+                type_b == BuiltInSlotType.EVENT)
         ) {
             return true;
         }
@@ -639,7 +682,12 @@ export default class LiteGraph {
         var supported_types_b = type_b.split(",");
         for (var i = 0; i < supported_types_a.length; ++i) {
             for (var j = 0; j < supported_types_b.length; ++j) {
-                if (this.isValidConnection(supported_types_a[i], supported_types_b[j])) {
+                if (
+                    this.isValidConnection(
+                        supported_types_a[i],
+                        supported_types_b[j],
+                    )
+                ) {
                     //if (supported_types_a[i] == supported_types_b[j]) {
                     return true;
                 }
@@ -668,7 +716,7 @@ export default class LiteGraph {
 
     static distance(a: Vector2, b: Vector2): number {
         return Math.sqrt(
-            (b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1])
+            (b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1]),
         );
     }
 
@@ -692,7 +740,7 @@ export default class LiteGraph {
         left: number,
         top: number,
         width: number,
-        height: number
+        height: number,
     ): boolean {
         if (left < x && left + width > x && top < y && top + height > y) {
             return true;
@@ -790,8 +838,18 @@ export default class LiteGraph {
 
     /* helper for interaction: pointer, touch, mouse Listeners
        used by LGraphCanvas DragAndScale ContextMenu*/
-    static pointerListenerAdd(oDOM: Node, sEvIn: string, fCall: EventListener, capture = false) {
-        if (!oDOM || !oDOM.addEventListener || !sEvIn || typeof fCall !== "function") {
+    static pointerListenerAdd(
+        oDOM: Node,
+        sEvIn: string,
+        fCall: EventListener,
+        capture = false,
+    ) {
+        if (
+            !oDOM ||
+            !oDOM.addEventListener ||
+            !sEvIn ||
+            typeof fCall !== "function"
+        ) {
             //console.log("cant pointerListenerAdd "+oDOM+", "+sEvent+", "+fCall);
             return; // -- break --
         }
@@ -803,7 +861,11 @@ export default class LiteGraph {
         // convert pointerevents to touch event when not available
         if (sMethod == "pointer" && !window.PointerEvent) {
             console.warn("sMethod=='pointer' && !window.PointerEvent");
-            console.log("Converting pointer[" + sEvent + "] : down move up cancel enter TO touchstart touchmove touchend, etc ..");
+            console.log(
+                "Converting pointer[" +
+                    sEvent +
+                    "] : down move up cancel enter TO touchstart touchmove touchend, etc ..",
+            );
             switch (sEvent) {
                 case "down": {
                     sMethod = "touch";
@@ -831,24 +893,38 @@ export default class LiteGraph {
                 }
                 // case "over": case "out": not used at now
                 default: {
-                    console.warn("PointerEvent not available in this browser ? The event " + sEvent + " would not be called");
+                    console.warn(
+                        "PointerEvent not available in this browser ? The event " +
+                            sEvent +
+                            " would not be called",
+                    );
                 }
             }
         }
 
         switch (sEvent) {
             //both pointer and move events
-            case "down": case "up": case "move": case "over": case "out": case "enter":
-                {
-                    oDOM.addEventListener(sMethod + sEvent, fCall, capture);
-                }
+            case "down":
+            case "up":
+            case "move":
+            case "over":
+            case "out":
+            case "enter": {
+                oDOM.addEventListener(sMethod + sEvent, fCall, capture);
+            }
             // only pointerevents
-            case "leave": case "cancel": case "gotpointercapture": case "lostpointercapture":
-                {
-                    if (sMethod != "mouse") {
-                        return oDOM.addEventListener(sMethod + sEvent, fCall, capture);
-                    }
+            case "leave":
+            case "cancel":
+            case "gotpointercapture":
+            case "lostpointercapture": {
+                if (sMethod != "mouse") {
+                    return oDOM.addEventListener(
+                        sMethod + sEvent,
+                        fCall,
+                        capture,
+                    );
                 }
+            }
             // not "pointer" || "mouse"
             default:
                 return oDOM.addEventListener(sEvent, fCall, capture);
@@ -856,28 +932,50 @@ export default class LiteGraph {
     }
 
     static pointerListenerRemove(oDOM, sEvent, fCall, capture = false) {
-        if (!oDOM || !oDOM.removeEventListener || !sEvent || typeof fCall !== "function") {
+        if (
+            !oDOM ||
+            !oDOM.removeEventListener ||
+            !sEvent ||
+            typeof fCall !== "function"
+        ) {
             //console.log("cant pointerListenerRemove "+oDOM+", "+sEvent+", "+fCall);
             return; // -- break --
         }
         switch (sEvent) {
             //both pointer and move events
-            case "down": case "up": case "move": case "over": case "out": case "enter":
-                {
-                    if (LiteGraph.pointerevents_method == "pointer" || LiteGraph.pointerevents_method == "mouse") {
-                        oDOM.removeEventListener(LiteGraph.pointerevents_method + sEvent, fCall, capture);
-                    }
+            case "down":
+            case "up":
+            case "move":
+            case "over":
+            case "out":
+            case "enter": {
+                if (
+                    LiteGraph.pointerevents_method == "pointer" ||
+                    LiteGraph.pointerevents_method == "mouse"
+                ) {
+                    oDOM.removeEventListener(
+                        LiteGraph.pointerevents_method + sEvent,
+                        fCall,
+                        capture,
+                    );
                 }
+            }
             // only pointerevents
-            case "leave": case "cancel": case "gotpointercapture": case "lostpointercapture":
-                {
-                    if (LiteGraph.pointerevents_method == "pointer") {
-                        return oDOM.removeEventListener(LiteGraph.pointerevents_method + sEvent, fCall, capture);
-                    }
+            case "leave":
+            case "cancel":
+            case "gotpointercapture":
+            case "lostpointercapture": {
+                if (LiteGraph.pointerevents_method == "pointer") {
+                    return oDOM.removeEventListener(
+                        LiteGraph.pointerevents_method + sEvent,
+                        fCall,
+                        capture,
+                    );
                 }
+            }
             // not "pointer" || "mouse"
             default:
                 return oDOM.removeEventListener(sEvent, fCall, capture);
         }
     }
-};
+}
