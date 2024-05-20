@@ -429,7 +429,7 @@ export default class Subgraph extends LGraphNode {
     };
 
     override onResize(size: Vector2) {
-        console.error("TEST subgraph resize");
+        // console.error("TEST subgraph resize");
         // size[1] += 20;
     };
 
@@ -993,7 +993,7 @@ export default class Subgraph extends LGraphNode {
             innerNodeSlotToGraphOutput[link.target_id] ||= {}
             let pair = innerNodeSlotToGraphOutput[link.target_id][link.target_slot]
             if (pair == null) {
-                pair = this.addGraphOutput(name, innerOutput.type)
+                pair = this.addGraphOutput('output', innerOutput.type)
                 innerNodeSlotToGraphOutput[link.target_id][link.target_slot] = pair
 
                 // Align graph output's slot over previous slot position

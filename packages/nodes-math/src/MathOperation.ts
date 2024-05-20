@@ -93,7 +93,7 @@ export default class MathOperation extends LGraphNode {
         }
         else {
             result = {};
-            for (var i in A)
+            for (let i in A)
                 result[i] = this._func(A[i], B);
         }
         this.setOutputData(0, result);

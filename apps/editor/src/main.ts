@@ -2,7 +2,10 @@ import { LiteGraph } from "@litegraph-ts/core";
 import Editor from "./Editor"
 import configure from "./configure"
 
-import * as basic from "@litegraph-ts/nodes-basic"
+import "@litegraph-ts/nodes-basic"
+import "@litegraph-ts/nodes-events"
+import "@litegraph-ts/nodes-logic"
+import "@litegraph-ts/nodes-strings"
 
 import { demo } from "./demos"
 
@@ -97,9 +100,13 @@ elem.querySelector<HTMLButtonElement>("#multiview")!.addEventListener("click", (
 
 function addDemo(name: string, url: string | (() => void)) {
     var option = document.createElement("option") as OptionElemExt;
-    if (typeof url === "string")
-        option.dataset["url"] = url;
-    else if (typeof url === "function")
+    if (typeof url === "string") {
+        if (url.startsWith("http")) {
+            option.dataset["url"] = url;
+        } else {
+            option.dataset["url"] = "https://tamats.com/projects/litegraph/editor/" + url;
+        }
+    } else if (typeof url === "function")
         option.callback = url;
     option.innerHTML = name;
     select.appendChild(option);

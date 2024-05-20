@@ -1,5 +1,5 @@
-import { resolve } from 'path';
-import { defineConfig } from 'vite';
+import { resolve } from "path";
+import { defineConfig } from "vite";
 import checker from "vite-plugin-checker";
 
 export default defineConfig({
@@ -7,14 +7,14 @@ export default defineConfig({
         outDir: "dist",
         lib: {
             entry: resolve(__dirname, "src/index.ts"),
-            name: 'litegraph-ts',
+            name: "lg_core",
             formats: ["es", "umd"],
-            fileName: (format) => `litegraph-ts.${format}.js`
+            fileName: (format) => `litegraph-ts.${format}.js`,
         },
     },
     plugins: [
         // checker({
         //     typescript: true
         // })
-    ]
+    ],
 });

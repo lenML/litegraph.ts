@@ -6,7 +6,7 @@ export interface IsNullProperties extends Record<string, any> {
 }
 
 export default class IsNull extends LGraphNode {
-    override properties: IsNonNullProperties = {
+    override properties: IsNullProperties = {
         strictEquality: true
     }
 

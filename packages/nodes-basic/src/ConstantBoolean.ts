@@ -2,7 +2,7 @@ import { BuiltInSlotType, IToggleWidget, OptionalSlots, PropertyLayout, SlotLayo
 import { LiteGraph, LGraphNode } from "@litegraph-ts/core"
 
 export interface ConstantBooleanProperties extends Record<string, any> {
-    value: number,
+    value: boolean,
 }
 
 export default class ConstantBoolean extends LGraphNode {
