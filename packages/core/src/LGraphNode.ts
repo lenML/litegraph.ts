@@ -1045,11 +1045,27 @@ export default class LGraphNode {
         return trigS;
     }
 
+    removeOnTriggerInput(): SlotIndex {
+        var trigS = this.findInputSlotIndexByName("onTrigger");
+        if (trigS !== -1) { //!trigS ||
+            this.removeInput(trigS)
+        }
+        return trigS;
+    }
+
     addOnExecutedOutput(): SlotIndex {
         var trigS = this.findOutputSlotIndexByName("onExecuted");
         if (trigS == -1) { //!trigS ||
             this.addOutput("onExecuted", BuiltInSlotType.ACTION, { optional: true, nameLocked: true });
             return this.findOutputSlotIndexByName("onExecuted");
+        }
+        return trigS;
+    }
+
+    removeOnExecuteOutput(): SlotIndex {
+        var trigS = this.findOutputSlotIndexByName("onExecuted");
+        if (trigS !== -1) { //!trigS ||
+            this.removeOutput(trigS)
         }
         return trigS;
     }
@@ -1069,7 +1085,7 @@ export default class LGraphNode {
     changeMode(modeTo: NodeMode): boolean {
         switch (modeTo) {
             case NodeMode.ON_EVENT:
-                // this.addOnExecutedOutput();
+                this.addOnExecutedOutput();
                 break;
 
             case NodeMode.ON_TRIGGER:
@@ -1078,12 +1094,10 @@ export default class LGraphNode {
                 break;
 
             case NodeMode.NEVER:
-                break;
-
             case NodeMode.ALWAYS:
-                break;
-
             case NodeMode.ON_REQUEST:
+                this.removeOnExecuteOutput();
+                this.removeOnTriggerInput();
                 break;
 
             default:
