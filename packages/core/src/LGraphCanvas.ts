@@ -2246,6 +2246,49 @@ export default class LGraphCanvas
         LGraphCanvas_UI.prototype.processContextMenu.apply(this, arguments);
     }
 
+    /**
+     * align nodes action
+     */
+    static getBoundaryNodes = LGraphCanvas_UI.getBoundaryNodes;
+    static boundaryNodesForSelection = LGraphCanvas_UI.boundaryNodesForSelection;
+    static alignNodes  = LGraphCanvas_UI.alignNodes ;
+    static onNodeAlign  = LGraphCanvas_UI.onNodeAlign ;
+    static onGroupAlign   = LGraphCanvas_UI.onGroupAlign  ;
+
+
+    /**
+     * Determines the furthest nodes in each direction
+     * @param nodes {LGraphNode[]} the nodes to from which boundary nodes will be extracted
+     * @return {{left: LGraphNode, top: LGraphNode, right: LGraphNode, bottom: LGraphNode}}
+     */
+    getBoundaryNodes(nodes: LGraphNode[]) {
+        return LGraphCanvas_UI.getBoundaryNodes(nodes);
+    }
+    /**
+     * Determines the furthest nodes in each direction for the currently selected nodes
+     * @return {{left: LGraphNode, top: LGraphNode, right: LGraphNode, bottom: LGraphNode}}
+     */
+    boundaryNodesForSelection() {
+        return LGraphCanvas_UI.boundaryNodesForSelection();
+    }
+
+    /**
+     *
+     * @param {LGraphNode[]} nodes a list of nodes
+     * @param {"top"|"bottom"|"left"|"right"} direction Direction to align the nodes
+     * @param {LGraphNode?} align_to Node to align to (if null, align to the furthest node in the given direction)
+     */
+    alignNodes(nodes: LGraphNode[], direction: "top"|"bottom"|"left"|"right", align_to?: LGraphNode) {
+        return LGraphCanvas_UI.alignNodes(nodes, direction, align_to);
+    };
+
+    onNodeAlign(value: any, options: any, event: MouseEventExt, prev_menu: ContextMenu, node: LGraphNode) {
+        return LGraphCanvas_UI.onNodeAlign(value, options, event, prev_menu, node);
+    }
+
+    onGroupAlign(value: any, options: any, event: MouseEventExt, prev_menu: ContextMenu) {
+        return LGraphCanvas_UI.onGroupAlign(value, options, event, prev_menu);
+    }
 
     /*
      * Events

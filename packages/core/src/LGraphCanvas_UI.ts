@@ -145,6 +145,125 @@ export default class LGraphCanvas_UI {
         canvas.graph.addGroup(group);
     }
 
+
+    /**
+     * Determines the furthest nodes in each direction
+     * @param nodes {LGraphNode[]} the nodes to from which boundary nodes will be extracted
+     * @return {{left: LGraphNode, top: LGraphNode, right: LGraphNode, bottom: LGraphNode}}
+     */
+    static getBoundaryNodes = function(nodes: LGraphNode[]) {
+        let top = null;
+        let right = null;
+        let bottom = null;
+        let left = null;
+        for (const nID in nodes) {
+            const node = nodes[nID];
+            const [x, y] = node.pos;
+            const [width, height] = node.size;
+
+            if (top === null || y < top.pos[1]) {
+                top = node;
+            }
+            if (right === null || x + width > right.pos[0] + right.size[0]) {
+                right = node;
+            }
+            if (bottom === null || y + height > bottom.pos[1] + bottom.size[1]) {
+                bottom = node;
+            }
+            if (left === null || x < left.pos[0]) {
+                left = node;
+            }
+        }
+
+        return {
+            "top": top,
+            "right": right,
+            "bottom": bottom,
+            "left": left
+        } as { left: LGraphNode, top: LGraphNode, right: LGraphNode, bottom: LGraphNode };
+    }
+    /**
+     * Determines the furthest nodes in each direction for the currently selected nodes
+     * @return {{left: LGraphNode, top: LGraphNode, right: LGraphNode, bottom: LGraphNode}}
+     */
+    static boundaryNodesForSelection = function() {
+        return LGraphCanvas_UI.getBoundaryNodes(Object.values(this.selected_nodes));
+    }
+
+    /**
+     *
+     * @param {LGraphNode[]} nodes a list of nodes
+     * @param {"top"|"bottom"|"left"|"right"} direction Direction to align the nodes
+     * @param {LGraphNode?} align_to Node to align to (if null, align to the furthest node in the given direction)
+     */
+    static alignNodes = function (nodes: LGraphNode[], direction: "top"|"bottom"|"left"|"right", align_to?: LGraphNode) {
+        if (!nodes) {
+            return;
+        }
+
+        const canvas = LGraphCanvas.active_canvas;
+        let boundaryNodes = {} as { left: LGraphNode, top: LGraphNode, right: LGraphNode, bottom: LGraphNode };
+        if (align_to === undefined) {
+            boundaryNodes = LGraphCanvas_UI.getBoundaryNodes(nodes)
+        } else {
+            boundaryNodes = {
+                "top": align_to,
+                "right": align_to,
+                "bottom": align_to,
+                "left": align_to
+            }
+        }
+
+        for (const [_, node] of Object.entries(canvas.selected_nodes)) {
+            switch (direction) {
+                case "right":
+                    node.pos[0] = boundaryNodes["right"].pos[0] + boundaryNodes["right"].size[0] - node.size[0];
+                    break;
+                case "left":
+                    node.pos[0] = boundaryNodes["left"].pos[0];
+                    break;
+                case "top":
+                    node.pos[1] = boundaryNodes["top"].pos[1];
+                    break;
+                case "bottom":
+                    node.pos[1] = boundaryNodes["bottom"].pos[1] + boundaryNodes["bottom"].size[1] - node.size[1];
+                    break;
+            }
+        }
+
+        canvas.dirty_canvas = true;
+        canvas.dirty_bgcanvas = true;
+    };
+
+    static onNodeAlign = function(value: any, options: any, event: MouseEventExt, prev_menu: ContextMenu, node: LGraphNode) {
+        new ContextMenu(["Top", "Bottom", "Left", "Right"], {
+            event: event,
+            callback: inner_clicked,
+            parentMenu: prev_menu,
+        });
+
+        function inner_clicked(item: IContextMenuItem) {
+            LGraphCanvas_UI.alignNodes(
+                Object.values(LGraphCanvas.active_canvas.selected_nodes)
+                , item.content.toLowerCase() as any, node);
+        }
+    }
+
+    static onGroupAlign = function(value: any, options: any, event: MouseEventExt, prev_menu: ContextMenu) {
+        new ContextMenu(["Top", "Bottom", "Left", "Right"], {
+            event: event,
+            callback: inner_clicked,
+            parentMenu: prev_menu,
+        });
+
+        function inner_clicked(item: IContextMenuItem) {
+            LGraphCanvas_UI.alignNodes(
+                Object.values(LGraphCanvas.active_canvas.selected_nodes)
+                , item.content.toLowerCase() as any);
+        }
+    }
+
+
     /** Create menu for `Add Node` */
     static onMenuAdd = function(_value: IContextMenuItem, _options, mouseEvent, prevMenu, callback?: (node: LGraphNode) => void) {
         var canvas = LGraphCanvas.active_canvas;
@@ -2625,6 +2744,14 @@ export default class LGraphCanvas_UI {
                 disabled: countOutput === 0,
                 callback: LGraphCanvas.onMenuNodeToSubgraphOutputs
             });
+        }
+
+        if (Object.keys(this.selected_nodes).length > 1) {
+            options.push(ContextMenuSpecialItem.SEPARATOR, {
+                content: "Align Selected To",
+                has_submenu: true,
+                callback: LGraphCanvas.onNodeAlign,
+            })
         }
 
         options.push(ContextMenuSpecialItem.SEPARATOR, {
