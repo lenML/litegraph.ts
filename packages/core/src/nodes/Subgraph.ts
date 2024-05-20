@@ -134,7 +134,7 @@ export default class Subgraph extends LGraphNode {
     ]
 
     static optionalSlots: OptionalSlots = {
-        outputs: [
+        inputs: [
             { name: "enabled", type: "boolean" }
         ]
     }
