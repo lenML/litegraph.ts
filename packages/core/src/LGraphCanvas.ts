@@ -2799,7 +2799,7 @@ export default class LGraphCanvas
         ctx: CanvasRenderingContext2D,
         a: Vector2,
         b: Vector2,
-        link: LLink,
+        link: LLink | null,
         skipBorder: boolean,
         flow: boolean,
         color?: string,
