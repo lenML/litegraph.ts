@@ -2773,6 +2773,13 @@ export default class LGraphCanvas
         LGraphCanvas_Rendering.prototype.drawNode.apply(this, arguments);
     }
 
+    drawInvisibleNode(node: LGraphNode, ctx: CanvasRenderingContext2D): void {
+        LGraphCanvas_Rendering.prototype.drawInvisibleNode.apply(
+            this,
+            arguments,
+        );
+    }
+
     drawLinkTooltip(ctx: CanvasRenderingContext2D, link: LLink): void {
         LGraphCanvas_Rendering.prototype.drawLinkTooltip.apply(this, arguments);
     }

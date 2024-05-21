@@ -1194,6 +1194,11 @@ export default class LGraphNode {
                 return false;
         }
         this.mode = modeTo;
+
+        this.widgets?.forEach((w) => {
+            w.onNodeModeChange?.(this, this.mode);
+        });
+
         return true;
     }
 
@@ -1819,23 +1824,23 @@ export default class LGraphNode {
             this.widgets = [];
         }
 
-        if (!options && callback && callback.constructor === Object) {
+        if (!options && callback && typeof callback === "object") {
             options = callback;
             callback = null;
         }
 
-        if (options && options.constructor === String)
+        if (options && typeof options === "string")
             //options can be the property name
             options = { property: options };
 
-        if (callback && callback.constructor === String) {
+        if (callback && typeof callback === "string") {
             //callback can be the property name
             if (!options) options = {};
             options.property = callback;
             callback = null;
         }
 
-        if (callback && callback.constructor !== Function) {
+        if (callback && typeof callback === "function") {
             console.warn("addWidget: callback must be a function");
             callback = null;
         }
@@ -3203,6 +3208,11 @@ export default class LGraphNode {
         } else {
             this.flags.collapsed = false;
         }
+
+        this.widgets.forEach((w) => {
+            w.onNodeCollapse(this, this.flags.collapsed);
+        });
+
         this.setDirtyCanvas(true, true);
     }
 
@@ -3317,7 +3327,11 @@ export default class LGraphNode {
     onKeyDown?(event: KeyboardEvent): void;
     onKeyUp?(event: KeyboardEvent): void;
 
-    onResize?(size: Vector2): void;
+    onResize(size: Vector2): void {
+        this.widgets?.forEach((w) => {
+            w.onNodeResize?.(this, size);
+        });
+    }
 
     /** Called by `LGraphCanvas.selectNodes` */
     onSelected?(): void;
@@ -3346,7 +3360,11 @@ export default class LGraphNode {
      * when removed from graph
      * Called by `LGraph.remove` `LGraph.clear`
      */
-    onRemoved?(options?: LGraphRemoveNodeOptions): void;
+    onRemoved(options?: LGraphRemoveNodeOptions): void {
+        this.widgets?.forEach((w) => {
+            w.onNodeRemoved?.(this);
+        });
+    }
 
     /**
      * if returns false the incoming connection will be canceled

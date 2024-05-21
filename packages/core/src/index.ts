@@ -66,3 +66,6 @@ export * from "./nodes/Subgraph";
 export type * from "./nodes/GraphInput";
 export type * from "./nodes/GraphOutput";
 export type * from "./nodes/Subgraph";
+
+export * from "./widgets/DOMWidget";
+export type * from "./widgets/DOMWidget";

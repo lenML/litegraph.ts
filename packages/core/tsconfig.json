@@ -1,13 +1,5 @@
 {
-    "extends": "../tsconfig/app.json",
+    "extends": "../tsconfig/base.json",
     "include": ["./src"],
-    "exclude": ["./node_modules"],
-    "compilerOptions": {
-        "skipDefaultLibCheck": true,
-        "noEmitOnError": false,
-        "checkJs": false,
-        "skipLibCheck": true,
-        "noImplicitAny": false,
-        "strict": false
-    }
+    "exclude": ["./node_modules"]
 }

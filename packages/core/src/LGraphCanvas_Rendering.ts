@@ -203,6 +203,15 @@ export default class LGraphCanvas_Rendering {
                 ctx.restore();
             }
 
+            const invisible_nodes = this.graph._nodes.filter(
+                (n) => !visible_nodes.includes(n),
+            );
+
+            //notify invisible to node
+            for (const node of invisible_nodes) {
+                this.drawInvisibleNode(node, ctx);
+            }
+
             //on top (debug)
             if (this.render_execution_order) {
                 this.drawExecutionOrder(ctx);
@@ -1359,6 +1368,17 @@ export default class LGraphCanvas_Rendering {
         }
 
         ctx.globalAlpha = 1.0;
+    }
+
+    /** draws tht given node invisible the canvas */
+    drawInvisibleNode(
+        this: LGraphCanvas,
+        node: LGraphNode,
+        ctx: CanvasRenderingContext2D,
+    ) {
+        node.widgets?.forEach((w) => {
+            w.drawInvisible?.(ctx, node);
+        });
     }
 
     /** used by this.over_link_center */

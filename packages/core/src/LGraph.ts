@@ -817,7 +817,7 @@ export default class LGraph {
             }
             if (params === undefined) {
                 node[eventName]();
-            } else if (params && params.constructor === Array) {
+            } else if (Array.isArray(params)) {
                 node[eventName].apply(node, params);
             } else {
                 node[eventName](params);
@@ -1692,7 +1692,7 @@ export default class LGraph {
         var nodes = data.nodes;
 
         //decode links info (they are very verbose)
-        if (data.links && data.links.constructor === Array) {
+        if (Array.isArray(data.links)) {
             var links = [];
             for (var i = 0; i < data.links.length; ++i) {
                 var link_data = data.links[i];
@@ -1776,11 +1776,11 @@ export default class LGraph {
         return error;
     }
 
-    load(url: string, callback?: (any) => void): void {
+    load(url: string | Blob, callback?: (any) => void): void {
         var that = this;
 
         //from file
-        if (url.constructor === File || url.constructor === Blob) {
+        if (url instanceof Blob) {
             var reader = new FileReader();
             reader.addEventListener("load", function (event) {
                 var data = JSON.parse(reader.result as string);

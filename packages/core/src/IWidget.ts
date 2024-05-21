@@ -1,7 +1,7 @@
 import type { ContextMenuEventListener } from "./ContextMenu";
 import LGraphCanvas from "./LGraphCanvas";
 import LGraphNode, { SerializedLGraphNode } from "./LGraphNode";
-import type { Vector2, WidgetTypes } from "./types";
+import type { NodeMode, Vector2, WidgetTypes } from "./types";
 
 export type WidgetCallback<T extends IWidget> = (
     this: T,
@@ -47,6 +47,8 @@ export default interface IWidget<TOptions = any, TValue = any> {
         posY: number,
         height: number,
     ): void;
+    /** Called by `LGraphCanvas.drawInvisibleNodeWidgets` */
+    drawInvisible?(ctx: CanvasRenderingContext2D, node: LGraphNode): void;
     /**
      * Called by `LGraphCanvas.processNodeWidgets`
      * https://github.com/jagenjo/litegraph.js/issues/76
@@ -58,6 +60,11 @@ export default interface IWidget<TOptions = any, TValue = any> {
         serialized: SerializedLGraphNode<LGraphNode>,
         slot: number,
     ): Promise<any>;
+
+    onNodeRemoved?(node: LGraphNode): void;
+    onNodeCollapse?(node: LGraphNode, collapsed: boolean): void;
+    onNodeResize?(node: LGraphNode, size: Vector2): void;
+    onNodeModeChange?(node: LGraphNode, mode: NodeMode): void;
 }
 export interface IButtonWidget extends IWidget<{}, null> {
     type: "button";

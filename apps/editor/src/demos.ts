@@ -1,6 +1,7 @@
 import { LGraph, LiteGraph } from "@litegraph-ts/core";
-import { ConstantNumber, Watch } from "@litegraph-ts/nodes-basic"
-import { MathOperation } from "@litegraph-ts/nodes-math"
+import { ConstantNumber, Watch } from "@litegraph-ts/nodes-basic";
+import { MathOperation } from "@litegraph-ts/nodes-math";
+import { DomDemoNode } from "./dom_widget_node";
 
 export function demo(graph: LGraph) {
     multiConnection(graph);
@@ -27,7 +28,7 @@ function multiConnection(graph: LGraph) {
     node_const_B.setValue(10);
 
     var node_math = LiteGraph.createNode(MathOperation);
-    node_math.pos = [400, 200];
+    node_math.pos = [500, 250];
     graph.add(node_math);
 
     var node_watch = LiteGraph.createNode(Watch);
@@ -42,21 +43,29 @@ function multiConnection(graph: LGraph) {
     node_const_B.connect(0, node_math, 1);
     node_math.connect(0, node_watch, 0);
     node_math.connect(0, node_watch2, 0);
+
+    var demo_node = LiteGraph.createNode(DomDemoNode);
+    demo_node.pos = [200, 400];
+    demo_node.setProperty("text", "change value in real time...");
+    graph.add(demo_node);
+
+    var node_watch3 = LiteGraph.createNode(Watch);
+    node_watch3.pos = [500, 400];
+    graph.add(node_watch3);
+
+    demo_node.connect(0, node_watch3, 0);
 }
 
 function sortTest(graph: LGraph) {
     // var rand = LiteGraph.createNode("math/rand", null, { pos: [10, 100] });
     // graph.add(rand);
-
     // var nodes = [];
     // for (var i = 4; i >= 1; i--) {
     //     var n = LiteGraph.createNode("basic/watch", null, { pos: [i * 120, 100] });
     //     graph.add(n);
     //     nodes[i - 1] = n;
     // }
-
     // rand.connect(0, nodes[0], 0);
-
     // for (var i = 0; i < nodes.length - 1; i++)
     //     nodes[i].connect(0, nodes[i + 1], 0);
 }
@@ -69,12 +78,9 @@ function benchmark() {
     //     graph.add(n);
     //     nodes.push(n);
     // }
-
     // for (var i = 0; i < nodes.length; i++)
     //     nodes[(Math.random() * nodes.length) | 0].connect(0, nodes[(Math.random() * nodes.length) | 0], 0);
 }
-
-
 
 //Show value inside the debug console
 function TestWidgetsNode() {
@@ -173,8 +179,6 @@ function TestSpecialNode() {
 
 // LiteGraph.registerNodeType("features/shape", TestSpecialNode);
 
-
-
 // //Show value inside the debug console
 // function TestSlotsNode() {
 //     this.addInput("C", "number");
@@ -186,9 +190,7 @@ function TestSpecialNode() {
 
 // TestSlotsNode.title = "Flat Slots";
 
-
 // LiteGraph.registerNodeType("features/slots", TestSlotsNode);
-
 
 // //Show value inside the debug console
 // function TestPropertyEditorsNode() {
@@ -210,6 +212,5 @@ function TestSpecialNode() {
 // }
 
 // TestPropertyEditorsNode.title = "Properties";
-
 
 // LiteGraph.registerNodeType("features/properties_editor", TestPropertyEditorsNode);
