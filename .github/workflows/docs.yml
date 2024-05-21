@@ -1,8 +1,19 @@
-name: Publish
+name: Publish Docs
 on:
     push:
         branches:
             - master
+        paths:
+            [
+                "packages/**/*.js",
+                "packages/**/*.css",
+                "packages/**/*.html",
+                "packages/**/*.svg",
+                "packages/**/*.json",
+                "packages/**/*.ts",
+                "packages/**/*.tsx",
+                "packages/**/*.sh",
+            ]
     workflow_dispatch:
 jobs:
     build-docs:
