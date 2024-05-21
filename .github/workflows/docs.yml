@@ -23,7 +23,7 @@ jobs:
               run: pnpm install
 
             - name: Build docs
-              run: cd ./packages/core && pnpm docs
+              run: cd ./packages/core && pnpm build:docs
 
             - name: Deploy
               uses: JamesIves/github-pages-deploy-action@v4.4.1

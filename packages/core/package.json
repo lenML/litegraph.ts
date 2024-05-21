@@ -14,7 +14,8 @@
         "prettier": "npx prettier --write src/**/*.* css/**/*.*",
         "lint": "npx eslint src",
         "lint:fix": "npx eslint --fix ./src/**/*.ts",
-        "prepack": "rm -rf dist && pnpm run build"
+        "prepack": "rm -rf dist && pnpm run build",
+        "build:docs": "typedoc --skipErrorChecking"
     },
     "author": "jagenjo",
     "license": "MIT",
