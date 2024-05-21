@@ -857,7 +857,7 @@ export default class Subgraph extends LGraphNode {
         else if (type === BuiltInSlotType.ACTION)
             outerType = BuiltInSlotType.EVENT;
 
-        console.warn("[Subgraph] addGraphOutput", name, type, outerType, pos);
+        // console.warn("[Subgraph] addGraphOutput", name, type, outerType, pos);
 
         // These will run onPropertyChanged.
         innerNode.setProperty("name", name);

@@ -2616,7 +2616,7 @@ export default class LGraphCanvas_UI {
             ? LiteGraph.slot_types_default_out
             : LiteGraph.slot_types_default_in;
         const fromSlotSpec = slotTypesDefault[fromSlotType];
-        console.warn("FROMSL", slotTypesDefault, fromSlotSpec);
+        // console.warn("FROMSL", slotTypesDefault, fromSlotSpec);
         if (slotTypesDefault && slotTypesDefault[fromSlotType]) {
             if (Array.isArray(fromSlotSpec)) {
                 for (var typeX of fromSlotSpec) {
