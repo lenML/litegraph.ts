@@ -22,9 +22,6 @@ jobs:
             - name: Install dependencies
               run: pnpm install
 
-            - name: Build
-              run: pnpm build
-
             - name: Build docs
               run: cd ./packages/core && pnpm docs
 
