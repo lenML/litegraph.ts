@@ -3197,6 +3197,12 @@ export default class LGraphCanvas_UI {
                     disabled: LiteGraph.ignore_all_widget_events,
                     callback: LGraphCanvas.onShowMenuNodeProperties,
                 },
+                {
+                    content: "Properties Panel",
+                    callback: function (item, options, e, menu, node) {
+                        LGraphCanvas.active_canvas.showShowNodePanel(node);
+                    },
+                },
                 ContextMenuSpecialItem.SEPARATOR,
                 {
                     content: "Title",

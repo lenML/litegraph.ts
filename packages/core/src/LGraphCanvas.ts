@@ -1755,8 +1755,6 @@ export default class LGraphCanvas
     processNodeDblClicked(n: LGraphNode): void {
         if (this.onShowNodePanel) {
             this.onShowNodePanel(n);
-        } else {
-            this.showShowNodePanel(n);
         }
 
         if (this.onNodeDblClicked) {
