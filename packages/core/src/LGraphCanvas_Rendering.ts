@@ -12,6 +12,7 @@ import {
     NODE_MODE_NAMES,
     NODE_MODE_COLORS,
     LinkRenderMode,
+    NodeMode,
 } from "./types";
 import type { Vector2 } from "./types";
 import { getLitegraphTypeName } from "./utils";
@@ -946,6 +947,13 @@ export default class LGraphCanvas_Rendering {
         }
 
         var editor_alpha = this.editor_alpha;
+        if (node.mode === NodeMode.NEVER) {
+            editor_alpha = 0.4;
+        }
+        if (node.mode === NodeMode.ON_REQUEST) {
+            bgColor = "#FF00FF";
+            editor_alpha = 0.2;
+        }
         ctx.globalAlpha = editor_alpha;
 
         if (this.render_shadows && !low_quality) {
