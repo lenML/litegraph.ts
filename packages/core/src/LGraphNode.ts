@@ -1840,7 +1840,7 @@ export default class LGraphNode {
             callback = null;
         }
 
-        if (callback && typeof callback === "function") {
+        if (callback && typeof callback !== "function") {
             console.warn("addWidget: callback must be a function");
             callback = null;
         }
