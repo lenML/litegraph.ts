@@ -226,7 +226,7 @@ export default class LGraphNode {
     color: string;
     bgcolor: string;
     boxcolor: string;
-    shape: SlotShape;
+    shape: SlotShape = BuiltInSlotShape.ROUND_SHAPE;
 
     serialize_widgets: boolean = false;
     hide_in_node_lists: boolean = false;
