@@ -1,4 +1,5 @@
 import type { default as IWidget, WidgetCallback } from "../IWidget";
+import LGraph from "../LGraph";
 import LGraphNode, { SerializedLGraphNode } from "../LGraphNode";
 import LiteGraph from "../LiteGraph";
 import { NodeMode, Vector2 } from "../types";
@@ -275,17 +276,24 @@ export class DOMWidget implements IWidget {
             });
         }
 
-        if (!element.parentElement) {
-            const onAdded = this.node.onAdded;
-            this.node.onAdded = (graph) => {
-                onAdded?.(graph);
+        const mountParentElement = (graph: LGraph) => {
+            const parentElement =
+                this.options.parentElement ||
+                graph.list_of_graphcanvas[0].canvas.offsetParent ||
+                document.body;
+            parentElement.appendChild(element);
+        };
 
-                const parentElement =
-                    this.options.parentElement ||
-                    graph.list_of_graphcanvas[0].canvas.offsetParent ||
-                    document.body;
-                parentElement.appendChild(element);
-            };
+        if (!element.parentElement) {
+            if (node.graph) {
+                mountParentElement(node.graph);
+            } else {
+                const onAdded = this.node.onAdded;
+                this.node.onAdded = (graph) => {
+                    onAdded?.(graph);
+                    mountParentElement(graph);
+                };
+            }
         }
     }
 
