@@ -1879,6 +1879,29 @@ export default class LGraphNode {
         return customWidget;
     }
 
+    removeWidget<T extends IWidget>(widget: T) {
+        var index = this.widgets.indexOf(widget);
+        if (index != -1) {
+            this.widgets.splice(index, 1);
+            this.setSize(this.computeSize());
+        }
+    }
+
+    removeWidgetByIndex(index: number) {
+        this.widgets.splice(index, 1);
+        this.setSize(this.computeSize());
+    }
+
+    removeWidgetByName(name: string) {
+        for (var i = 0; i < this.widgets.length; ++i) {
+            if (this.widgets[i].name == name) {
+                this.widgets.splice(i, 1);
+                this.setSize(this.computeSize());
+                return;
+            }
+        }
+    }
+
     setWidgetHidden(widget: IWidget, hidden: boolean) {
         widget.hidden = hidden;
         this.setSize(this.computeSize());
