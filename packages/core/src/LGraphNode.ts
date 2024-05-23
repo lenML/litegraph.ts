@@ -1413,6 +1413,25 @@ export default class LGraphNode {
     }
 
     /**
+     * fit the size of a node according to its inputs and output slots
+     */
+    fitSize() {
+        const computed_size = this.computeSize();
+        let changed = false;
+        if (this.size[0] < computed_size[0]) {
+            this.size[0] = computed_size[0];
+            changed = true;
+        }
+        if (this.size[1] < computed_size[1]) {
+            this.size[1] = computed_size[1];
+            changed = true;
+        }
+        if (changed && this.onResize) {
+            this.onResize(this.size);
+        }
+    }
+
+    /**
      * add a new property to this node
      * @param name
      * @param default_value
@@ -1495,7 +1514,7 @@ export default class LGraphNode {
         if (LiteGraph.auto_load_slot_types)
             LiteGraph.registerNodeAndSlotType(this, type, true);
 
-        this.setSize(this.computeSize());
+        this.fitSize();
         this.setDirtyCanvas(true, true);
         return output;
     }
@@ -1520,7 +1539,7 @@ export default class LGraphNode {
             }
         }
 
-        this.setSize(this.computeSize());
+        this.fitSize();
         if (this.onOutputRemoved) {
             this.onOutputRemoved(slot, output);
         }
@@ -1592,7 +1611,7 @@ export default class LGraphNode {
         }
 
         this.inputs.push(input);
-        this.setSize(this.computeSize());
+        this.fitSize();
 
         if (this.onInputAdded) {
             this.onInputAdded(input);
@@ -1618,7 +1637,7 @@ export default class LGraphNode {
             }
             link.target_slot -= 1;
         }
-        this.setSize(this.computeSize());
+        this.fitSize();
         if (this.onInputRemoved) {
             this.onInputRemoved(slot, slot_info[0]);
         }
@@ -1866,7 +1885,7 @@ export default class LGraphNode {
             throw "LiteGraph addWidget('combo',...) requires to pass values in options: { values:['red','blue'] }";
         }
         this.widgets.push(w);
-        this.setSize(this.computeSize());
+        this.fitSize();
         return w;
     }
 
@@ -1875,8 +1894,7 @@ export default class LGraphNode {
             this.widgets = [];
         }
         this.widgets.push(customWidget);
-        // NOTE: Executing this here may cause the size to be reset during initialization, so it is commented out.
-        // this.setSize(this.computeSize());
+        this.fitSize();
         return customWidget;
     }
 
@@ -1884,20 +1902,20 @@ export default class LGraphNode {
         var index = this.widgets.indexOf(widget);
         if (index != -1) {
             this.widgets.splice(index, 1);
-            this.setSize(this.computeSize());
+            this.fitSize();
         }
     }
 
     removeWidgetByIndex(index: number) {
         this.widgets.splice(index, 1);
-        this.setSize(this.computeSize());
+        this.fitSize();
     }
 
     removeWidgetByName(name: string) {
         for (var i = 0; i < this.widgets.length; ++i) {
             if (this.widgets[i].name == name) {
                 this.widgets.splice(i, 1);
-                this.setSize(this.computeSize());
+                this.fitSize();
                 return;
             }
         }
@@ -1905,7 +1923,7 @@ export default class LGraphNode {
 
     setWidgetHidden(widget: IWidget, hidden: boolean) {
         widget.hidden = hidden;
-        this.setSize(this.computeSize());
+        this.fitSize();
     }
 
     /**
