@@ -7,6 +7,7 @@ import type {
     SearchboxExtra,
     SerializedLGraphNode,
     SlotLayout,
+    WidgetLayout,
 } from "./LGraphNode";
 import { default as LGraphNode } from "./LGraphNode";
 import type { PointerEventsMethod, SlotType, Vector2, Vector4 } from "./types";
@@ -522,6 +523,24 @@ export default class LiteGraph {
                 for (const item of slotLayout.outputs) {
                     const { name, type, options } = item;
                     node.addOutput(name, type, options);
+                }
+            }
+        }
+
+        const widgetLayout = getStaticProperty<WidgetLayout>(
+            regConfig.class,
+            "widgetLayout",
+        );
+        if (widgetLayout) {
+            if (LiteGraph.debug)
+                console.debug("Found widget layout!", widgetLayout);
+            for (const item of widgetLayout) {
+                if ("widget" in item) {
+                    const widget = item.widget();
+                    node.addCustomWidget(widget);
+                } else {
+                    const { name, type, value, callback, options } = item;
+                    node.addWidget(name, type, value, callback, options);
                 }
             }
         }

@@ -95,6 +95,19 @@ export type PropertyLayout = {
     options?: Partial<IPropertyInfo>;
 }[];
 
+export type WidgetLayout = (
+    | {
+          type: IWidget["type"];
+          name: string;
+          value: IWidget["value"];
+          callback?: WidgetCallback<IWidget> | string;
+          options?: IWidget["options"];
+      }
+    | {
+          widget: () => IWidget;
+      }
+)[];
+
 export type LActionOptions = {
     action_call?: string;
     link?: LLink;
@@ -149,6 +162,18 @@ export default class LGraphNode {
     get slotLayout(): SlotLayout {
         if ("slotLayout" in this.constructor) {
             return this.constructor.slotLayout as SlotLayout;
+        }
+        return null;
+    }
+    get propertyLayout(): PropertyLayout {
+        if ("propertyLayout" in this.constructor) {
+            return this.constructor.propertyLayout as PropertyLayout;
+        }
+        return null;
+    }
+    get widgetLayout(): WidgetLayout {
+        if ("widgetLayout" in this.constructor) {
+            return this.constructor.widgetLayout as WidgetLayout;
         }
         return null;
     }
