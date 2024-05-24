@@ -100,8 +100,6 @@ graph.start();
 
 ```ts
 export class SumNode extends LGraphNode {
-  override properties = {};
-
   static slotLayout: SlotLayout = {
     inputs: [
       {
@@ -120,8 +118,6 @@ export class SumNode extends LGraphNode {
         }
     ]
   };
-
-  static propertyLayout: PropertyLayout = [];
 
   override onExecute(param: any, options: object): void {
     const input0 = this.getInputData(0) ?? 0;
