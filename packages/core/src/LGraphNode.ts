@@ -569,6 +569,9 @@ export default class LGraphNode {
                 if (!w) continue;
                 if (w.options.property == name) {
                     w.value = value;
+                    if (w.onPropertyChange) {
+                        w.onPropertyChange(value);
+                    }
                     break;
                 }
             }

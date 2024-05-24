@@ -65,6 +65,8 @@ export default interface IWidget<TOptions = any, TValue = any> {
     onNodeCollapse?(node: LGraphNode, collapsed: boolean): void;
     onNodeResize?(node: LGraphNode, size: Vector2): void;
     onNodeModeChange?(node: LGraphNode, mode: NodeMode): void;
+
+    onPropertyChange?(value: any): void;
 }
 export interface IButtonWidget extends IWidget<{}, null> {
     type: "button";
