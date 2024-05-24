@@ -1,4 +1,4 @@
-import type LGraph from "./LGraph";
+import LGraph from "./LGraph";
 import type {
     LGraphNodeConstructor,
     LGraphNodeConstructorFactory,
@@ -324,52 +324,75 @@ export default class LiteGraph {
     /**
      * Create a new node type by passing a function, it wraps it with a proper class and generates inputs according to the parameters of the function.
      * Useful to wrap simple methods that do not require properties, and that only process some input to generate an output.
-     * @param name node name with namespace (p.e.: 'math/sum')
+     * @param type node name with namespace (p.e.: 'math/sum')
      * @param func
      * @param param_types an array containing the type of every parameter, otherwise parameters will accept any type
      * @param return_type string with the return type, otherwise it will be generic
      * @param properties properties to be configurable
      */
-    // static wrapFunctionAsNode(
-    //     name: string,
-    //     func: (...args: any[]) => any,
-    //     param_types?: string[],
-    //     return_type?: string,
-    //     properties?: object
-    // ): void {
-    //     var params = Array(func.length);
-    //     var code = "";
-    //     var names = LiteGraph.getParameterNames(func);
-    //     for (var i = 0; i < names.length; ++i) {
-    //         code +=
-    //         "this.addInput('" +
-    //             names[i] +
-    //             "'," +
-    //             (param_types && param_types[i]
-    //                 ? "'" + param_types[i] + "'"
-    //                 : "0") +
-    //             ");\n";
-    //     }
-    //     code +=
-    //     "this.addOutput('out'," +
-    //         (return_type ? "'" + return_type + "'" : 0) +
-    //         ");\n";
-    //     if (properties) {
-    //         code +=
-    //         "this.properties = " + JSON.stringify(properties) + ";\n";
-    //     }
-    //     var classobj = Function(code) as any;
-    //     classobj.title = name.split("/").pop();
-    //     classobj.desc = "Generated from " + func.name;
-    //     classobj.prototype.onExecute = function onExecute() {
-    //         for (var i = 0; i < params.length; ++i) {
-    //             params[i] = this.getInputData(i);
-    //         }
-    //         var r = func.apply(this, params);
-    //         this.setOutputData(0, r);
-    //     };
-    //     LiteGraph.registerNodeType(name, classobj);
-    // }
+    static wrapFunctionAsNode(
+        type: string,
+        func: (...args: any[]) => any,
+        param_types?: string[],
+        return_type?: string,
+        properties?: object,
+    ): void {
+        this.wrapArgsFunctionAsNode(
+            type,
+            LiteGraph.getParameterNames(func),
+            func,
+            param_types,
+            return_type,
+            properties,
+        );
+    }
+
+    /**
+     * Create a new node type by passing a function, it wraps it with a proper class and generates inputs according to the parameters of the function.
+     * Useful to wrap simple methods that do not require properties, and that only process some input to generate an output.
+     * @param type node name with namespace (p.e.: 'math/sum')
+     * @param arg_names an array containing the names of the arguments
+     * @param func
+     * @param param_types an array containing the type of every parameter, otherwise parameters will accept any type
+     * @param return_type string with the return type, otherwise it will be generic
+     * @param properties properties to be configurable
+     */
+    static wrapArgsFunctionAsNode(
+        type: string,
+        arg_names: string[],
+        func: (...args: any[]) => any,
+        param_types?: string[],
+        return_type?: string,
+        properties?: object,
+    ): void {
+        const params = Array(func.length);
+        const title = type.split("/").pop();
+        const class_impl = class extends LGraphNode {
+            static slotLayout: SlotLayout = {
+                inputs: arg_names.map((name, i) => ({
+                    name,
+                    type: param_types && param_types[i],
+                })),
+                outputs: [{ name: "out", type: return_type ?? "*" }],
+            };
+            override properties = LiteGraph.cloneObject(properties) || {};
+
+            override onExecute(param: any, options: object): void {
+                for (let i = 0; i < params.length; ++i) {
+                    params[i] = this.getInputData(i);
+                }
+                const r = func.apply(this, params);
+                this.setOutputData(0, r);
+            }
+        };
+        const desc = "Function Node from " + func.name;
+        LiteGraph.registerNodeType({
+            class: class_impl,
+            title,
+            desc,
+            type,
+        });
+    }
 
     /**
      * Adds this method to all node types, existing and to be created
@@ -542,7 +565,11 @@ export default class LiteGraph {
             }
 
             if (category == "") {
-                if (type.category == null) {
+                if (
+                    type.category === null ||
+                    type.category === undefined ||
+                    type.category === ""
+                ) {
                     r.push(type);
                 }
             } else if (type.category == category) {
@@ -633,7 +660,9 @@ export default class LiteGraph {
         if (obj == null) {
             return null;
         }
-        var r = JSON.parse(JSON.stringify(obj));
+        var r = globalThis.structuredClone
+            ? globalThis.structuredClone(obj)
+            : JSON.parse(JSON.stringify(obj));
         if (!target) {
             return r;
         }
@@ -834,7 +863,17 @@ export default class LiteGraph {
     // ContextMenu: typeof ContextMenu;
     // static extendClass<A, B>(target: A, origin: B): A & B;
 
-    // static getParameterNames(func: string | Function): string[];
+    static getParameterNames(func: string | Function): string[] {
+        return (func + "")
+            .replace(/[/][/].*$/gm, "") // strip single-line comments
+            .replace(/\s+/g, "") // strip white space
+            .replace(/[/][*][^/*]*[*][/]/g, "") // strip multi-line comments  /**/
+            .split("){", 1)[0]
+            .replace(/^[^(]*[(]/, "") // extract the parameters
+            .replace(/=[^,]+/g, "") // strip any ES6 defaults
+            .split(",")
+            .filter(Boolean); // split & filter [""]
+    }
 
     /* helper for interaction: pointer, touch, mouse Listeners
        used by LGraphCanvas DragAndScale ContextMenu*/

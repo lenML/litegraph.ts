@@ -5,6 +5,12 @@ import { DomDemoNode } from "./dom_widget_node";
 
 export function demo(graph: LGraph) {
     multiConnection(graph);
+
+    LiteGraph.wrapArgsFunctionAsNode(
+        "sum",
+        ["a", "b"],
+        (a: number, b: number) => a + b,
+    );
 }
 
 function multiConnection(graph: LGraph) {
