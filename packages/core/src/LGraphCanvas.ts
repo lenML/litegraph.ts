@@ -2127,7 +2127,7 @@ export default class LGraphCanvas
                                 {
                                     scale: Math.max(1, this.ds.scale),
                                     event: event,
-                                    className: "dark",
+                                    className: "dark combo-menu",
                                     callback: inner_clicked.bind(w),
                                 },
                                 ref_window,

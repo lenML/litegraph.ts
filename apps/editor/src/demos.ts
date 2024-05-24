@@ -28,6 +28,11 @@ function multiConnection(graph: LGraph) {
     graph.add(node_const_A);
     node_const_A.setValue(4.5);
 
+    // 测试 10 个以上的values
+    node_const_A.addWidget("combo", "combo", "red", function (v) {}, {
+        values: Array.from({ length: 20 }, (_, i) => i.toString()),
+    });
+
     var node_const_B = LiteGraph.createNode(ConstantNumber);
     node_const_B.pos = [200, 300];
     graph.add(node_const_B);

@@ -3800,7 +3800,7 @@ export default class LGraphCanvas_UI {
                             choices,
                             {
                                 event: event as MouseEventExt,
-                                className: "dark",
+                                className: "dark combo-menu",
                                 callback: inner_clicked,
                             },
                             ref_window,

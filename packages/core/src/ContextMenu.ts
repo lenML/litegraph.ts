@@ -323,6 +323,8 @@ export default class ContextMenu {
         if (options.scale) {
             root.style.transform = "scale(" + options.scale + ")";
         }
+
+        this.setupComboFilter();
     }
 
     options: IContextMenuOptions;
@@ -514,5 +516,180 @@ export default class ContextMenu {
             return this.options.parentMenu.getFirstEvent();
         }
         return this.options.event;
+    }
+
+    protected setupComboFilter() {
+        const menuThis = this;
+        const { values, options, root: $root } = this;
+        const is_long_combo =
+            this.options.className?.includes("combo-menu") &&
+            this.values.length > 10;
+
+        if (!is_long_combo) return;
+
+        const $filter = document.createElement("input");
+        $filter.className = "litemenu-filter";
+        $filter.type = "text";
+        $filter.placeholder = "Filter... (↑↓ to navigate)";
+        $filter.style.width = "calc(100% - 10px)";
+        $filter.style.height = "20px";
+        $filter.style.margin = "0 0 5px 5px";
+        $filter.style.outline = "none";
+        $filter.style.border = "none";
+        $filter.style.boxSizing = "border-box";
+        $filter.style.backgroundColor =
+            "var(--litegraph-menu-filter-bgcolor, transparent)";
+        $filter.style.color = "var(--litegraph-menu-filter-color, white)";
+
+        $root.prepend($filter);
+        $filter.focus();
+
+        const $items = Array.from(
+            $root.querySelectorAll(".litemenu-entry"),
+        ) as HTMLDivElement[];
+        let displayedItems = [...$items];
+
+        // We must request an animation frame for the current node of the active canvas to update.
+        requestAnimationFrame(filter_update);
+
+        function filter_update() {
+            const currentNode = LGraphCanvas.active_canvas.current_node;
+            const clickedComboValue = currentNode.widgets
+                ?.filter(
+                    (w) =>
+                        w.type === "combo" &&
+                        w.options.values.length === values.length,
+                )
+                .find((w) =>
+                    w.options.values.every((v, i) => v === values[i]),
+                )?.value;
+
+            let selectedIndex = clickedComboValue
+                ? values.findIndex((v) => v === clickedComboValue)
+                : 0;
+            if (selectedIndex < 0) {
+                selectedIndex = 0;
+            }
+            let selectedItem = displayedItems[selectedIndex];
+            updateSelected();
+
+            // Apply highlighting to the selected item
+            function updateSelected() {
+                selectedItem?.style.setProperty("background-color", "");
+                selectedItem?.style.setProperty("color", "");
+
+                selectedItem = displayedItems[selectedIndex];
+
+                selectedItem?.style.setProperty(
+                    "background-color",
+                    "#ccc",
+                    "important",
+                );
+                selectedItem?.style.setProperty("color", "#000", "important");
+            }
+
+            const updateListPosition = () => {
+                const rect = $root.getBoundingClientRect();
+
+                // If the top is off-screen then shift the element with scaling applied
+                if (rect.top < 0) {
+                    const scale =
+                        1 -
+                        $root.getBoundingClientRect().height /
+                            $root.clientHeight;
+                    const shift = ($root.clientHeight * scale) / 2;
+                    $root.style.top = -shift + "px";
+                }
+            };
+
+            // Arrow up/down to select items
+            $filter.addEventListener("keydown", (event) => {
+                const itemCount = displayedItems.length;
+                switch (event.key) {
+                    case "ArrowUp":
+                        event.preventDefault();
+                        if (selectedIndex === 0) {
+                            selectedIndex = itemCount - 1;
+                        } else {
+                            selectedIndex--;
+                        }
+                        updateSelected();
+                        break;
+                    case "ArrowRight":
+                        event.preventDefault();
+                        selectedIndex = itemCount - 1;
+                        updateSelected();
+                        break;
+                    case "ArrowDown":
+                        event.preventDefault();
+                        if (selectedIndex === itemCount - 1) {
+                            selectedIndex = 0;
+                        } else {
+                            selectedIndex++;
+                        }
+                        updateSelected();
+                        break;
+                    case "ArrowLeft":
+                        event.preventDefault();
+                        selectedIndex = 0;
+                        updateSelected();
+                        break;
+                    case "Enter":
+                        selectedItem?.click();
+                        break;
+                    case "Escape":
+                        menuThis.close();
+                        break;
+                }
+            });
+
+            $filter.addEventListener("input", () => {
+                // Hide all items that don't match our filter
+                const term = $filter.value.toLocaleLowerCase();
+                // When filtering, recompute which items are visible for arrow up/down and maintain selection.
+                displayedItems = $items.filter((item) => {
+                    const isVisible =
+                        !term ||
+                        item.textContent.toLocaleLowerCase().includes(term);
+                    item.style.display = isVisible ? "block" : "none";
+                    return isVisible;
+                });
+
+                selectedIndex = 0;
+                if (displayedItems.includes(selectedItem)) {
+                    selectedIndex = displayedItems.findIndex(
+                        (d) => d === selectedItem,
+                    );
+                }
+
+                updateSelected();
+
+                // If we have an event then we can try and position the list under the source
+                if (options.event && "clientY" in options.event) {
+                    let top = options.event.clientY - 10;
+
+                    const bodyRect = document.body.getBoundingClientRect();
+                    const rootRect = $root.getBoundingClientRect();
+                    if (
+                        bodyRect.height &&
+                        top > bodyRect.height - rootRect.height - 10
+                    ) {
+                        top = Math.max(
+                            0,
+                            bodyRect.height - rootRect.height - 10,
+                        );
+                    }
+
+                    $root.style.top = top + "px";
+                    updateListPosition();
+                }
+            });
+
+            // next tick
+            requestAnimationFrame(() => {
+                $filter.focus();
+                updateListPosition();
+            });
+        }
     }
 }
