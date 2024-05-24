@@ -4,16 +4,43 @@ Experimental port/refactor of litegraph.js (base on [litegraph.ts](https://githu
 
 **NOTE:** The API/serialization format is not 100% compatible with vanilla litegraph.js. It's subject to change during development.
 
-**NOTE2:** This project is mainly about publishing litegraph.ts to npm and carrying out some ongoing renovations and refactoring of this library, with plans as follows:
-- [ ] Add an event bus to LGraph / LGraphCanvas
-- [ ] Refactor contextmenu to enable the ability to customize the contextmenu
-- [ ] Refactor scheduler to support step execution as well as sub-graph (graph theory) controls
-- [ ] try enable `strictNullChecks`
+**NOTE2:** This project is mainly about publishing litegraph.ts to npm and carrying out some ongoing renovations and refactoring of this library.
 
-# Document (typedoc exports)
+![preview](./assets/preview.png)
+
+## Features
+- Renders on Canvas2D (zoom in/out and panning, easy to render complex interfaces, can be used inside a WebGLTexture)
+- Easy to use editor (searchbox, keyboard shortcuts, multiple selection, context menu, ...)
+- Optimized to support hundreds of nodes per graph (on editor but also on execution)
+- Customizable theme (colors, shapes, background)
+- Callbacks to personalize every action/drawing/event of nodes
+- Subgraphs (nodes that contain graphs themselves)
+- Live mode system (hides the graph but calls nodes to render whatever they want, useful to create UIs)
+- Graphs can be executed in NodeJS
+- Highly customizable nodes (color, shape, slots vertical or horizontal, widgets, custom rendering)
+- Easy to integrate in any JS application (one single file, no dependencies)
+- Typescript support
+
+> The above are the features of litegraph.js, which this library fully inherits. Below are the new features continuously updated in this library.
+>
+> (A checkmark indicates implemented features)
+
+- [x] DOMWidget: Internally implemented widgets that support DOM, making it easy to create various UIs
+- [ ] ReactWidget: Integrate support for using React components as widgets, allowing for more dynamic and complex UIs within nodes
+- [ ] Getter Setter Node: Implement getter and setter nodes that determine node connections in a hidden form
+- [ ] Event Bus: LGraph / LGraphCanvas / LGraphNode support event subscription, making it easy to customize various features
+- [ ] Customize ContextMenu: Provide interfaces to customize all context menus in the graph
+- [ ] Customize Dialog: Provide interfaces to customize all dialogs in the graph
+- [ ] Graph Scheduler: Provide graph connection parsing based on graph theory, decompose sub-graphs, and control different sub-graphs
+- [ ] Core Code `strictNullChecks`: Type safe everywhere!
+- [ ] Input/Output widget: Provide widgets for easier handling of input and output within nodes.
+- [ ] Control Flow: Introduce nodes that manage control flow like conditional branches and loops.
+- [ ] UI testing
+
+# Documentation (typedoc exports)
 https://lenml.github.io/litegraph.ts/
 
-## install
+## Installation
 
 ```
 npm install @litegraph-ts/core @litegraph-ts/nodes-basic
@@ -25,7 +52,7 @@ npm install @litegraph-ts/core @litegraph-ts/nodes-basic
 import { LiteGraph, LGraph, LGraphCanvas } from "@litegraph-ts/core"
 import { ConstantNumber, Watch } from "@litegraph-ts/nodes-basic"
 
-// Include litegraph's css, required for the UI to function properly
+// Include litegraph's CSS, required for the UI to function properly
 import "@litegraph-ts/core/css/litegraph.css"
 
 // Grab canvas element from the index.html
@@ -63,3 +90,98 @@ constNumber.connect(0, watch, 0);
 // Begin executing logic on the graph
 graph.start();
 ```
+
+# How to code a new node?
+
+```ts
+export class SumNode extends LGraphNode {
+  override properties = {};
+
+  static slotLayout: SlotLayout = {
+    inputs: [
+      {
+        type: "number",
+        name: "num_a",
+      },
+      {
+        type: "number",
+        name: "num_b",
+      },
+    ],
+    outputs: [
+        {
+            type: 'number',
+            name: 'sum'
+        }
+    ]
+  };
+
+  static propertyLayout: PropertyLayout = [];
+
+  override onExecute(param: any, options: object): void {
+    const input0 = this.getInputData(0) ?? 0;
+    const input1 = this.getInputData(1) ?? 0;
+    this.setOutputData(0, input0 + input1)
+  }
+}
+
+LiteGraph.registerNodeType({
+  class: SumNode,
+  title: "Sum Node",
+  desc: "Add number A number b",
+  type: "demo/sum",
+});
+```
+
+Or you can wrap an existing function:
+
+```js
+function sum(a,b){
+   return a+b;
+}
+
+LiteGraph.wrapFunctionAsNode("demo/sum",sum, ["Number","Number"],"Number");
+```
+
+# How to code DomWidget ?
+
+```ts
+class TextareaWidget extends DOMWidget {
+    constructor(
+        name: string,
+        node: LGraphNode,
+        {
+            defaultValue,
+            placeholder,
+        }: {
+            defaultValue?: string;
+            placeholder?: string;
+        } = {},
+    ) {
+        const element = document.createElement("textarea");
+        element.style.resize = "none";
+        element.value = node.properties[name] ?? defaultValue ?? "";
+        if (placeholder) {
+            element.placeholder = placeholder;
+        }
+
+        super({
+            element,
+            name,
+            node,
+            options: {
+                hideOnZoom: true,
+                getValue: () => element.value,
+                setValue: (x) => (element.value = x),
+            },
+        });
+
+        element.addEventListener("input", () => {
+            this.updateProperty();
+        });
+    }
+}
+```
+
+# GUIDE
+[GUIDE.md](./GUIDE.md)

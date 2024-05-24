@@ -1,15 +1,37 @@
 import {
+    BuiltInSlotType,
     DOMWidget,
+    ISliderWidget,
+    LActionOptions,
+    LGraphCanvas,
     LGraphNode,
     LiteGraph,
+    MouseEventExt,
+    PropertyLayout,
     SlotLayout,
+    Vector2,
+    WidgetLayout,
 } from "@litegraph-ts/core";
 
 class TextareaWidget extends DOMWidget {
-    constructor(name: string, node: LGraphNode, defaultValue?: string) {
+    constructor(
+        name: string,
+        node: LGraphNode,
+        {
+            defaultValue,
+            placeholder,
+        }: {
+            defaultValue?: string;
+            placeholder?: string;
+        } = {},
+    ) {
         const element = document.createElement("textarea");
         element.style.resize = "none";
         element.value = node.properties[name] ?? defaultValue ?? "";
+        if (placeholder) {
+            element.placeholder = placeholder;
+        }
+
         super({
             element,
             name,
@@ -53,7 +75,6 @@ class UploadWidget extends DOMWidget {
         });
     }
 }
-
 export class DomDemoNode extends LGraphNode {
     override properties = {
         text: "",
@@ -70,7 +91,11 @@ export class DomDemoNode extends LGraphNode {
     constructor(name?: string) {
         super(name);
 
-        this.addCustomWidget(new TextareaWidget("text", this, ""));
+        this.addCustomWidget(
+            new TextareaWidget("text", this, {
+                defaultValue: "Hello",
+            }),
+        );
         this.addCustomWidget(new UploadWidget("file", this));
     }
 
