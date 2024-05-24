@@ -1,12 +1,20 @@
+
 # litegraph.ts
 
-Experimental port/refactor of litegraph.js (base on [litegraph.ts](https://github.com/space-nuko/litegraph.ts)) to TypeScript with ESM module support.
+> This project is an experimental port and refactor of litegraph.js (based on [litegraph.ts](https://github.com/space-nuko/litegraph.ts)) to TypeScript with ESM module support.
 
-**NOTE:** The API/serialization format is not 100% compatible with vanilla litegraph.js. It's subject to change during development.
+**litegraph.ts** is a TypeScript library designed to create graphs in the browser, akin to Unreal Blueprints. Users can easily program nodes, and the library includes an editor for constructing and testing graphs.
 
-**NOTE2:** This project is mainly about publishing litegraph.ts to npm and carrying out some ongoing renovations and refactoring of this library.
+- Seamless integration with existing web applications
+- Capability to run graphs independently of the editor
+- Extensive [documentation](https://lenml.github.io/litegraph.ts/) available
 
-![preview](./assets/preview.png)
+![Preview](./assets/preview.png)
+
+> **Note:** The API and serialization format are not entirely compatible with vanilla litegraph.js and may change during development.
+
+> **Note 2:** This project's primary objective is to publish litegraph.ts to npm while carrying out ongoing renovations and refactoring.
+
 
 ## Features
 - Renders on Canvas2D (zoom in/out and panning, easy to render complex interfaces, can be used inside a WebGLTexture)
@@ -36,9 +44,6 @@ Experimental port/refactor of litegraph.js (base on [litegraph.ts](https://githu
 - [ ] Input/Output widget: Provide widgets for easier handling of input and output within nodes.
 - [ ] Control Flow: Introduce nodes that manage control flow like conditional branches and loops.
 - [ ] UI testing
-
-# Documentation (typedoc exports)
-https://lenml.github.io/litegraph.ts/
 
 ## Installation
 
