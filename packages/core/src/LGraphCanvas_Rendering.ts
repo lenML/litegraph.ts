@@ -1410,7 +1410,8 @@ export default class LGraphCanvas_Rendering {
         else text = "[" + data.constructor.name + "]";
 
         if (text == null) return;
-        text = text.substr(0, 30); //avoid weird
+        // avoid weird
+        if (text.length > 30) text = text.slice(0, 30) + "...";
 
         ctx.font = "14px Courier New";
         var info = ctx.measureText(text);
