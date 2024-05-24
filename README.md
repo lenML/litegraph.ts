@@ -39,7 +39,7 @@
 - [ ] Event Bus: LGraph / LGraphCanvas / LGraphNode support event subscription, making it easy to customize various features
 - [ ] Customize ContextMenu: Provide interfaces to customize all context menus in the graph
 - [ ] Customize Dialog: Provide interfaces to customize all dialogs in the graph
-- [ ] Graph Scheduler: Provide graph connection parsing based on graph theory, decompose sub-graphs, and control different sub-graphs
+- [ ] Graph Scheduler: Provide graph connection parsing based on graph theory, decompose component, and control different component(sub-graphs)
 - [ ] Core Code `strictNullChecks`: Type safe everywhere!
 - [ ] Input/Output widget: Provide widgets for easier handling of input and output within nodes.
 - [ ] Control Flow: Introduce nodes that manage control flow like conditional branches and loops.
