@@ -67,6 +67,8 @@ export default interface IWidget<TOptions = any, TValue = any> {
     onNodeModeChange?(node: LGraphNode, mode: NodeMode): void;
 
     onPropertyChange?(value: any): void;
+
+    onRemoved?(): void;
 }
 export interface IButtonWidget extends IWidget<{}, null> {
     type: "button";

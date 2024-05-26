@@ -1895,7 +1895,7 @@ export default class LGraphCanvas
         if (!this.graph) {
             return;
         }
-        var nodes = (this.graph as any)._nodes;
+        var nodes = this.graph._nodes;
         for (var i = 0, l = nodes.length; i < l; ++i) {
             var node = nodes[i];
             if (!node.is_selected) {

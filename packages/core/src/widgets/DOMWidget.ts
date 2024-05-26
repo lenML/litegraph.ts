@@ -24,6 +24,13 @@ function intersect(a: LDomRect, b: LDomRect) {
 function getClipPath(node: LGraphNode, element: HTMLElement, elRect: DOMRect) {
     // FIXME: maybe to multiple canvas?
     const canvas = node.graph.list_of_graphcanvas[0];
+    if (!canvas) {
+        return "";
+    }
+
+    const { top: canvas_offset_y, left: canvas_offset_x } =
+        canvas.canvas.getBoundingClientRect();
+
     const selectedNode = Object.values(canvas.selected_nodes)[0];
     if (selectedNode && selectedNode !== node) {
         const MARGIN = 7;
@@ -38,12 +45,17 @@ function getClipPath(node: LGraphNode, element: HTMLElement, elRect: DOMRect) {
                 height: elRect.height / scale,
             },
             {
-                x: selectedNode.pos[0] + canvas.ds.offset[0] - MARGIN,
+                x:
+                    selectedNode.pos[0] +
+                    canvas.ds.offset[0] -
+                    MARGIN +
+                    canvas_offset_x,
                 y:
                     selectedNode.pos[1] +
                     canvas.ds.offset[1] -
                     LiteGraph.NODE_TITLE_HEIGHT -
-                    MARGIN,
+                    MARGIN +
+                    canvas_offset_y,
                 width: bounding[2] + MARGIN + MARGIN,
                 height: bounding[3] + MARGIN + MARGIN,
             },
@@ -198,6 +210,8 @@ interface DOMWidgetOptions {
 
     parentElement?: HTMLElement;
     property?: string;
+
+    disable_pointer_event_control?: boolean;
 }
 
 /**
@@ -309,6 +323,30 @@ export class DOMWidget implements IWidget {
         this.disposed.connect(() => {
             this.$el.remove();
         });
+
+        if (!options?.disable_pointer_event_control) {
+            node.events.on(
+                "selected",
+                () => {
+                    this.$el.style.pointerEvents = "auto";
+                },
+                {
+                    signal: this.disposed.signal,
+                },
+            );
+            node.events.on(
+                "deselected",
+                () => {
+                    this.$el.style.pointerEvents = "none";
+                },
+                {
+                    signal: this.disposed.signal,
+                },
+            );
+
+            // default to disabled
+            this.$el.style.pointerEvents = "none";
+        }
     }
 
     get value() {
@@ -391,6 +429,10 @@ export class DOMWidget implements IWidget {
         if (!this.$el.hidden) return;
         this.$el.hidden = false;
         this.options.onDraw?.(this);
+    }
+
+    onRemoved(): void {
+        this.destroy();
     }
 
     onNodeRemoved(node: LGraphNode) {
