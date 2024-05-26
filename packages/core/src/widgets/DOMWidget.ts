@@ -370,12 +370,12 @@ export class DOMWidget implements IWidget {
         }
         const graph = node.graph;
 
-        const canvas = LGraphCanvas.active_canvas;
         const { $el: element } = this;
 
         const hidden =
             node.flags?.collapsed ||
-            (!!this.options?.hideOnZoom && canvas.ds.scale < 0.5) ||
+            (!!this.options?.hideOnZoom &&
+                LGraphCanvas.active_canvas?.ds.scale < 0.5) ||
             this.computedHeight <= 0;
         element.hidden = hidden;
         element.style.display = hidden ? "none" : null;
