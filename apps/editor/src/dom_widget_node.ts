@@ -37,7 +37,9 @@ class TextareaWidget extends DOMWidget {
             name,
             node,
             options: {
+                selectOn: ["click"],
                 hideOnZoom: true,
+                enableDomClipping: true,
                 getValue: () => element.value,
                 setValue: (x) => (element.value = x),
             },
@@ -62,6 +64,8 @@ class UploadWidget extends DOMWidget {
             node,
             options: {
                 hideOnZoom: true,
+                enableDomClipping: true,
+                selectOn: ["click"],
                 getValue: () =>
                     this._file instanceof Blob ? this._file : null,
                 setValue: (x) => (this._file = x),
@@ -110,4 +114,78 @@ LiteGraph.registerNodeType({
     title: "Dom Widget Demo",
     desc: "Demo node",
     type: "demo/text_and_input",
+});
+
+class YoutubeEmbedWidget extends DOMWidget {
+    videoId = "";
+
+    constructor(name: string, node: LGraphNode) {
+        const iframe = document.createElement("iframe");
+        iframe.setAttribute("frameborder", "0");
+        iframe.setAttribute("allowfullscreen", "true");
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+
+        super({
+            element: iframe,
+            name,
+            node,
+            options: {
+                hideOnZoom: false,
+                enableDomClipping: true,
+            },
+        });
+    }
+
+    setVideoId(videoId) {
+        this.videoId = videoId;
+        const iframe = this.$el as HTMLIFrameElement;
+        if (videoId) {
+            iframe.src = `https://www.youtube.com/embed/${videoId}`;
+        } else {
+            iframe.src = "";
+        }
+    }
+}
+
+export class YoutubeEmbedNode extends LGraphNode {
+    override properties = {
+        videoId: "",
+    };
+
+    static widgetLayout: WidgetLayout = [
+        {
+            type: "text",
+            name: "videoId",
+            value: "",
+            options: {
+                property: "videoId",
+            },
+        },
+        {
+            widget: (node) => new YoutubeEmbedWidget("video", node),
+        },
+    ];
+
+    constructor(title?: string) {
+        super(title ?? "Youtube Embed");
+    }
+
+    onPropertyChanged(
+        property: string,
+        value: any,
+        prevValue?: any,
+    ): boolean | void {
+        if (property === "videoId") {
+            const w1 = this.widgets?.[1] as YoutubeEmbedWidget;
+            w1?.setVideoId(value ?? "");
+        }
+    }
+}
+
+LiteGraph.registerNodeType({
+    class: YoutubeEmbedNode,
+    title: "Youtube Embed",
+    desc: "A node that embeds a YouTube video",
+    type: "media/youtube_embed",
 });

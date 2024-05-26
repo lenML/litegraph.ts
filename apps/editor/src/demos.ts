@@ -1,7 +1,7 @@
-import { LGraph, LiteGraph } from "@litegraph-ts/core";
+import { LGraph, LiteGraph, NodeMode } from "@litegraph-ts/core";
 import { ConstantNumber, Watch } from "@litegraph-ts/nodes-basic";
 import { MathOperation } from "@litegraph-ts/nodes-math";
-import { DomDemoNode } from "./dom_widget_node";
+import { DomDemoNode, YoutubeEmbedNode } from "./dom_widget_node";
 
 export function demo(graph: LGraph) {
     multiConnection(graph);
@@ -11,6 +11,8 @@ export function demo(graph: LGraph) {
         ["a", "b"],
         (a: number, b: number) => a + b,
     );
+
+    LiteGraph.NODE_TITLE_COLOR = "#000";
 }
 
 function multiConnection(graph: LGraph) {
@@ -46,9 +48,13 @@ function multiConnection(graph: LGraph) {
     node_watch.pos = [700, 200];
     graph.add(node_watch);
 
+    node_watch.mode = NodeMode.NEVER;
+
     var node_watch2 = LiteGraph.createNode(Watch);
     node_watch2.pos = [700, 300];
     graph.add(node_watch2);
+
+    node_watch2.mode = NodeMode.BY_PASS;
 
     node_const_A.connect(0, node_math, 0);
     node_const_B.connect(0, node_math, 1);
@@ -56,13 +62,49 @@ function multiConnection(graph: LGraph) {
     node_math.connect(0, node_watch2, 0);
 
     var demo_node = LiteGraph.createNode(DomDemoNode);
-    demo_node.pos = [200, 400];
+    demo_node.pos = [200, 450];
     demo_node.setProperty("text", "change value in real time...");
     graph.add(demo_node);
 
+    demo_node.progress = {
+        message: "loading...",
+        current: 50,
+        total: 100,
+        running: true,
+    };
+
+    const icon = document.createElement("span");
+    icon.innerHTML = `🌑`;
+    const icon_arr = "🌑,🌒,🌓,🌔,🌕,🌖,🌗,🌘".split(",");
+    icon.style.marginTop = `-32px`;
+
+    const status_bar = document.createElement("span");
+    status_bar.innerHTML = "🤗 please wait a moment...";
+    status_bar.style.color = "rgba(255,255,255,0.6)";
+    status_bar.style.marginTop = "10px";
+
+    demo_node.dom_anchors = {
+        top_left: icon,
+        bottom_left: status_bar,
+    };
+    setInterval(() => {
+        const idx = (icon_arr.indexOf(icon.innerHTML) + 1) % icon_arr.length;
+        icon.innerHTML = icon_arr[idx];
+    }, 100);
+
     var node_watch3 = LiteGraph.createNode(Watch);
-    node_watch3.pos = [500, 400];
+    node_watch3.pos = [500, 450];
     graph.add(node_watch3);
+
+    node_watch3.highlight.enabled = true;
+    node_watch3.highlight.color = "#F0F";
+
+    const ytb_node = LiteGraph.createNode(YoutubeEmbedNode);
+    ytb_node.pos = [700, 450];
+    ytb_node.size = [300, 200];
+    ytb_node.setProperty("videoId", "dQw4w9WgXcQ");
+
+    graph.add(ytb_node);
 
     demo_node.connect(0, node_watch3, 0);
 }
