@@ -36,7 +36,8 @@
 - [x] DOMWidget: Internally implemented widgets that support DOM, making it easy to create various UIs
 - [ ] ReactWidget: Integrate support for using React components as widgets, allowing for more dynamic and complex UIs within nodes
 - [ ] Getter Setter Node: Implement getter and setter nodes that determine node connections in a hidden form
-- [ ] Event Bus: LGraph / LGraphCanvas / LGraphNode support event subscription, making it easy to customize various features
+- [x] Event Bus: LGraph / LGraphCanvas / LGraphNode support event subscription, making it easy to customize various features
+- [ ] Progress: draw node progress / highlight
 - [ ] Customize ContextMenu: Provide interfaces to customize all context menus in the graph
 - [ ] Customize Dialog: Provide interfaces to customize all dialogs in the graph
 - [ ] Graph Scheduler: Provide graph connection parsing based on graph theory, decompose component, and control different component(sub-graphs)

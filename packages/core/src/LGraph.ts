@@ -672,6 +672,142 @@ export default class LGraph {
     }
 
     /**
+     * Computes the connected components of the graph.
+     *
+     * @returns {LGraphNode[][]} - A 2D array where each sub-array represents a connected component,
+     *                              containing all the nodes in that component.
+     */
+    computeConnectedComponents() {
+        type GraphComponent = LGraphNode[];
+
+        const nodes = this._nodes;
+        const visited = new Set<NodeID>();
+        const components: GraphComponent[] = [];
+
+        /**
+         * Traverses the graph starting from the given node.
+         *
+         * @param {LGraphNode} node - The node to start the traversal from.
+         */
+        const traverse = (node: LGraphNode, component: GraphComponent) => {
+            visited.add(node.id);
+            component.push(node);
+
+            // Iterate over input links
+            for (const input of node.inputs || []) {
+                const linkId = input?.link;
+                if (!linkId) continue;
+                const link = this.links[linkId];
+
+                const targetNodeId =
+                    link.origin_id === node.id
+                        ? link.target_id
+                        : link.origin_id;
+                const targetNode = this.getNodeById(targetNodeId);
+
+                if (targetNode && !visited.has(targetNode.id)) {
+                    traverse(targetNode, component);
+                }
+            }
+
+            // Iterate over output links
+            for (const output of node.outputs || []) {
+                for (const linkId of output.links || []) {
+                    const link = this.links[linkId];
+                    if (!link) continue;
+
+                    const targetNodeId =
+                        link.origin_id === node.id
+                            ? link.target_id
+                            : link.origin_id;
+                    const targetNode = this.getNodeById(targetNodeId);
+
+                    if (targetNode && !visited.has(targetNode.id)) {
+                        traverse(targetNode, component);
+                    }
+                }
+            }
+        };
+
+        for (const node of nodes) {
+            if (!visited.has(node.id)) {
+                const component = [] as LGraphNode[];
+                traverse(node, component);
+                components.push(component);
+            }
+        }
+
+        // Sort each component
+        for (const component of components) {
+            const componentStartNodes: LGraphNode[] = [];
+            const remainingLinks: Record<NodeID, number> = {};
+
+            // Find start nodes and count remaining links for each node
+            for (const node of component) {
+                let inputCount = 0;
+                for (const input of node.inputs || []) {
+                    if (input?.link) {
+                        inputCount++;
+                    }
+                }
+
+                if (inputCount === 0) {
+                    componentStartNodes.push(node);
+                } else {
+                    remainingLinks[node.id] = inputCount;
+                }
+            }
+
+            const sortedComponent: LGraphNode[] = [];
+            const visitedLinks = new Set<LinkID>();
+
+            /**
+             * Sorts the nodes in a connected component.
+             *
+             * @param {LGraphNode[]} componentStartNodes - The starting nodes of the connected component.
+             */
+            const sortComponent = (startNodes: LGraphNode[]) => {
+                while (startNodes.length > 0) {
+                    const node = startNodes.shift()!;
+                    sortedComponent.push(node);
+
+                    for (const output of node.outputs || []) {
+                        for (const linkId of output.links || []) {
+                            if (visitedLinks.has(linkId)) continue;
+
+                            const link = this.links[linkId];
+                            if (!link) continue;
+
+                            visitedLinks.add(linkId);
+
+                            const targetNodeId =
+                                link.origin_id === node.id
+                                    ? link.target_id
+                                    : link.origin_id;
+                            const targetNode = this.getNodeById(targetNodeId);
+
+                            if (targetNode && remainingLinks[targetNode.id]) {
+                                remainingLinks[targetNode.id]--;
+                                if (remainingLinks[targetNode.id] === 0) {
+                                    startNodes.push(targetNode);
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            sortComponent(componentStartNodes);
+
+            // Update the component in the components array
+            const componentIndex = components.indexOf(component);
+            components[componentIndex] = sortedComponent;
+        }
+
+        return components;
+    }
+
+    /**
      * Returns all the nodes that could affect this one (ancestors) by crawling all the inputs recursively.
      * It doesn't include the node itself
      * @return an array with all the LGraphNodes that affect this node, in order of execution
