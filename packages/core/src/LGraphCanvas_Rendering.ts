@@ -959,7 +959,8 @@ export default class LGraphCanvas_Rendering {
         if (node.mode === NodeMode.NEVER) {
             editor_alpha = 0.4;
         }
-        if (node.mode === NodeMode.ON_REQUEST) {
+        // bypass
+        if (node.mode === NodeMode.BY_PASS) {
             bgColor = "#FF00FF";
             editor_alpha = 0.2;
         }
@@ -1544,8 +1545,9 @@ export default class LGraphCanvas_Rendering {
                     var grad = LGraphCanvas.gradients[title_color];
                     if (!grad) {
                         grad = LGraphCanvas.gradients[title_color] =
-                            ctx.createLinearGradient(0, 0, 400, 0);
-                        grad.addColorStop(0, title_color); // TODO refactor: validate color !! prevent DOMException
+                            ctx.createLinearGradient(0, 0, 200, 0);
+                        // TODO refactor: validate color !! prevent DOMException
+                        grad.addColorStop(0, title_color);
                         grad.addColorStop(1, "#000");
                     }
                     ctx.fillStyle = grad;
@@ -1800,6 +1802,110 @@ export default class LGraphCanvas_Rendering {
         // these counter helps in conditioning drawing based on if the node has been executed or an action occurred
         if (node.execute_triggered > 0) node.execute_triggered--;
         if (node.action_triggered > 0) node.action_triggered--;
+
+        this.drawNodeHighlight(
+            node,
+            ctx,
+            size,
+            fgColor,
+            bgColor,
+            selected,
+            mouseOver,
+        );
+    }
+
+    drawNodeHighlight(
+        this: LGraphCanvas,
+        node: LGraphNode,
+        ctx: CanvasRenderingContext2D,
+        size: Vector2,
+        fgColor: string,
+        bgcolor: string,
+        selected: boolean,
+        mouseOver: boolean,
+    ) {
+        const {
+            last_errors: errors,
+            last_execution_error,
+            progress,
+            highlight,
+        } = node;
+
+        let color = null;
+        let lineWidth = 1;
+        if (progress.running) {
+            color = "#0f0";
+        } else if (errors && errors.length !== 0) {
+            color = "red";
+            lineWidth = 2;
+        } else if (last_execution_error) {
+            color = "#f0f";
+            lineWidth = 2;
+        } else if (highlight.enabled) {
+            color = highlight.color;
+            lineWidth = highlight.width;
+        }
+
+        if (color) {
+            const shape = node.shape ?? BuiltInSlotShape.ROUND_SHAPE;
+            ctx.lineWidth = lineWidth;
+            ctx.globalAlpha = 0.8;
+            ctx.beginPath();
+            if (shape == BuiltInSlotShape.BOX_SHAPE)
+                ctx.rect(
+                    -6,
+                    -6 - LiteGraph.NODE_TITLE_HEIGHT,
+                    12 + size[0] + 1,
+                    12 + size[1] + LiteGraph.NODE_TITLE_HEIGHT,
+                );
+            else if (
+                shape == BuiltInSlotShape.ROUND_SHAPE ||
+                (shape == BuiltInSlotShape.CARD_SHAPE && node.flags.collapsed)
+            )
+                ctx.roundRect(
+                    -6,
+                    -6 - LiteGraph.NODE_TITLE_HEIGHT,
+                    12 + size[0] + 1,
+                    12 + size[1] + LiteGraph.NODE_TITLE_HEIGHT,
+                    this.round_radius * 2,
+                );
+            else if (shape == BuiltInSlotShape.CARD_SHAPE)
+                ctx.roundRect(
+                    -6,
+                    -6 - LiteGraph.NODE_TITLE_HEIGHT,
+                    12 + size[0] + 1,
+                    12 + size[1] + LiteGraph.NODE_TITLE_HEIGHT,
+                    [this.round_radius * 2, this.round_radius * 2, 2, 2],
+                );
+            else if (shape == BuiltInSlotShape.CIRCLE_SHAPE)
+                ctx.arc(
+                    size[0] * 0.5,
+                    size[1] * 0.5,
+                    size[0] * 0.5 + 6,
+                    0,
+                    Math.PI * 2,
+                );
+            ctx.strokeStyle = color;
+            ctx.stroke();
+            ctx.strokeStyle = fgColor;
+            ctx.globalAlpha = 1;
+        }
+
+        if (progress.running) {
+            const { current, total, message } = progress;
+            ctx.fillStyle = "green";
+            ctx.fillRect(0, 0, size[0] * (current / total), 6);
+
+            if (message) {
+                // TODO better text rendering
+                ctx.font = "12px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "white";
+                ctx.fillText(message, size[0] / 2, 3);
+            }
+            ctx.fillStyle = bgcolor;
+        }
     }
 
     private static margin_area = new Float32Array(4);

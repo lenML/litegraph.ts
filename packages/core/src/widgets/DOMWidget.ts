@@ -418,7 +418,7 @@ export class DOMWidget implements IWidget {
     onNodeModeChange(node: LGraphNode, mode: NodeMode): void {
         switch (mode) {
             case NodeMode.NEVER:
-            case NodeMode.ON_REQUEST:
+            case NodeMode.BY_PASS:
                 this.$el.style.opacity = "0.5";
                 this.$el.style.pointerEvents = "none";
                 break;

@@ -289,6 +289,33 @@ export default class LGraphNode {
     /** the nFrames it will be used (-- each step), means "how old" is the event */
     action_triggered: number = 0;
 
+    /** progress draw in drawNodeHighlight */
+    progress: {
+        running: boolean;
+        message: string;
+        total: number;
+        current: number;
+    } = {
+        running: false,
+        message: "",
+        total: 0,
+        current: 0,
+    };
+
+    /** highlight draw in drawNodeHighlight */
+    highlight: {
+        enabled: boolean;
+        color: string;
+        width: number;
+    } = {
+        enabled: false,
+        color: "#00FF00",
+        width: 2,
+    };
+
+    last_errors: any[] | null = null;
+    last_execution_error: any = null;
+
     disposed = new Disposed();
     events = new EventEmitter<{
         removed: (options?: LGraphRemoveNodeOptions) => void;
@@ -1233,6 +1260,7 @@ export default class LGraphNode {
                 this.addOnExecutedOutput();
                 break;
 
+            case NodeMode.BY_PASS:
             case NodeMode.NEVER:
             case NodeMode.ALWAYS:
             case NodeMode.ON_REQUEST:

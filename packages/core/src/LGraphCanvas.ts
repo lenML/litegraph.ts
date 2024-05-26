@@ -208,7 +208,7 @@ export default class LGraphCanvas
 
     link_type_colors: Record<string, string> = {};
 
-    static gradients: object;
+    static gradients: object = {};
     static search_limit: number;
 
     static getFileExtension(url: string): string {
@@ -2831,6 +2831,21 @@ export default class LGraphCanvas
         mouseOver: boolean,
     ): void {
         LGraphCanvas_Rendering.prototype.drawNodeShape.apply(this, arguments);
+    }
+
+    drawNodeHighlight(
+        node: LGraphNode,
+        ctx: CanvasRenderingContext2D,
+        size: Vector2,
+        fgColor: string,
+        bgcolor: string,
+        selected: boolean,
+        mouseOver: boolean,
+    ): void {
+        LGraphCanvas_Rendering.prototype.drawNodeHighlight.apply(
+            this,
+            arguments,
+        );
     }
 
     drawConnections(ctx: CanvasRenderingContext2D): void {

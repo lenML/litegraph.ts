@@ -426,11 +426,11 @@ export default class LGraph {
             for (var i = 0; i < num; i++) {
                 for (var j = 0; j < limit; ++j) {
                     var node = nodes[j];
-                    if (node.mode == NodeMode.ALWAYS && node.onExecute) {
+                    if (node.mode == NodeMode.ALWAYS) {
                         //wrap node.onExecute();
-                        node.doExecute();
+                        node.doExecute?.();
+                        node.events.emit("execute");
                     }
-                    node.events.emit("execute");
                 }
 
                 this.fixedtime += this.fixedtime_lapse;
@@ -450,10 +450,10 @@ export default class LGraph {
                 for (var i = 0; i < num; i++) {
                     for (var j = 0; j < limit; ++j) {
                         var node = nodes[j];
-                        if (node.mode == NodeMode.ALWAYS && node.onExecute) {
-                            node.onExecute(null, {});
+                        if (node.mode == NodeMode.ALWAYS) {
+                            node.onExecute?.(null, {});
+                            node.events.emit("execute");
                         }
-                        node.events.emit("execute");
                     }
 
                     this.fixedtime += this.fixedtime_lapse;
