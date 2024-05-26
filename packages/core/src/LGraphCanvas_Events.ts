@@ -327,6 +327,9 @@ export default class LGraphCanvas_Events {
                 //it wasn't clicked on the links boxes
                 if (!skip_action) {
                     var block_drag_node = false;
+                    if (node?.flags?.pinned) {
+                        block_drag_node = true;
+                    }
                     var pos: Vector2 = [
                         e.canvasX - node.pos[0],
                         e.canvasY - node.pos[1],

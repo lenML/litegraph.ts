@@ -3293,7 +3293,10 @@ export default class LGraphCanvas_UI {
                     content: "Collapse",
                     callback: LGraphCanvas.onMenuNodeCollapse,
                 },
-                { content: "Pin", callback: LGraphCanvas.onMenuNodePin },
+                {
+                    content: node.flags.pinned ? "Un Pin" : "Pin",
+                    callback: LGraphCanvas.onMenuNodePin,
+                },
                 {
                     content: "Colors",
                     has_submenu: true,
