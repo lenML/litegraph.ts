@@ -335,6 +335,7 @@ export default class LGraphNode {
         nodeOptionalInputAdd: (slot: INodeInputSlot) => void;
         nodeOptionalOutputAdd: (slot: INodeOutputSlot) => void;
         resize: (size: Vector2) => void;
+        propertyChanged: (k: string, v: any, prev_v: any) => void;
     }>();
 
     // sync position with the node
@@ -369,6 +370,12 @@ export default class LGraphNode {
                     if (this.onPropertyChanged) {
                         this.onPropertyChanged(k, info.properties[k]);
                     }
+                    this.events.emit(
+                        "propertyChanged",
+                        k,
+                        info.properties[k],
+                        undefined,
+                    );
                 }
                 continue;
             }
@@ -625,6 +632,7 @@ export default class LGraphNode {
                 //abort change
                 this.properties[name] = prev_value;
         }
+        this.events.emit("propertyChanged", name, value, prev_value);
         if (this.widgets)
             //widgets could be linked to properties
             for (var i = 0; i < this.widgets.length; ++i) {
