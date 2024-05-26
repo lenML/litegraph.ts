@@ -954,7 +954,21 @@ export default class LGraphCanvas_UI {
             };
             values.push(value);
         }
-        new ContextMenu(values, {
+        values.push({
+            value: "Custom fg color",
+            content: `<label style='display: block; padding-left: 4px;'>
+            🎨 Custom fg
+            <input id="fg-c" type='color' value='${node.color || "#999999"}' style='opacity: 0; height: 1px; width: 1px; padding: 0; margin: 0; border: 0;'>
+            </label>`,
+        });
+        values.push({
+            value: "Custom fg color",
+            content: `<label style='display: block; padding-left: 4px;'>
+            🎨 Custom bg
+            <input id="bg-c" type='color' value='${node.color || "#999999"}' style='opacity: 0; height: 1px; width: 1px; padding: 0; margin: 0; border: 0;'>
+            </label>`,
+        });
+        const menu2 = new ContextMenu(values, {
             event: e,
             callback: inner_clicked,
             parentMenu: menu,
@@ -962,40 +976,90 @@ export default class LGraphCanvas_UI {
             allow_html: true,
         });
 
-        function inner_clicked(v) {
+        var applyNodeColor = function (
+            node: LGraphNode | LGraphGroup,
+            color: {
+                color: string;
+                bgcolor: string;
+                groupcolor: string;
+            } | null,
+        ) {
+            if (color) {
+                if (node instanceof LGraphGroup) {
+                    node.color = color.groupcolor;
+                } else {
+                    node.color = color.color;
+                    node.bgcolor = color.bgcolor;
+                }
+            } else {
+                delete node.color;
+                if (node instanceof LGraphNode) {
+                    delete node.bgcolor;
+                }
+            }
+        };
+        const applyColor = (
+            color: {
+                color: string;
+                bgcolor: string;
+                groupcolor: string;
+            } | null,
+        ) => {
             if (!node) {
                 return;
             }
-
-            var color = v.value ? LGraphCanvas.node_colors[v.value] : null;
-
-            var fApplyColor = function (node: LGraphNode | LGraphGroup) {
-                if (color) {
-                    if (node instanceof LGraphGroup) {
-                        node.color = color.groupcolor;
-                    } else {
-                        node.color = color.color;
-                        node.bgcolor = color.bgcolor;
-                    }
-                } else {
-                    delete node.color;
-                    if (node instanceof LGraphNode) {
-                        delete node.bgcolor;
-                    }
-                }
-            };
-
             var graphcanvas = LGraphCanvas.active_canvas;
             if (
                 !graphcanvas.selected_nodes ||
                 Object.keys(graphcanvas.selected_nodes).length <= 1
             ) {
-                fApplyColor(node);
+                applyNodeColor(node, color);
             } else {
                 for (var i in graphcanvas.selected_nodes) {
-                    fApplyColor(graphcanvas.selected_nodes[i]);
+                    applyNodeColor(graphcanvas.selected_nodes[i], color);
                 }
             }
+        };
+
+        const customColor = {
+            color: node.color || LiteGraph.NODE_DEFAULT_COLOR,
+            bgcolor: node.bgcolor || LiteGraph.NODE_DEFAULT_COLOR,
+            groupcolor: node.color || LiteGraph.NODE_DEFAULT_COLOR,
+        };
+        // bgColor
+        menu2.root.querySelector("#bg-c").addEventListener(
+            "input",
+            (e) => {
+                const color = (e.target as HTMLInputElement).value;
+                customColor.bgcolor = color;
+                customColor.groupcolor = color;
+                applyColor({ ...customColor });
+                node.setDirtyCanvas(true, true);
+            },
+            false,
+        );
+        // fgColor
+        menu2.root.querySelector("#fg-c").addEventListener(
+            "input",
+            (e) => {
+                const color = (e.target as HTMLInputElement).value;
+                customColor.color = color;
+                applyColor({ ...customColor });
+                node.setDirtyCanvas(true, true);
+            },
+            false,
+        );
+
+        function inner_clicked(v) {
+            if (!node) {
+                return;
+            }
+            if (v.value.startsWith("Custom")) {
+                return true;
+            }
+
+            var color = v.value ? LGraphCanvas.node_colors[v.value] : null;
+            applyColor(color);
             node.setDirtyCanvas(true, true);
         }
 
