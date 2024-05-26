@@ -106,7 +106,7 @@ export type WidgetLayout = (
           options?: IWidget["options"];
       }
     | {
-          widget: () => IWidget;
+          widget: (n: LGraphNode) => IWidget;
       }
 )[];
 
@@ -248,7 +248,7 @@ export default class LGraphNode {
         collapsed: boolean;
         pinned: boolean;
         skip_repeated_outputs: boolean;
-    }>;
+    }> = {};
 
     color: string;
     bgcolor: string;
@@ -326,6 +326,7 @@ export default class LGraphNode {
         dropFile: (file: File) => void;
         drop: (e: DragEvent) => void;
         selected: () => void;
+        deselected: () => void;
         widgetChanged: (widget: IWidget, value: any, old: any) => void;
         mouseLeave: (e: MouseEventExt) => void;
         mouseEnter: (e: MouseEventExt) => void;
@@ -335,6 +336,19 @@ export default class LGraphNode {
         nodeOptionalOutputAdd: (slot: INodeOutputSlot) => void;
         resize: (size: Vector2) => void;
     }>();
+
+    // sync position with the node
+    dom_anchors: {
+        top_left?: HTMLElement | null;
+        top_center?: HTMLElement | null;
+        top_right?: HTMLElement | null;
+        middle_left?: HTMLElement | null;
+        middle_center?: HTMLElement | null;
+        middle_right?: HTMLElement | null;
+        bottom_left?: HTMLElement | null;
+        bottom_center?: HTMLElement | null;
+        bottom_right?: HTMLElement | null;
+    } = {};
 
     onNodeCreated?(): void;
 
@@ -1980,6 +1994,7 @@ export default class LGraphNode {
         var index = this.widgets.indexOf(widget);
         if (index != -1) {
             this.widgets.splice(index, 1);
+            widget.onRemoved?.();
             this.fitSize();
         }
     }
@@ -3351,6 +3366,64 @@ export default class LGraphNode {
             (x + this.pos[0]) * graphCanvas.ds.scale + graphCanvas.ds.offset[0],
             (y + this.pos[1]) * graphCanvas.ds.scale + graphCanvas.ds.offset[1],
         ];
+    }
+
+    syncDomAnchors(ctx: CanvasRenderingContext2D) {
+        const elRect = ctx.canvas.getBoundingClientRect();
+        const transform = new DOMMatrix()
+            .scaleSelf(
+                elRect.width / ctx.canvas.width,
+                elRect.height / ctx.canvas.height,
+            )
+            .multiplySelf(ctx.getTransform());
+
+        const scale = new DOMMatrix().scaleSelf(transform.a, transform.d);
+
+        const zIndex = this.graph._nodes.indexOf(this);
+
+        const applyTransformTo = (
+            element: HTMLElement | null,
+            translate: { x: number; y: number },
+        ) => {
+            if (!element) return;
+            const t2 = transform.translateSelf(translate.x, translate.y);
+
+            Object.assign(element.style, {
+                transformOrigin: "0 0",
+                transform: scale,
+                left: `${t2.a + t2.e}px`,
+                top: `${t2.d + t2.f}px`,
+                position: "absolute",
+                zIndex,
+            });
+        };
+        const th = LiteGraph.NODE_TITLE_HEIGHT;
+        const [w, h] = this.size;
+        const pos_map = {
+            left: { x: 0 },
+            center: { x: w / 2 },
+            right: { x: w },
+            top: { y: 0 - th },
+            middle: { y: (h + th) / 2 },
+            bottom: { y: h + th },
+        };
+
+        Object.entries(this.dom_anchors).forEach(([k, dom]) => {
+            if (!dom) return;
+            if (!dom.parentNode) {
+                ctx.canvas.offsetParent?.appendChild(dom);
+            }
+            dom.hidden = false;
+
+            const positions = k.split("_");
+            const translate = positions.reduce((acc, cur) => {
+                return {
+                    ...acc,
+                    ...pos_map[cur],
+                };
+            }, {} as any);
+            applyTransformTo(dom, translate);
+        });
     }
 
     // https://github.com/jagenjo/litegraph.js/blob/master/guides/README.md#custom-node-appearance

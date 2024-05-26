@@ -38,6 +38,7 @@
 - [ ] Getter Setter Node: Implement getter and setter nodes that determine node connections in a hidden form
 - [x] Event Bus: LGraph / LGraphCanvas / LGraphNode support event subscription, making it easy to customize various features
 - [x] Progress: draw node progress / highlight
+- [x] Dom Anchors: You can freely insert DOM elements in any direction of the node's top, bottom, left, right, center, and middle to enhance UI functions, such as tooltip or error message
 - [ ] Customize ContextMenu: Provide interfaces to customize all context menus in the graph
 - [ ] Customize Dialog: Provide interfaces to customize all dialogs in the graph
 - [ ] Graph Scheduler: Provide graph connection parsing based on graph theory, decompose component, and control different component(sub-graphs)

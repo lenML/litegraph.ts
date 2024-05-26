@@ -538,11 +538,11 @@ export default class LiteGraph {
                 console.debug("Found widget layout!", widgetLayout);
             for (const item of widgetLayout) {
                 if ("widget" in item) {
-                    const widget = item.widget();
+                    const widget = item.widget(node);
                     node.addCustomWidget(widget);
                 } else {
                     const { name, type, value, callback, options } = item;
-                    node.addWidget(name, type, value, callback, options);
+                    node.addWidget(type, name, value, callback, options);
                 }
             }
         }

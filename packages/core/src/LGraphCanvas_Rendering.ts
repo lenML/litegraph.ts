@@ -197,6 +197,7 @@ export default class LGraphCanvas_Rendering {
 
                 //Draw
                 this.drawNode(node, ctx);
+                node.syncDomAnchors(ctx);
                 drawn_nodes += 1;
 
                 //Restore
@@ -1380,6 +1381,10 @@ export default class LGraphCanvas_Rendering {
         node.widgets?.forEach((w) => {
             w.drawInvisible?.(ctx, node);
         });
+        Object.values(node.dom_anchors).forEach((dom) => {
+            if (!dom) return;
+            dom.hidden = true;
+        });
     }
 
     /** used by this.over_link_center */
@@ -1530,11 +1535,12 @@ export default class LGraphCanvas_Rendering {
                 );
             } else if (
                 titleMode != TitleMode.TRANSPARENT_TITLE &&
-                ((node.constructor as any).title_color ||
+                ((node.constructor as typeof LGraphNode).title_color ||
                     this.render_title_colored)
             ) {
                 var title_color =
-                    (node.constructor as any).title_color || fgColor;
+                    (node.constructor as typeof LGraphNode).title_color ||
+                    fgColor;
 
                 if (node.flags.collapsed) {
                     ctx.shadowColor = LiteGraph.DEFAULT_SHADOW_COLOR;
