@@ -50,13 +50,13 @@ function getClipPath(node: LGraphNode, element: HTMLElement) {
                     selectedNode.pos[0] +
                     canvas.ds.offset[0] -
                     MARGIN +
-                    canvas_offset_x,
+                    canvas_offset_x / scale,
                 y:
                     selectedNode.pos[1] +
                     canvas.ds.offset[1] -
                     LiteGraph.NODE_TITLE_HEIGHT -
                     MARGIN +
-                    canvas_offset_y,
+                    canvas_offset_y / scale,
                 width: bounding[2] + MARGIN + MARGIN,
                 height: bounding[3] + MARGIN + MARGIN,
             },
