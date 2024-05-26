@@ -557,6 +557,7 @@ export default class LGraphCanvas_UI {
                     // callback to the node when adding a slot
                     node.onNodeOptionalInputAdd(v.value);
                 }
+                node.events.emit("nodeOptionalInputAdd", v.value);
                 node.setDirtyCanvas(true, true);
                 node.graph.afterChange();
             }
@@ -689,6 +690,7 @@ export default class LGraphCanvas_UI {
                     // a callback to the node when adding a slot
                     node.onNodeOptionalOutputAdd(v.value);
                 }
+                node.events.emit("nodeOptionalOutputAdd", v.value);
                 node.setDirtyCanvas(true, true);
                 node.graph.afterChange();
             }
@@ -725,6 +727,7 @@ export default class LGraphCanvas_UI {
         var fApplyMultiNode = function (node: LGraphNode) {
             node.size = node.computeSize();
             if (node.onResize) node.onResize(node.size);
+            node.events.emit("resize", node.size);
         };
 
         var graphcanvas = LGraphCanvas.active_canvas;

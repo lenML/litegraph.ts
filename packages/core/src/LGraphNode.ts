@@ -33,6 +33,8 @@ import { getStaticPropertyOnInstance } from "./utils";
 import { UUID } from "./types";
 import { v4 as uuidv4 } from "uuid";
 import Subgraph, { GraphIDMapping } from "./nodes/Subgraph";
+import { Disposed } from "./misc/Disposed";
+import { EventEmitter } from "./misc/EventEmitter";
 
 export type NodeTypeOpts = {
     node: string;
@@ -286,6 +288,26 @@ export default class LGraphNode {
     execute_triggered: number = 0;
     /** the nFrames it will be used (-- each step), means "how old" is the event */
     action_triggered: number = 0;
+
+    disposed = new Disposed();
+    events = new EventEmitter<{
+        removed: (options?: LGraphRemoveNodeOptions) => void;
+        execute: () => void;
+        added: () => void;
+        keyDown: (e: KeyboardEvent) => void;
+        keyUp: (e: KeyboardEvent) => void;
+        dropFile: (file: File) => void;
+        drop: (e: DragEvent) => void;
+        selected: () => void;
+        widgetChanged: (widget: IWidget, value: any, old: any) => void;
+        mouseLeave: (e: MouseEventExt) => void;
+        mouseEnter: (e: MouseEventExt) => void;
+        mouseMove: (e: MouseEventExt) => void;
+        mouseUp: (e: MouseEventExt) => void;
+        nodeOptionalInputAdd: (slot: INodeInputSlot) => void;
+        nodeOptionalOutputAdd: (slot: INodeOutputSlot) => void;
+        resize: (size: Vector2) => void;
+    }>();
 
     onNodeCreated?(): void;
 

@@ -677,6 +677,7 @@ export default class LGraphCanvas_Events {
         if (this.onMouseDown) {
             this.onMouseDown(e);
         }
+        this.events.emit("mouseDown", e);
 
         return false;
     }
@@ -803,14 +804,21 @@ export default class LGraphCanvas_Events {
                                 this,
                             );
                         }
+                        this.node_over?.events.emit("mouseLeave", e);
                         const prev_node_over = this.node_over;
                         this.node_over = null;
                         this.dirty_canvas = true;
-                        if (prev_node_over != this.node_over)
+                        if (prev_node_over != this.node_over) {
                             this.onHoverChange?.(
                                 this.node_over,
                                 prev_node_over,
                             );
+                            this.events.emit(
+                                "hoverChange",
+                                this.node_over,
+                                prev_node_over,
+                            );
+                        }
                     }
                 }
             }
@@ -827,11 +835,17 @@ export default class LGraphCanvas_Events {
                         const prev_node_over = this.node_over;
                         this.node_over = node;
                         this.dirty_canvas = true;
-                        if (prev_node_over != this.node_over)
+                        if (prev_node_over != this.node_over) {
                             this.onHoverChange?.(
                                 this.node_over,
                                 prev_node_over,
                             );
+                            this.events.emit(
+                                "hoverChange",
+                                this.node_over,
+                                prev_node_over,
+                            );
+                        }
 
                         if (node.onMouseEnter) {
                             node.onMouseEnter(
@@ -843,6 +857,7 @@ export default class LGraphCanvas_Events {
                                 this,
                             );
                         }
+                        node.events.emit("mouseEnter", e);
                     }
 
                     //in case the node wants to do something
@@ -853,6 +868,7 @@ export default class LGraphCanvas_Events {
                             this,
                         );
                     }
+                    node.events.emit("mouseMove", e);
 
                     //if dragging a link
                     if (this.connecting_node) {
@@ -959,10 +975,9 @@ export default class LGraphCanvas_Events {
                 //send event to node if capturing input (used with widgets that allow drag outside of the area of the node)
                 if (
                     this.node_capturing_input &&
-                    this.node_capturing_input != node &&
-                    this.node_capturing_input.onMouseMove
+                    this.node_capturing_input != node
                 ) {
-                    this.node_capturing_input.onMouseMove(
+                    this.node_capturing_input.onMouseMove?.(
                         e,
                         [
                             e.canvasX - this.node_capturing_input.pos[0],
@@ -970,6 +985,7 @@ export default class LGraphCanvas_Events {
                         ],
                         this,
                     );
+                    this.node_capturing_input.events.emit("mouseMove", e);
                 }
 
                 //node being dragged
@@ -1306,6 +1322,7 @@ export default class LGraphCanvas_Events {
                     this.node_dragged.alignToGrid();
                 }
                 if (this.onNodeMoved) this.onNodeMoved(this.node_dragged);
+                this.events.emit("nodeMoved", this.node_dragged);
                 this.graph.afterChange(this.node_dragged);
                 this.node_dragged = null;
             } //no node being dragged
@@ -1324,8 +1341,8 @@ export default class LGraphCanvas_Events {
                 this.dirty_canvas = true;
                 this.dragging_canvas = false;
 
-                if (this.node_over && this.node_over.onMouseUp) {
-                    this.node_over.onMouseUp(
+                if (this.node_over) {
+                    this.node_over.onMouseUp?.(
                         e,
                         [
                             e.canvasX - this.node_over.pos[0],
@@ -1333,11 +1350,9 @@ export default class LGraphCanvas_Events {
                         ],
                         this,
                     );
+                    this.node_over.events.emit("mouseUp", e);
                 }
-                if (
-                    this.node_capturing_input &&
-                    this.node_capturing_input.onMouseUp
-                ) {
+                if (this.node_capturing_input) {
                     this.node_capturing_input.onMouseUp(
                         e,
                         [
@@ -1346,6 +1361,7 @@ export default class LGraphCanvas_Events {
                         ],
                         this,
                     );
+                    this.node_capturing_input.events.emit("mouseUp", e);
                 }
             }
         } else if (e.which == 2) {

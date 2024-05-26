@@ -43,6 +43,8 @@ import {
 } from "./types";
 import { clamp } from "./utils";
 import { UUID } from "./types";
+import { Disposed } from "./misc/Disposed";
+import { EventEmitter } from "./misc/EventEmitter";
 
 export interface IGraphPanel extends HTMLDivElement {
     header: HTMLDivElement;
@@ -506,6 +508,20 @@ export default class LGraphCanvas
     search_box: IGraphDialog | null = null;
     prompt_box: IGraphDialog | null = null;
 
+    disposed = new Disposed();
+    events = new EventEmitter<{
+        clear: () => void;
+        dropItem: (e: DragEvent) => void;
+        showNodePanel: (n: LGraphNode) => void;
+        nodeDblClicked: (n: LGraphNode) => void;
+        nodeSelected: (n: LGraphNode) => void;
+        selectionChange: (nodes: Record<number, LGraphNode>) => void;
+        nodeDeselected: (n: LGraphNode) => void;
+        mouseDown: (e: MouseEventExt) => void;
+        hoverChange: (n: LGraphNode | null, prev: LGraphNode | null) => void;
+        nodeMoved: (n: LGraphNode) => void;
+    }>();
+
     /** clears all the data inside */
     clear(): void {
         this.frame = 0;
@@ -545,6 +561,7 @@ export default class LGraphCanvas
         if (this.onClear) {
             this.onClear();
         }
+        this.events.emit("clear");
     }
 
     /** assigns a graph, you can reassign graphs to the same canvas */
@@ -689,6 +706,7 @@ export default class LGraphCanvas
 
         //this.canvas.tabindex = "1000";
         canvas.className += " lgraphcanvas";
+        canvas.dataset["lgts_v"] = LiteGraph.VERSION;
         (canvas as any).data = this;
         canvas.tabIndex = 1; //to allow key events
 
@@ -1412,9 +1430,11 @@ export default class LGraphCanvas
                 //TODO
                 if (this.selected_nodes) {
                     for (var i in this.selected_nodes) {
-                        if (this.selected_nodes[i].onKeyDown) {
-                            this.selected_nodes[i].onKeyDown(e);
+                        const node = this.selected_nodes[i];
+                        if (node.onKeyDown) {
+                            node.onKeyDown(e);
                         }
+                        node.events.emit("keyDown", e);
                     }
                 }
             }
@@ -1427,9 +1447,11 @@ export default class LGraphCanvas
             if (can_interact) {
                 if (this.selected_nodes) {
                     for (var i in this.selected_nodes) {
-                        if (this.selected_nodes[i].onKeyUp) {
-                            this.selected_nodes[i].onKeyUp(e);
+                        const node = this.selected_nodes[i];
+                        if (node.onKeyUp) {
+                            node.onKeyUp(e);
                         }
+                        node.events.emit("keyUp", e);
                     }
                 }
             }
@@ -1678,54 +1700,56 @@ export default class LGraphCanvas
             if (this.onDropItem) {
                 r = this.onDropItem(e);
             }
+            this.events.emit("dropItem", e);
             if (!r) {
                 this.checkDropItem(e);
             }
             return;
         }
 
-        if (node.onDropFile || node.onDropData) {
-            var files = e.dataTransfer.files;
-            if (files && files.length) {
-                for (var i = 0; i < files.length; i++) {
-                    var file = e.dataTransfer.files[0];
-                    var filename = file.name;
-                    var ext = LGraphCanvas.getFileExtension(filename);
-                    //console.log(file);
+        var files = e.dataTransfer.files;
+        if (files && files.length) {
+            for (var i = 0; i < files.length; i++) {
+                var file = e.dataTransfer.files[0];
+                var filename = file.name;
+                var ext = LGraphCanvas.getFileExtension(filename);
+                //console.log(file);
 
-                    if (node.onDropFile) {
-                        node.onDropFile(file);
-                    }
+                if (node.onDropFile) {
+                    node.onDropFile(file);
+                }
+                node.events.emit("dropFile", file);
 
-                    if (node.onDropData) {
-                        //prepare reader
-                        var reader = new FileReader();
-                        reader.onload = function (event) {
-                            //console.log(event.target);
-                            var data = event.target.result;
-                            node.onDropData(data, filename, file);
-                        };
+                if (node.onDropData) {
+                    //prepare reader
+                    var reader = new FileReader();
+                    reader.onload = function (event) {
+                        //console.log(event.target);
+                        var data = event.target.result;
+                        node.onDropData(data, filename, file);
+                    };
 
-                        //read data
-                        var type = file.type.split("/")[0];
-                        if (type == "text" || type == "") {
-                            reader.readAsText(file);
-                        } else if (type == "image") {
-                            reader.readAsDataURL(file);
-                        } else {
-                            reader.readAsArrayBuffer(file);
-                        }
+                    //read data
+                    var type = file.type.split("/")[0];
+                    if (type == "text" || type == "") {
+                        reader.readAsText(file);
+                    } else if (type == "image") {
+                        reader.readAsDataURL(file);
+                    } else {
+                        reader.readAsArrayBuffer(file);
                     }
                 }
             }
         }
 
+        node.events.emit("drop", e);
         if (node.onDropItem) {
             if (node.onDropItem(e)) {
                 return true;
             }
         }
 
+        this.events.emit("dropItem", e);
         if (this.onDropItem && this.onDropItem(e)) {
             return true;
         }
@@ -1747,6 +1771,7 @@ export default class LGraphCanvas
                 if (node.onDropFile) {
                     node.onDropFile(file);
                 }
+                node.events.emit("dropFile", file);
                 this.graph.afterChange();
             }
         }
@@ -1756,10 +1781,12 @@ export default class LGraphCanvas
         if (this.onShowNodePanel) {
             this.onShowNodePanel(n);
         }
+        this.events.emit("showNodePanel", n);
 
         if (this.onNodeDblClicked) {
             this.onNodeDblClicked(n);
         }
+        this.events.emit("nodeDblClicked", n);
 
         this.setDirty(true);
     }
@@ -1772,6 +1799,7 @@ export default class LGraphCanvas
         if (this.onNodeSelected) {
             this.onNodeSelected(node);
         }
+        this.events.emit("nodeSelected", node);
     }
 
     /** selects a given node (or adds it to the current selection) */
@@ -1798,8 +1826,9 @@ export default class LGraphCanvas
                 continue;
             }
 
-            if (!node.is_selected && node.onSelected) {
-                node.onSelected();
+            if (!node.is_selected) {
+                node.onSelected?.();
+                node.events.emit("selected");
             }
             node.is_selected = true;
             this.selected_nodes[node.id] = node;
@@ -1822,6 +1851,7 @@ export default class LGraphCanvas
         }
 
         if (this.onSelectionChange) this.onSelectionChange(this.selected_nodes);
+        this.events.emit("selectionChange", this.selected_nodes);
 
         this.setDirty(true);
     }
@@ -1835,10 +1865,12 @@ export default class LGraphCanvas
             node.onDeselected();
         }
         node.is_selected = false;
+        node.events.emit("selected");
 
         if (this.onNodeDeselected) {
             this.onNodeDeselected(node);
         }
+        this.events.emit("nodeDeselected", node);
 
         //remove highlighted
         if (node.inputs) {
@@ -1873,14 +1905,17 @@ export default class LGraphCanvas
                 node.onDeselected();
             }
             node.is_selected = false;
+            node.events.emit("deselected");
             if (this.onNodeDeselected) {
                 this.onNodeDeselected(node);
             }
+            this.events.emit("nodeDeselected", node);
         }
         this.selected_nodes = {};
         this.current_node = null;
         this.highlighted_links = {};
         if (this.onSelectionChange) this.onSelectionChange(this.selected_nodes);
+        this.events.emit("selectionChange", this.selected_nodes);
         this.setDirty(true);
     }
 
@@ -1922,6 +1957,7 @@ export default class LGraphCanvas
             if (this.onNodeDeselected) {
                 this.onNodeDeselected(node);
             }
+            this.events.emit("nodeDeselected", node);
         }
         this.selected_nodes = {};
         this.current_node = null;
@@ -2209,6 +2245,7 @@ export default class LGraphCanvas
             if (old_value != w.value) {
                 if (node.onWidgetChanged) node.onWidgetChanged(w, old_value);
                 (node.graph as any)._version++;
+                node.events.emit("widgetChanged", w, w.value, old_value);
             }
 
             return w;

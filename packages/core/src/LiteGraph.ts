@@ -15,6 +15,8 @@ import { NodeMode } from "./types";
 import { BuiltInSlotType } from "./types";
 import { getStaticProperty } from "./utils";
 
+import { version } from "../package.json";
+
 type TypeID = number;
 
 export type LiteGraphCreateNodeOptions = {
@@ -23,7 +25,7 @@ export type LiteGraphCreateNodeOptions = {
 };
 
 export default class LiteGraph {
-    static VERSION: number = 10.0;
+    static VERSION: string = version;
 
     static CANVAS_GRID_SIZE: number = 10;
 

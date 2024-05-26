@@ -12,6 +12,7 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "noUnusedParameters": false,
-        "preserveWatchOutput": true
+        "preserveWatchOutput": true,
+        "resolveJsonModule": true
     }
 }

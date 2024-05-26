@@ -23,6 +23,8 @@ import {
 import { LayoutDirection, NodeMode } from "./types";
 import { v4 as uuidv4 } from "uuid";
 import { UUID } from "./types";
+import { Disposed } from "./misc/Disposed";
+import { EventEmitter } from "./misc/EventEmitter";
 
 export type LGraphAddNodeMode =
     | "configure"
@@ -97,6 +99,46 @@ export type LGraphNodeExecutable = LGraphNode & {
 export default class LGraph {
     static DEFAULT_SUPPORTED_TYPES: string[] = ["number", "string", "boolean"];
     supported_types: string[] | null = null;
+
+    disposed = new Disposed();
+    events = new EventEmitter<{
+        play: () => void;
+        stop: () => void;
+        executeStep: () => void;
+        afterExecute: () => void;
+        beforeStep: () => void;
+        nodeAdded: (node: LGraphNode, options: LGraphAddNodeOptions) => void;
+        nodeRemoved: (
+            node: LGraphNode,
+            options: LGraphRemoveNodeOptions,
+        ) => void;
+        trigger: (eventName: string, ...args: any[]) => void;
+        inputAdded: (name: string, type: SlotType, value: any) => void;
+        inputRenamed: (oldName: string, newName: string) => void;
+        inputTypeChanged: (
+            name: string,
+            oldType: SlotType,
+            type: SlotType,
+        ) => void;
+        inputsOutputsChange: () => void;
+        inputRemoved: (name: string) => void;
+        outputAdded: (name: string, type: SlotType, value: any) => void;
+        outputRenamed: (oldName: string, newName: string) => void;
+        outputTypeChanged: (
+            name: string,
+            oldType: SlotType,
+            type: SlotType,
+        ) => void;
+        outputRemoved: (name: string) => void;
+        beforeChange: (graph: LGraph, node: LGraphNode) => void;
+        afterChange: (graph: LGraph, node: LGraphNode) => void;
+        connectionChange: (node: LGraphNode) => void;
+        change: (graph: LGraph) => void;
+        serialize: (data: SerializedLGraph) => void;
+        configure: (data: SerializedLGraph) => void;
+    }>({
+        signal: this.disposed.signal,
+    });
 
     constructor(o?: SerializedLGraph) {
         if (LiteGraph.debug) {
@@ -193,6 +235,7 @@ export default class LGraph {
                 if (node.onRemoved) {
                     node.onRemoved();
                 }
+                node.events.emit("removed");
             }
         }
 
@@ -285,6 +328,7 @@ export default class LGraph {
         if (this.onPlayEvent) {
             this.onPlayEvent();
         }
+        this.events.emit("play");
 
         this.sendEventToAllNodes("onStart");
 
@@ -301,23 +345,32 @@ export default class LGraph {
             window.requestAnimationFrame
         ) {
             function on_frame() {
-                if (that.execution_timer_id != -1) {
+                if (this.execution_timer_id != -1) {
                     return;
                 }
-                window.requestAnimationFrame(on_frame);
-                if (that.onBeforeStep) that.onBeforeStep();
-                that.runStep(1, !that.catch_errors);
-                if (that.onAfterStep) that.onAfterStep();
+                window.requestAnimationFrame(on_frame.bind(this));
+
+                if (this.onBeforeStep) this.onBeforeStep();
+                this.events.emit("beforeStep");
+
+                this.runStep(1, !this.catch_errors);
+
+                if (this.onAfterStep) this.onAfterStep();
+                this.events.emit("afterStep");
             }
             this.execution_timer_id = -1;
-            on_frame();
+            on_frame.call(that);
         } else {
             //execute every 'interval' ms
             this.execution_timer_id = setInterval(function () {
                 //execute
                 if (that.onBeforeStep) that.onBeforeStep();
+                this.events.emit("beforeStep");
+
                 that.runStep(1, !that.catch_errors);
+
                 if (that.onAfterStep) that.onAfterStep();
+                this.events.emit("afterStep");
             }, interval);
         }
     }
@@ -333,6 +386,7 @@ export default class LGraph {
         if (this.onStopEvent) {
             this.onStopEvent();
         }
+        this.events.emit("stop");
 
         if (this.execution_timer_id != null) {
             if (this.execution_timer_id != -1) {
@@ -376,17 +430,20 @@ export default class LGraph {
                         //wrap node.onExecute();
                         node.doExecute();
                     }
+                    node.events.emit("execute");
                 }
 
                 this.fixedtime += this.fixedtime_lapse;
                 if (this.onExecuteStep) {
                     this.onExecuteStep();
                 }
+                this.events.emit("executeStep");
             }
 
             if (this.onAfterExecute) {
                 this.onAfterExecute();
             }
+            this.events.emit("afterExecute");
         } else {
             try {
                 //iterations
@@ -396,17 +453,20 @@ export default class LGraph {
                         if (node.mode == NodeMode.ALWAYS && node.onExecute) {
                             node.onExecute(null, {});
                         }
+                        node.events.emit("execute");
                     }
 
                     this.fixedtime += this.fixedtime_lapse;
                     if (this.onExecuteStep) {
                         this.onExecuteStep();
                     }
+                    this.events.emit("executeStep");
                 }
 
                 if (this.onAfterExecute) {
                     this.onAfterExecute();
                 }
+                this.events.emit("afterExecute");
                 this.errors_in_execution = false;
             } catch (err) {
                 this.errors_in_execution = true;
@@ -902,6 +962,7 @@ export default class LGraph {
         if (node.onAdded) {
             node.onAdded(this);
         }
+        node.events.emit("added");
 
         if (this.config.align_to_grid) {
             node.alignToGrid();
@@ -914,6 +975,7 @@ export default class LGraph {
         if (this.onNodeAdded) {
             this.onNodeAdded(node, options);
         }
+        this.events.emit("nodeAdded", node, options);
 
         this.setDirtyCanvas(true);
         this.change();
@@ -1026,6 +1088,7 @@ export default class LGraph {
         if (node.onRemoved) {
             node.onRemoved(options);
         }
+        node.events.emit("removed", options);
 
         node.graph = null;
         this._version++;
@@ -1053,6 +1116,7 @@ export default class LGraph {
         if (this.onNodeRemoved) {
             this.onNodeRemoved(node, options);
         }
+        this.events.emit("nodeRemoved", node, options);
 
         //close panels
         this.sendActionToCanvas("checkPanels");
@@ -1282,12 +1346,14 @@ export default class LGraph {
         if (this.onTrigger) {
             this.onTrigger(action, param);
         }
+        this.events.emit("trigger", action, param);
     }
 
     triggerSlot(action: any, param: any): void {
         if (this.onTrigger) {
             this.onTrigger(action, param);
         }
+        this.events.emit("trigger", action, param);
     }
 
     /** Tell this graph it has a global graph input of this type */
@@ -1306,10 +1372,12 @@ export default class LGraph {
         if (this.onInputAdded) {
             this.onInputAdded(name, type, value);
         }
+        this.events.emit("inputAdded", name, type, value);
 
         if (this.onInputsOutputsChange) {
             this.onInputsOutputsChange();
         }
+        this.events.emit("inputsOutputsChange");
     }
 
     onInputAdded?(name: string, type: SlotType, value: any): void;
@@ -1356,10 +1424,12 @@ export default class LGraph {
         if (this.onInputRenamed) {
             this.onInputRenamed(old_name, name);
         }
+        this.events.emit("inputRenamed", old_name, name);
 
         if (this.onInputsOutputsChange) {
             this.onInputsOutputsChange();
         }
+        this.events.emit("inputsOutputsChange");
 
         return true;
     }
@@ -1390,6 +1460,7 @@ export default class LGraph {
         if (this.onInputTypeChanged) {
             this.onInputTypeChanged(name, oldType, type);
         }
+        this.events.emit("inputTypeChanged", name, oldType, type);
 
         return true;
     }
@@ -1408,10 +1479,12 @@ export default class LGraph {
         if (this.onInputRemoved) {
             this.onInputRemoved(name);
         }
+        this.events.emit("inputRemoved", name);
 
         if (this.onInputsOutputsChange) {
             this.onInputsOutputsChange();
         }
+        this.events.emit("inputsOutputsChange");
         return true;
     }
 
@@ -1425,10 +1498,12 @@ export default class LGraph {
         if (this.onOutputAdded) {
             this.onOutputAdded(name, type, value);
         }
+        this.events.emit("outputAdded", name, type, value);
 
         if (this.onInputsOutputsChange) {
             this.onInputsOutputsChange();
         }
+        this.events.emit("inputsOutputsChange");
     }
 
     /** Assign a data to the global output */
@@ -1469,10 +1544,12 @@ export default class LGraph {
         if (this.onOutputRenamed) {
             this.onOutputRenamed(old_name, name);
         }
+        this.events.emit("outputRenamed", old_name, name);
 
         if (this.onInputsOutputsChange) {
             this.onInputsOutputsChange();
         }
+        this.events.emit("inputsOutputsChange");
 
         return true;
     }
@@ -1499,6 +1576,7 @@ export default class LGraph {
         if (this.onOutputTypeChanged) {
             this.onOutputTypeChanged(name, oldType, type);
         }
+        this.events.emit("outputTypeChanged", name, oldType, type);
 
         return true;
     }
@@ -1516,10 +1594,12 @@ export default class LGraph {
         if (this.onOutputRemoved) {
             this.onOutputRemoved(name);
         }
+        this.events.emit("outputRemoved", name);
 
         if (this.onInputsOutputsChange) {
             this.onInputsOutputsChange();
         }
+        this.events.emit("inputsOutputsChange");
         return true;
     }
 
@@ -1544,6 +1624,7 @@ export default class LGraph {
         if (this.onBeforeChange) {
             this.onBeforeChange(this, info);
         }
+        this.events.emit("beforeChange", this, info);
         this.sendActionToCanvas("onBeforeChange", [this]);
     }
 
@@ -1552,6 +1633,7 @@ export default class LGraph {
         if (this.onAfterChange) {
             this.onAfterChange(this, info);
         }
+        this.events.emit("afterChange", this, info);
         this.sendActionToCanvas("onAfterChange", [this]);
     }
 
@@ -1562,6 +1644,7 @@ export default class LGraph {
         if (this.onConnectionChange) {
             this.onConnectionChange(node);
         }
+        this.events.emit("connectionChange", node);
         this._version++;
         this.sendActionToCanvas("onConnectionChange");
     }
@@ -1605,6 +1688,7 @@ export default class LGraph {
         if (this.onChange) {
             this.onChange(this);
         }
+        this.events.emit("change", this);
     }
 
     setDirtyCanvas(fg: boolean = false, bg: boolean = false): void {
@@ -1671,6 +1755,7 @@ export default class LGraph {
         };
 
         if (this.onSerialize) this.onSerialize(data);
+        this.events.emit("serialize", data);
 
         return data as T;
     }
@@ -1770,6 +1855,7 @@ export default class LGraph {
         this.extra = data.extra || {};
 
         if (this.onConfigure) this.onConfigure(data);
+        this.events.emit("configure", data);
 
         this._version++;
         this.setDirtyCanvas(true, true);

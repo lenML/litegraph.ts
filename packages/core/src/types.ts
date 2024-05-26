@@ -105,7 +105,7 @@ export const BASE_SLOT_TYPES = [
     "table",
 ];
 
-export type Version = number;
+export type Version = number | string;
 
 export type PointerEventsMethod = "mouse" | "pointer" | "touch";
 

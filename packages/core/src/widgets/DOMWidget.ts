@@ -2,6 +2,7 @@ import type { default as IWidget, WidgetCallback } from "../IWidget";
 import LGraph from "../LGraph";
 import LGraphNode, { SerializedLGraphNode } from "../LGraphNode";
 import LiteGraph from "../LiteGraph";
+import { Disposed } from "../misc/Disposed";
 import { NodeMode, Vector2 } from "../types";
 
 type LDomRect = {
@@ -221,6 +222,7 @@ export class DOMWidget implements IWidget {
     disabled?: boolean;
     hidden?: boolean;
     callback?: WidgetCallback<this>;
+    onPropertyChange?(value: any): void;
 
     $el: HTMLElement;
 
@@ -228,6 +230,8 @@ export class DOMWidget implements IWidget {
     private mouseDownHandler?: (...args: any) => any;
 
     node: LGraphNode;
+
+    disposed = new Disposed();
 
     constructor({
         name,
@@ -265,6 +269,12 @@ export class DOMWidget implements IWidget {
                 }
             };
             document.addEventListener("mousedown", this.mouseDownHandler);
+            this.disposed.connect(() => {
+                document.removeEventListener(
+                    "mousedown",
+                    this.mouseDownHandler,
+                );
+            });
         }
 
         for (const evt of options.selectOn || []) {
@@ -295,6 +305,10 @@ export class DOMWidget implements IWidget {
                 };
             }
         }
+
+        this.disposed.connect(() => {
+            this.$el.remove();
+        });
     }
 
     get value() {
@@ -380,10 +394,11 @@ export class DOMWidget implements IWidget {
     }
 
     onNodeRemoved(node: LGraphNode) {
-        if (this.mouseDownHandler) {
-            document.removeEventListener("mousedown", this.mouseDownHandler);
-        }
-        this.$el.remove();
+        this.destroy();
+    }
+
+    destroy() {
+        this.disposed.dispose();
     }
 
     onNodeCollapse(node: LGraphNode, collapsed: boolean) {
