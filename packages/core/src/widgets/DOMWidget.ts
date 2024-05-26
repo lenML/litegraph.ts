@@ -1,5 +1,6 @@
 import type { default as IWidget, WidgetCallback } from "../IWidget";
 import LGraph from "../LGraph";
+import LGraphCanvas from "../LGraphCanvas";
 import LGraphNode, { SerializedLGraphNode } from "../LGraphNode";
 import LiteGraph from "../LiteGraph";
 import { Disposed } from "../misc/Disposed";
@@ -22,8 +23,7 @@ function intersect(a: LDomRect, b: LDomRect) {
 }
 
 function getClipPath(node: LGraphNode, element: HTMLElement, elRect: DOMRect) {
-    // FIXME: maybe to multiple canvas?
-    const canvas = node.graph.list_of_graphcanvas[0];
+    const canvas = LGraphCanvas.active_canvas;
     if (!canvas) {
         return "";
     }
@@ -211,7 +211,7 @@ interface DOMWidgetOptions {
     parentElement?: HTMLElement;
     property?: string;
 
-    disable_pointer_event_control?: boolean;
+    enable_pointer_event_control?: boolean;
 }
 
 /**
@@ -293,7 +293,7 @@ export class DOMWidget implements IWidget {
 
         for (const evt of options.selectOn || []) {
             element.addEventListener(evt, () => {
-                const canvas = this.node.graph.list_of_graphcanvas[0];
+                const canvas = LGraphCanvas.active_canvas;
                 if (!canvas) return;
                 canvas.selectNode(this.node);
                 canvas.bringToFront(this.node);
@@ -303,7 +303,7 @@ export class DOMWidget implements IWidget {
         const mountParentElement = (graph: LGraph) => {
             const parentElement =
                 this.options.parentElement ||
-                graph.list_of_graphcanvas[0].canvas.offsetParent ||
+                LGraphCanvas.active_canvas?.canvas.offsetParent ||
                 document.body;
             parentElement.appendChild(element);
         };
@@ -324,7 +324,7 @@ export class DOMWidget implements IWidget {
             this.$el.remove();
         });
 
-        if (!options?.disable_pointer_event_control) {
+        if (options?.enable_pointer_event_control) {
             node.events.on(
                 "selected",
                 () => {
@@ -369,8 +369,8 @@ export class DOMWidget implements IWidget {
             computeSize.call(node, node.size);
         }
         const graph = node.graph;
-        // FIXME: maybe to multiple canvas?
-        const canvas = node.graph.list_of_graphcanvas[0];
+
+        const canvas = LGraphCanvas.active_canvas;
         const { $el: element } = this;
 
         const hidden =
@@ -408,7 +408,8 @@ export class DOMWidget implements IWidget {
         });
 
         if (this.options?.enableDomClipping) {
-            element.style.clipPath = getClipPath(node, element, elRect);
+            const widgetRect = this.$el.getBoundingClientRect();
+            element.style.clipPath = getClipPath(node, element, widgetRect);
             element.style.willChange = "clip-path";
         }
 
