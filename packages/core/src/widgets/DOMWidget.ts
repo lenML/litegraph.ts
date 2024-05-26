@@ -22,7 +22,7 @@ function intersect(a: LDomRect, b: LDomRect) {
     else return null;
 }
 
-function getClipPath(node: LGraphNode, element: HTMLElement, elRect: DOMRect) {
+function getClipPath(node: LGraphNode, element: HTMLElement) {
     const canvas = LGraphCanvas.active_canvas;
     if (!canvas) {
         return "";
@@ -33,6 +33,7 @@ function getClipPath(node: LGraphNode, element: HTMLElement, elRect: DOMRect) {
 
     const selectedNode = Object.values(canvas.selected_nodes)[0];
     if (selectedNode && selectedNode !== node) {
+        const elRect = element.getBoundingClientRect();
         const MARGIN = 7;
         const scale = canvas.ds.scale;
 
@@ -303,7 +304,7 @@ export class DOMWidget implements IWidget {
         const mountParentElement = (graph: LGraph) => {
             const parentElement =
                 this.options.parentElement ||
-                LGraphCanvas.active_canvas?.canvas.offsetParent ||
+                graph.list_of_graphcanvas[0]?.canvas.offsetParent ||
                 document.body;
             parentElement.appendChild(element);
         };
@@ -347,6 +348,10 @@ export class DOMWidget implements IWidget {
             // default to disabled
             this.$el.style.pointerEvents = "none";
         }
+    }
+
+    get canvas() {
+        return this.node.graph.list_of_graphcanvas[0];
     }
 
     get value() {
@@ -408,8 +413,7 @@ export class DOMWidget implements IWidget {
         });
 
         if (this.options?.enableDomClipping) {
-            const widgetRect = this.$el.getBoundingClientRect();
-            element.style.clipPath = getClipPath(node, element, widgetRect);
+            element.style.clipPath = getClipPath(node, element);
             element.style.willChange = "clip-path";
         }
 
