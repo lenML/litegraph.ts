@@ -206,6 +206,13 @@ export default class LGraphNode {
         this.properties_info = []; //for the info
 
         this.flags = {};
+
+        this.events.once("removed", () => {
+            this.disposed.dispose();
+            this.widgets?.forEach((w) => {
+                w.onNodeRemoved?.(this);
+            });
+        });
     }
 
     title: string;
@@ -336,7 +343,9 @@ export default class LGraphNode {
         nodeOptionalOutputAdd: (slot: INodeOutputSlot) => void;
         resize: (size: Vector2) => void;
         propertyChanged: (k: string, v: any, prev_v: any) => void;
-    }>();
+    }>({
+        signal: this.disposed.signal,
+    });
 
     // sync position with the node
     dom_anchors: {
@@ -3561,11 +3570,7 @@ export default class LGraphNode {
      * when removed from graph
      * Called by `LGraph.remove` `LGraph.clear`
      */
-    onRemoved(options?: LGraphRemoveNodeOptions): void {
-        this.widgets?.forEach((w) => {
-            w.onNodeRemoved?.(this);
-        });
-    }
+    onRemoved?(options?: LGraphRemoveNodeOptions): void;
 
     /**
      * if returns false the incoming connection will be canceled

@@ -42,8 +42,6 @@ import {
     type Vector4,
 } from "./types";
 import { clamp } from "./utils";
-import { UUID } from "./types";
-import { Disposed } from "./misc/Disposed";
 import { EventEmitter } from "./misc/EventEmitter";
 
 export interface IGraphPanel extends HTMLDivElement {
@@ -508,7 +506,6 @@ export default class LGraphCanvas
     search_box: IGraphDialog | null = null;
     prompt_box: IGraphDialog | null = null;
 
-    disposed = new Disposed();
     events = new EventEmitter<{
         clear: () => void;
         dropItem: (e: DragEvent) => void;

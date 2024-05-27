@@ -150,13 +150,17 @@ export class EventEmitter<Events extends EventMap> {
         }
         listeners.push(listener);
 
-        if (options?.signal) {
-            options?.signal.addEventListener("abort", () => {
-                this.removeListener(eventName, listener);
-            });
-        }
-        if (this.signal) {
-            this.signal.addEventListener("abort", () => {
+        const signals = [options?.signal, this.signal].filter(
+            Boolean,
+        ) as AbortSignal[];
+
+        if (signals.length !== 0) {
+            const mergedSignal = new AbortController();
+            signals.forEach((signal) =>
+                signal.addEventListener("abort", () => mergedSignal.abort()),
+            );
+
+            mergedSignal.signal.addEventListener("abort", () => {
                 this.removeListener(eventName, listener);
             });
         }

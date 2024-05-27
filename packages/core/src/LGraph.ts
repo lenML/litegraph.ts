@@ -22,8 +22,6 @@ import {
 } from "./types";
 import { LayoutDirection, NodeMode } from "./types";
 import { v4 as uuidv4 } from "uuid";
-import { UUID } from "./types";
-import { Disposed } from "./misc/Disposed";
 import { EventEmitter } from "./misc/EventEmitter";
 
 export type LGraphAddNodeMode =
@@ -100,7 +98,6 @@ export default class LGraph {
     static DEFAULT_SUPPORTED_TYPES: string[] = ["number", "string", "boolean"];
     supported_types: string[] | null = null;
 
-    disposed = new Disposed();
     events = new EventEmitter<{
         play: () => void;
         stop: () => void;
@@ -136,9 +133,7 @@ export default class LGraph {
         change: (graph: LGraph) => void;
         serialize: (data: SerializedLGraph) => void;
         configure: (data: SerializedLGraph) => void;
-    }>({
-        signal: this.disposed.signal,
-    });
+    }>();
 
     constructor(o?: SerializedLGraph) {
         if (LiteGraph.debug) {
