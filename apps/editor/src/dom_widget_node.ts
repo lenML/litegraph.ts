@@ -105,7 +105,7 @@ export class DomDemoNode extends LGraphNode {
         this.addWidget("slider", "s1", 1.1, "s1", {
             min: 0,
             max: 2,
-            steps: 0.2,
+            step: 0.2,
             precision: 1,
         });
     }

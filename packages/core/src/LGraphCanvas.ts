@@ -2068,15 +2068,14 @@ export default class LGraphCanvas
                     }
                     break;
                 case "slider": {
-                    const { max, min, steps, precision } = w.options;
+                    const { max, min, step, precision } = w.options;
                     var range = max - min;
 
-                    // 这个函数计算步数，根据steps和precision调整取值
                     const calculateValue = (rawValue) => {
-                        if (typeof steps === "number" && steps > 0) {
+                        if (typeof step === "number" && step > 0) {
                             let stepValue =
                                 min +
-                                Math.round((rawValue - min) / steps) * steps;
+                                Math.round((rawValue - min) / step) * step;
                             return parseFloat(stepValue.toFixed(precision));
                         }
                         return parseFloat(rawValue.toFixed(precision));
