@@ -2070,6 +2070,7 @@ export default class LGraphCanvas
                 case "slider": {
                     const { max, min, step, precision } = w.options;
                     var range = max - min;
+                    var old_value = w.value;
 
                     const calculateValue = (rawValue) => {
                         if (typeof step === "number" && step > 0) {
@@ -2085,7 +2086,7 @@ export default class LGraphCanvas
                     var raw_value = min + range * nvalue;
                     w.value = calculateValue(raw_value);
 
-                    if (w.callback) {
+                    if (old_value != w.value) {
                         setTimeout(function () {
                             inner_value_change(w, w.value);
                         }, 20);
