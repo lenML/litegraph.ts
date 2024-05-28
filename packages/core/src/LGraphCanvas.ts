@@ -2067,19 +2067,34 @@ export default class LGraphCanvas
                         this.dirty_canvas = true;
                     }
                     break;
-                case "slider":
-                    var range = w.options.max - w.options.min;
+                case "slider": {
+                    const { max, min, steps, precision } = w.options;
+                    var range = max - min;
+
+                    // 这个函数计算步数，根据steps和precision调整取值
+                    const calculateValue = (rawValue) => {
+                        if (typeof steps === "number" && steps > 0) {
+                            let stepValue =
+                                min +
+                                Math.round((rawValue - min) / steps) * steps;
+                            return parseFloat(stepValue.toFixed(precision));
+                        }
+                        return parseFloat(rawValue.toFixed(precision));
+                    };
+
                     var nvalue = clamp((x - 15) / (widget_width - 30), 0, 1);
-                    w.value =
-                        w.options.min +
-                        (w.options.max - w.options.min) * nvalue;
+                    var raw_value = min + range * nvalue;
+                    w.value = calculateValue(raw_value);
+
                     if (w.callback) {
                         setTimeout(function () {
                             inner_value_change(w, w.value);
                         }, 20);
                     }
+
                     this.dirty_canvas = true;
                     break;
+                }
                 case "number":
                 case "combo":
                     var old_value = w.value;

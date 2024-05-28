@@ -83,6 +83,8 @@ export interface IToggleWidget extends IWidget<IToggleWidgetOptions, boolean> {
 export interface ISliderWidgetOptions extends WidgetPanelOptions {
     max: number;
     min: number;
+    step?: number;
+    precision?: number;
 }
 export interface ISliderWidget extends IWidget<ISliderWidgetOptions, number> {
     type: "slider";

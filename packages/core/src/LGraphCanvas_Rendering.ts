@@ -2563,7 +2563,11 @@ export default class LGraphCanvas_Rendering {
                         ctx.textAlign = "center";
                         ctx.fillStyle = text_color;
                         ctx.fillText(
-                            w.name + "  " + Number(w.value).toFixed(3),
+                            w.name +
+                                "  " +
+                                Number(w.value).toFixed(
+                                    w.options?.precision ?? 3,
+                                ),
                             widget_width * 0.5,
                             y + H * 0.7,
                         );
@@ -2611,9 +2615,7 @@ export default class LGraphCanvas_Rendering {
                         if (w.type == "number") {
                             ctx.fillText(
                                 Number(w.value).toFixed(
-                                    w.options.precision !== undefined
-                                        ? w.options.precision
-                                        : 3,
+                                    w.options.precision ?? 3,
                                 ),
                                 widget_width - margin * 2 - 20,
                                 y + H * 0.7,
