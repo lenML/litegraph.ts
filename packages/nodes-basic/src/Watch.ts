@@ -1,25 +1,36 @@
-import type { INumberWidget, PropertyLayout, SlotLayout, Vector2 } from "@litegraph-ts/core"
-import { LiteGraph, LGraphNode, BuiltInSlotType } from "@litegraph-ts/core"
+import type {
+    INumberWidget,
+    PropertyLayout,
+    SlotLayout,
+    Vector2,
+} from "@litegraph-ts/core";
+import { LiteGraph, LGraphNode, BuiltInSlotType } from "@litegraph-ts/core";
 
 export interface WatchProperties extends Record<string, any> {
-    value: any,
+    value: any;
 }
 
 export default class Watch extends LGraphNode {
+    static MAX_LENGTH = 256;
+
     override properties: WatchProperties = {
-        value: 0
-    }
+        value: 0,
+    };
 
     static slotLayout: SlotLayout = {
         inputs: [
-            { name: "value", type: BuiltInSlotType.DEFAULT, options: { label: "" } }
+            {
+                name: "value",
+                type: BuiltInSlotType.DEFAULT,
+                options: { label: "" },
+            },
         ],
-        outputs: []
-    }
+        outputs: [],
+    };
 
     static propertyLayout: PropertyLayout = [
-        { name: "value", defaultValue: 1.0 }
-    ]
+        { name: "value", defaultValue: 1.0 },
+    ];
 
     widget: INumberWidget;
 
@@ -30,7 +41,7 @@ export default class Watch extends LGraphNode {
     value: any = 0;
 
     constructor(title?: string) {
-        super(title)
+        super(title);
     }
 
     override onExecute() {
@@ -66,7 +77,10 @@ export default class Watch extends LGraphNode {
     override onDrawBackground(_ctx: CanvasRenderingContext2D) {
         //show the current value
         // BUG can overflow the node panel
-        this.inputs[0].label = Watch.toString(this.value);
+        this.inputs[0].label = Watch.toString(this.value).slice(
+            0,
+            Watch.MAX_LENGTH,
+        );
     }
 }
 
@@ -74,5 +88,5 @@ LiteGraph.registerNodeType({
     class: Watch,
     title: "Watch",
     desc: "Show value of input",
-    type: "basic/watch"
-})
+    type: "basic/watch",
+});
