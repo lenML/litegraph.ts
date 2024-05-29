@@ -1,4 +1,4 @@
-import { LiteGraph } from "@litegraph-ts/core";
+import { LGraphTheme, LiteGraph } from "@litegraph-ts/core";
 import Editor from "./Editor";
 import configure from "./configure";
 
@@ -27,6 +27,14 @@ editor.graphCanvas.pause_rendering = false;
 
 window["editor"] = editor;
 window["LiteGraph"] = LiteGraph;
+window["LGraphTheme"] = LGraphTheme;
+window["apply_theme"] = (theme: any) => {
+    const t = new LGraphTheme(theme);
+    t.apply({
+        graph: editor.graph,
+        canvas: editor.graphCanvas,
+    });
+};
 
 window.addEventListener("resize", () => {
     editor.graphCanvas.resize();

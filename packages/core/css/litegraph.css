@@ -19,15 +19,15 @@
     top: 100px;
     left: 100px;
     min-width: 100px;
-    color: #aaf;
+    color: var(--lg_menu_fg, #aaf);
     padding: 0;
-    box-shadow: 0 0 10px black !important;
-    background-color: #2e2e2e !important;
+    box-shadow: var(--lg_menu_shadow,0 0 10px black) !important;
+    background-color: var(--lg_menu_bg,#2e2e2e) !important;
     z-index: 10;
 }
 
 .litegraph.litecontextmenu.dark {
-    background-color: #000 !important;
+    background-color: var(--lg_menu_bg_dark, #000) !important;
 }
 
 .litegraph.litecontextmenu .litemenu-title img {
@@ -42,11 +42,11 @@
 }
 
 .litegraph.litecontextmenu .litemenu-entry.submenu {
-    background-color: #2e2e2e !important;
+    background-color: var(--lg_menu_entry_bg,#2e2e2e) !important;
 }
 
 .litegraph.litecontextmenu.dark .litemenu-entry.submenu {
-    background-color: #000 !important;
+    background-color: var(--lg_menu_entry_bg_dark,#000) !important;
 }
 
 .litegraph .litemenubar ul {
@@ -54,10 +54,9 @@
     margin: 0;
     padding: 0;
 }
-
 .litegraph .litemenubar li {
     font-size: 14px;
-    color: #999;
+    color: var(--lg_menu_bar_fg, #999);
     display: inline-block;
     min-width: 50px;
     padding-left: 10px;
@@ -69,8 +68,8 @@
 }
 
 .litegraph .litemenubar li:hover {
-    background-color: #777;
-    color: #eee;
+    background-color: var(--lg_menu_bar_hover_bg, #777);
+    color: var(--lg_menu_bar_hover_fg, #eee);
 }
 
 .litegraph .litegraph .litemenubar-panel {
@@ -78,17 +77,17 @@
     top: 5px;
     left: 5px;
     min-width: 100px;
-    background-color: #444;
-    box-shadow: 0 0 3px black;
+    background-color: var(--lg_menu_panel_bg, #444);
+    box-shadow: 0 0 3px var(--lg_menu_panel_shadow, black);
     padding: 4px;
-    border-bottom: 2px solid #aaf;
+    border-bottom: 2px solid var(--lg_menu_panel_border, #aaf);
     z-index: 10;
 }
 
 .litegraph .litemenu-entry,
 .litemenu-title {
     font-size: 12px;
-    color: #aaa;
+    color: var(--lg_menu_entry_fg, #aaa);
     padding: 0 0 0 4px;
     margin: 2px;
     padding-left: 2px;
@@ -107,7 +106,7 @@
 }
 
 .litegraph .litemenu-entry.checked .icon {
-    background-color: #aaf;
+    background-color: var(--lg_menu_entry_checked_bg, #aaf);
 }
 
 .litegraph .litemenu-entry .more {
@@ -122,8 +121,8 @@
 
 .litegraph .litemenu-entry.separator {
     display: block;
-    border-top: 1px solid #333;
-    border-bottom: 1px solid #666;
+    border-top: 1px solid var(--lg_menu_entry_separator_top, #333);
+    border-bottom: 1px solid var(--lg_menu_entry_separator_bottom, #666);
     width: 100%;
     height: 0px;
     margin: 3px 0 2px 0;
@@ -133,20 +132,20 @@
 }
 
 .litegraph .litemenu-entry.has_submenu {
-    border-right: 2px solid cyan;
+    border-right: 2px solid var(--lg_menu_entry_submenu_border, cyan);
 }
 
 .litegraph .litemenu-title {
-    color: #dde;
-    background-color: #111;
+    color: var(--lg_menu_title_fg, #dde);
+    background-color: var(--lg_menu_title_bg, #111);
     margin: 0;
     padding: 2px;
     cursor: default;
 }
 
 .litegraph .litemenu-entry:hover:not(.disabled):not(.separator) {
-    background-color: #444 !important;
-    color: #eee;
+    background-color: var(--lg_menu_entry_hover_bg, #444) !important;
+    color: var(--lg_menu_entry_hover_fg, #eee);
     transition: all 0.2s;
 }
 
@@ -159,7 +158,7 @@
 
 .litegraph .litemenu-entry .property_value {
     display: inline-block;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--lg_menu_entry_property_value_bg, rgba(0, 0, 0, 0.5));
     text-align: right;
     min-width: 80px;
     min-height: 1.2em;
@@ -170,18 +169,17 @@
 .litegraph.litesearchbox {
     font-family: Tahoma, sans-serif;
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--lg_searchbox_bg, rgba(0, 0, 0, 0.5));
     padding-top: 4px;
 }
-
 .litegraph.litesearchbox input,
 .litegraph.litesearchbox select {
     margin-top: 3px;
     min-width: 60px;
     min-height: 1.5em;
-    background-color: black;
+    background-color: var(--lg_searchbox_input_bg, black);
     border: 0;
-    color: white;
+    color: var(--lg_searchbox_fg, white);
     padding-left: 10px;
     margin-right: 5px;
 }
@@ -201,34 +199,29 @@
 
 .litegraph.lite-search-item {
     font-family: Tahoma, sans-serif;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
+    background-color: var(--lg_searchitem_bg, rgba(0, 0, 0, 0.5));
+    color: var(--lg_searchitem_fg, white);
     padding-top: 2px;
 }
 
 .litegraph.lite-search-item.not_in_filter {
-    /*background-color: rgba(50, 50, 50, 0.5);*/
-    /*color: #999;*/
-    color: #b99;
+    color: var(--lg_searchitem_not_in_filter_fg, #b99);
     font-style: italic;
 }
 
 .litegraph.lite-search-item.generic_type {
-    /*background-color: rgba(50, 50, 50, 0.5);*/
-    /*color: #DD9;*/
-    color: #999;
+    color: var(--lg_searchitem_generic_type_fg, #999);
     font-style: italic;
 }
 
 .litegraph.lite-search-item:hover,
 .litegraph.lite-search-item.selected {
     cursor: pointer;
-    background-color: white;
-    color: black;
+    background-color: var(--lg_searchitem_hover_bg, white);
+    color: var(--lg_searchitem_hover_fg, black);
 }
 
 /* DIALOGs ******/
-
 .litegraph .dialog {
     position: absolute;
     top: 50%;
@@ -236,11 +229,11 @@
     margin-top: -150px;
     margin-left: -200px;
 
-    background-color: #2a2a2a;
+    background-color: var(--lg_dialog_bg, #2a2a2a);
 
     min-width: 400px;
     min-height: 200px;
-    box-shadow: 0 0 4px #111;
+    box-shadow: 0 0 4px var(--lg_dialog_shadow, #111);
     border-radius: 6px;
 }
 
@@ -272,12 +265,12 @@
 }
 
 .litegraph .dialog .close:hover {
-    color: white;
+    color: var(--lg_dialog_close_hover, white);
 }
 
 .litegraph .dialog .dialog-header {
-    color: #aaa;
-    border-bottom: 1px solid #161616;
+    color: var(--lg_dialog_header_fg, #aaa);
+    border-bottom: 1px solid var(--lg_dialog_header_border, #161616);
 }
 
 .litegraph .dialog .dialog-header {
@@ -286,7 +279,7 @@
 .litegraph .dialog .dialog-footer {
     height: 50px;
     padding: 10px;
-    border-top: 1px solid #1a1a1a;
+    border-top: 1px solid var(--lg_dialog_footer_border, #1a1a1a);
 }
 
 .litegraph .dialog .dialog-header .dialog-title {
@@ -295,15 +288,13 @@
     padding: 4px 10px;
     display: inline-block;
 }
-
 .litegraph .dialog .dialog-content,
 .litegraph .dialog .dialog-alt-content {
     height: calc(100% - 90px);
     width: 100%;
     min-height: 100px;
     display: inline-block;
-    color: #aaa;
-    /*background-color: black;*/
+    color: var(--lg_dialog_fg, #aaa);
     overflow: auto;
 }
 
@@ -318,7 +309,7 @@
 .litegraph .dialog .dialog-content .connections .connections_side {
     width: calc(50% - 5px);
     min-height: 100px;
-    background-color: black;
+    background-color: var(--lg_dialog_side_bg, black);
     display: flex;
 }
 
@@ -338,8 +329,8 @@
     display: block;
     width: calc(100% - 4px);
     height: 1px;
-    border-top: 1px solid #000;
-    border-bottom: 1px solid #333;
+    border-top: 1px solid var(--lg_separator_top, #000);
+    border-bottom: 1px solid var(--lg_separator_bottom, #333);
     margin: 10px 2px;
     padding: 0;
 }
@@ -350,11 +341,11 @@
 }
 
 .litegraph .dialog .property:hover {
-    background: #545454;
+    background: var(--lg_property_hover, #545454);
 }
 
 .litegraph .dialog .property_name {
-    color: #737373;
+    color: var(--lg_property_name_fg, #737373);
     display: inline-block;
     text-align: left;
     vertical-align: top;
@@ -363,16 +354,15 @@
     overflow: hidden;
     margin-right: 6px;
 }
-
 .litegraph .dialog .property:hover .property_name {
-    color: white;
+    color: var(--lg_dialog_hover_fg, white);
 }
 
 .litegraph .dialog .property_value {
     display: inline-block;
     text-align: right;
-    color: #aaa;
-    background-color: #1a1a1a;
+    color: var(--lg_dialog_value_fg, #aaa);
+    background-color: var(--lg_dialog_value_bg, #1a1a1a);
     /*width: calc( 100% - 122px );*/
     max-width: calc(100% - 162px);
     min-width: 200px;
@@ -386,21 +376,18 @@
 }
 
 .litegraph .dialog .property_value:hover {
-    color: white;
+    color: var(--lg_dialog_value_hover_fg, white);
 }
 
 .litegraph .dialog .property.boolean .property_value {
     padding-right: 30px;
-    color: #a88;
+    color: var(--lg_dialog_bool_fg, #a88);
     /*width: auto;
     float: right;*/
 }
 
-.litegraph .dialog .property.boolean.bool-on .property_name {
-    color: #8a8;
-}
 .litegraph .dialog .property.boolean.bool-on .property_value {
-    color: #8a8;
+    color: var(--lg_dialog_bool_on_fg, #8a8);
 }
 
 .litegraph .dialog .btn {
@@ -408,18 +395,18 @@
     border-radius: 4px;
     padding: 4px 20px;
     margin-left: 0px;
-    background-color: #060606;
-    color: #8e8e8e;
+    background-color: var(--lg_dialog_btn_bg, #060606);
+    color: var(--lg_dialog_btn_fg, #8e8e8e);
 }
 
 .litegraph .dialog .btn:hover {
-    background-color: #111;
-    color: #fff;
+    background-color: var(--lg_dialog_btn_hover_bg, #111);
+    color: var(--lg_dialog_btn_hover_fg, #fff);
 }
 
 .litegraph .dialog .btn.delete:hover {
-    background-color: #f33;
-    color: black;
+    background-color: var(--lg_dialog_btn_delete_hover_bg, #f33);
+    color: var(--lg_dialog_btn_delete_hover_fg, black);
 }
 
 .litegraph .subgraph_property {
@@ -427,7 +414,7 @@
 }
 
 .litegraph .subgraph_property:hover {
-    background-color: #333;
+    background-color: var(--lg_subgraph_hover_bg, #333);
 }
 
 .litegraph .subgraph_property :disabled {
@@ -453,7 +440,7 @@
 .litegraph .subgraph_property > select.type {
     margin-right: 20px;
     padding-left: 4px;
-    background-color: black;
+    background-color: var(--lg_subgraph_type_bg, black);
     border: 0;
 }
 
@@ -466,17 +453,16 @@
 .litegraph .subgraph_property input,
 .litegraph .subgraph_property select {
     width: 140px;
-    color: #ccc;
-    background-color: #1a1a1a;
+    color: var(--lg_subgraph_input_fg, #ccc);
+    background-color: var(--lg_subgraph_input_bg, #1a1a1a);
     border: 0;
     margin-right: 10px;
     padding: 4px;
     padding-left: 10px;
 }
-
 .litegraph .subgraph_property button {
-    background-color: #1c1c1c;
-    color: #aaa;
+    background-color: var(--lg_subgraph_property_bg, #1c1c1c);
+    color: var(--lg_subgraph_property_fg, #aaa);
     border: 0;
     border-radius: 2px;
     padding: 4px 10px;
@@ -484,12 +470,12 @@
 }
 
 .litegraph .subgraph_property.extra {
-    color: #ccc;
+    color: var(--lg_subgraph_property_extra_fg, #ccc);
 }
 
 .litegraph .subgraph_property.extra input,
 .litegraph .subgraph_property.extra select {
-    background-color: #111;
+    background-color: var(--lg_subgraph_property_extra_bg, #111);
 }
 
 .litegraph .bullet_icon {
@@ -497,7 +483,7 @@
     border-radius: 10px;
     width: 12px;
     height: 12px;
-    background-color: #666;
+    background-color: var(--lg_bullet_icon_bg, #666);
     display: inline-block;
     margin-top: 2px;
     margin-right: 4px;
@@ -506,24 +492,22 @@
 }
 
 .litegraph .bullet_icon:hover {
-    background-color: #698;
+    background-color: var(--lg_bullet_icon_hover_bg, #698);
     cursor: pointer;
 }
 
 .litegraph textarea {
     resize: both;
 }
-
 /* OLD */
 
 .graphcontextmenu {
     padding: 4px;
     min-width: 100px;
 }
-
 .graphcontextmenu-title {
-    color: #dde;
-    background-color: #222;
+    color: var(--lg_menu_old_title_fg, #dde);
+    background-color: var(--lg_menu_old_title_bg, #222);
     margin: 0;
     padding: 2px;
     cursor: default;
@@ -541,7 +525,7 @@
 
 .graphmenu-entry.event,
 .litemenu-entry.event {
-    border-left: 8px solid orange;
+    border-left: 8px solid var(--lg_menu_event_border, orange);
     padding-left: 12px;
 }
 
@@ -550,16 +534,16 @@
 }
 
 .graphmenu-entry.submenu {
-    border-right: 2px solid #eee;
+    border-right: 2px solid var(--lg_menu_submenu_border, #eee);
 }
 
 .graphmenu-entry:hover {
-    background-color: #555;
+    background-color: var(--lg_menu_hover_bg, #555);
 }
 
 .graphmenu-entry.separator {
-    background-color: #111;
-    border-bottom: 1px solid #666;
+    background-color: var(--lg_menu_separator_bg, #111);
+    border-bottom: 1px solid var(--lg_menu_separator_border, #666);
     height: 1px;
     width: calc(100% - 20px);
     -moz-width: calc(100% - 20px);
@@ -576,7 +560,7 @@
 .graphmenu-entry .property_value,
 .litemenu-entry .property_value {
     display: inline-block;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--lg_menu_property_value_bg, rgba(0, 0, 0, 0.5));
     text-align: right;
     min-width: 80px;
     min-height: 1.2em;
@@ -589,9 +573,9 @@
     top: 10px;
     left: 10px;
     min-height: 2em;
-    background-color: #333;
+    background-color: var(--lg_dialog_old_bg, #333);
     font-size: 1.2em;
-    box-shadow: 0 0 10px black !important;
+    box-shadow: 0 0 10px var(--lg_dialog_old_shadow, black) !important;
     z-index: 10;
 }
 
@@ -601,7 +585,7 @@
 }
 
 .graphdialog .name {
-    color: #888;
+    color: var(--lg_dialog_name_fg, #888);
     display: inline-block;
     min-width: 60px;
     min-height: 1.5em;
@@ -614,13 +598,12 @@
     margin: 3px;
     min-width: 60px;
     min-height: 1.5em;
-    background-color: black;
+    background-color: var(--lg_dialog_input_bg, black);
     border: 0;
-    color: white;
+    color: var(--lg_dialog_input_fg, white);
     padding-left: 10px;
     outline: none;
 }
-
 .graphdialog textarea {
     min-height: 150px;
     resize: both;
@@ -629,7 +612,7 @@
 .graphdialog button {
     margin-top: 3px;
     vertical-align: top;
-    background-color: #999;
+    background-color: var(--gd_button_bg, #999);
     border: 0;
 }
 
@@ -650,8 +633,8 @@
 .graphdialog .help-item:hover,
 .graphdialog .help-item.selected {
     cursor: pointer;
-    background-color: white;
-    color: black;
+    background-color: var(--gd_help_item_bg, white);
+    color: var(--gd_help_item_fg, black);
 }
 
 .litegraph .dialog {

@@ -63,6 +63,9 @@ export default class LiteGraph {
     static MAX_NUMBER_OF_NODES: number = 1000; //avoid infinite loops
     static DEFAULT_POSITION: Vector2 = [100, 100]; //default node position
 
+    static NODE_OUTLINE_WIDTH: number = 0;
+    static NODE_OUTLINE_COLOR: string = "#666";
+
     static proxy: any = null; //used to redirect calls
     static node_images_path: string = "";
 

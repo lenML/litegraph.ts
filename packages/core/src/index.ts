@@ -69,3 +69,6 @@ export type * from "./nodes/Subgraph";
 
 export * from "./widgets/DOMWidget";
 export type * from "./widgets/DOMWidget";
+
+export * from "./LGraphTheme";
+export type * from "./LGraphTheme";

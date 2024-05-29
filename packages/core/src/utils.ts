@@ -96,3 +96,10 @@ export function isValidLitegraphType(type: any): type is SlotType {
         typeof type === "string"
     );
 }
+
+export function cloneDeep<T>(o: any): T {
+    const impl =
+        globalThis.structuredClone ??
+        ((x: any) => JSON.parse(JSON.stringify(x)));
+    return impl(o);
+}

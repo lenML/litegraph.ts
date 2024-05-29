@@ -3,6 +3,14 @@ import LiteGraph from "./LiteGraph";
 import type { MouseEventExt, CustomEventExt, EventExt } from "./DragAndScale";
 import INodeSlot, { SlotInPosition } from "./INodeSlot";
 import LGraphCanvas from "./LGraphCanvas";
+import { CssVars } from "./misc/CssVars";
+
+export const contextmenu_vars = new CssVars({
+    lg_combo_menu_selected_bg: "#ccc",
+    lg_combo_menu_selected_fg: "#000",
+    lg_menu_filter_bg: "transparent",
+    lg_menu_filter_fg: "#fff",
+});
 
 export interface ContextMenuRoot extends HTMLDivElement {
     closing_timer?: number;
@@ -540,9 +548,8 @@ export default class ContextMenu {
         $filter.style.outline = "none";
         $filter.style.border = "none";
         $filter.style.boxSizing = "border-box";
-        $filter.style.backgroundColor =
-            "var(--litegraph-menu-filter-bgcolor, transparent)";
-        $filter.style.color = "var(--litegraph-menu-filter-color, white)";
+        $filter.style.backgroundColor = contextmenu_vars.vars.lg_menu_filter_bg;
+        $filter.style.color = contextmenu_vars.vars.lg_menu_filter_fg;
 
         $root.prepend($filter);
         $filter.focus();
@@ -585,10 +592,14 @@ export default class ContextMenu {
 
                 selectedItem?.style.setProperty(
                     "background-color",
-                    "#ccc",
+                    contextmenu_vars.vars.lg_combo_menu_selected_bg,
                     "important",
                 );
-                selectedItem?.style.setProperty("color", "#000", "important");
+                selectedItem?.style.setProperty(
+                    "color",
+                    contextmenu_vars.vars.lg_combo_menu_selected_fg,
+                    "important",
+                );
             }
 
             const updateListPosition = () => {

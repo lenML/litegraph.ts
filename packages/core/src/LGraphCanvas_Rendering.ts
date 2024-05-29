@@ -817,6 +817,20 @@ export default class LGraphCanvas_Rendering {
 
             //render BG
             if (
+                this.ds.scale < 1.5 &&
+                !bg_already_painted &&
+                this.clear_background_color
+            ) {
+                ctx.fillStyle = this.clear_background_color;
+                ctx.fillRect(
+                    this.visible_area[0],
+                    this.visible_area[1],
+                    this.visible_area[2],
+                    this.visible_area[3],
+                );
+            }
+
+            if (
                 this.background_image &&
                 this.ds.scale > 0.5 &&
                 !bg_already_painted
@@ -1508,6 +1522,13 @@ export default class LGraphCanvas_Rendering {
             }
             ctx.fill();
 
+            if (LiteGraph.NODE_OUTLINE_WIDTH) {
+                ctx.lineWidth = LiteGraph.NODE_OUTLINE_WIDTH;
+                ctx.strokeStyle = LiteGraph.WIDGET_OUTLINE_COLOR;
+                ctx.stroke();
+                ctx.strokeStyle = fgColor;
+            }
+
             //separator
             if (!node.flags.collapsed && render_title) {
                 ctx.shadowColor = "transparent";
@@ -1646,6 +1667,26 @@ export default class LGraphCanvas_Rendering {
                         Math.PI * 2,
                     );
                     ctx.fill();
+
+                    // 3 lines icon
+                    // ctx.fillRect(
+                    //     10,
+                    //     5 - box_size - 1,
+                    //     box_size * 1.15,
+                    //     box_size * 0.15,
+                    // );
+                    // ctx.fillRect(
+                    //     10,
+                    //     5 - box_size * 1.5 - 1,
+                    //     box_size * 1.15,
+                    //     box_size * 0.15,
+                    // );
+                    // ctx.fillRect(
+                    //     10,
+                    //     5 - box_size * 2 - 1,
+                    //     box_size * 1.15,
+                    //     box_size * 0.15,
+                    // );
                 }
             } else {
                 if (low_quality) {

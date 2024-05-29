@@ -206,6 +206,8 @@ export default class LGraphCanvas
 
     link_type_colors: Record<string, string> = {};
 
+    clear_background_color: string | null = null;
+
     static gradients: object = {};
     static search_limit: number;
 
