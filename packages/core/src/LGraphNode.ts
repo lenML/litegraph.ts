@@ -10,7 +10,18 @@ import type {
     SlotNameOrIndex,
 } from "./INodeSlot";
 import type { default as IProperty, IPropertyInfo } from "./IProperty";
-import type { default as IWidget, WidgetCallback } from "./IWidget";
+import type {
+    AllBuiltinWidget,
+    IButtonWidget,
+    IComboWidget,
+    IEnumWidget,
+    INumberWidget,
+    ISliderWidget,
+    ITextWidget,
+    IToggleWidget,
+    default as IWidget,
+    WidgetCallback,
+} from "./IWidget";
 import LGraph, { LGraphRemoveNodeOptions } from "./LGraph";
 import LGraphCanvas, { type INodePanel } from "./LGraphCanvas";
 import LLink from "./LLink";
@@ -97,14 +108,24 @@ export type PropertyLayout = {
     options?: Partial<IPropertyInfo>;
 }[];
 
+type WidgetLayoutItem<T extends IWidget = IWidget> = {
+    type: T["type"];
+    name: string;
+    value: T["value"];
+    callback?: WidgetCallback<T> | string;
+    options?: T["options"];
+};
+
 export type WidgetLayout = (
-    | {
-          type: IWidget["type"];
-          name: string;
-          value: IWidget["value"];
-          callback?: WidgetCallback<IWidget> | string;
-          options?: IWidget["options"];
-      }
+    | WidgetLayoutItem
+    // TODO
+    // | WidgetLayoutItem<IButtonWidget>
+    // | WidgetLayoutItem<ISliderWidget>
+    // | WidgetLayoutItem<IEnumWidget>
+    // | WidgetLayoutItem<INumberWidget>
+    // | WidgetLayoutItem<ITextWidget>
+    // | WidgetLayoutItem<IComboWidget>
+    // | WidgetLayoutItem<IToggleWidget>
     | {
           widget: (n: LGraphNode) => IWidget;
       }
@@ -159,7 +180,9 @@ export type SerializedLGraphNode<T extends LGraphNode = LGraphNode> = {
     widgets_values?: IWidget["value"][];
 };
 
-/** https://github.com/jagenjo/litegraph.js/blob/master/guides/README.md#lgraphnode */
+/**
+ * https://github.com/lenML/litegraph.ts/blob/master/GUIDE.md#lgraphnode
+ */
 export default class LGraphNode {
     get slotLayout(): SlotLayout {
         if ("slotLayout" in this.constructor) {
@@ -1938,10 +1961,52 @@ export default class LGraphNode {
     }
 
     /**
-     * https://github.com/jagenjo/litegraph.js/blob/master/guides/README.md#node-widgets
+     * https://github.com/lenML/litegraph.ts/blob/master/GUIDE.md#node-widgets
      * @return created widget
      */
-    addWidget<T extends IWidget>(
+    addWidget(
+        type: "toggle",
+        name: string,
+        value: IToggleWidget["value"],
+        callback?: WidgetCallback<IToggleWidget> | string,
+        options?: IToggleWidget["options"],
+    ): IToggleWidget;
+    addWidget(
+        type: "slider",
+        name: string,
+        value: ISliderWidget["value"],
+        callback?: WidgetCallback<ISliderWidget> | string,
+        options?: ISliderWidget["options"],
+    ): ISliderWidget;
+    addWidget(
+        type: "number",
+        name: string,
+        value: INumberWidget["value"],
+        callback?: WidgetCallback<INumberWidget> | string,
+        options?: INumberWidget["options"],
+    ): INumberWidget;
+    addWidget(
+        type: "text",
+        name: string,
+        value: ITextWidget["value"],
+        callback?: WidgetCallback<ITextWidget> | string,
+        options?: ITextWidget["options"],
+    ): ITextWidget;
+    addWidget(
+        type: "enum",
+        name: string,
+        value: IEnumWidget["value"],
+        callback?: WidgetCallback<IEnumWidget> | string,
+        options?: IEnumWidget["options"],
+    ): IEnumWidget;
+    addWidget(
+        type: "button",
+        name: string,
+        value: IButtonWidget["value"],
+        callback?: WidgetCallback<IButtonWidget> | string,
+        options?: IButtonWidget["options"],
+    ): IButtonWidget;
+    addWidget<T extends AllBuiltinWidget>(
         type: T["type"],
         name: string,
         value: T["value"],
@@ -1990,7 +2055,7 @@ export default class LGraphNode {
                 "LiteGraph addWidget(...) without a callback or property assigned",
             );
         }
-        if (type == "combo" && !w.options.values) {
+        if (w.type === "combo" && !w.options.values) {
             throw "LiteGraph addWidget('combo',...) requires to pass values in options: { values:['red','blue'] }";
         }
         this.widgets.push(w);
@@ -3443,7 +3508,9 @@ export default class LGraphNode {
         });
     }
 
-    // https://github.com/jagenjo/litegraph.js/blob/master/guides/README.md#custom-node-appearance
+    /**
+     * https://github.com/lenML/litegraph.ts/blob/master/GUIDE.md#custom-node-appearance
+     */
     onDrawBackground?(
         ctx: CanvasRenderingContext2D,
         graphCanvas: LGraphCanvas,
@@ -3496,7 +3563,9 @@ export default class LGraphNode {
 
     onBounding?(area: Float32Array): boolean;
 
-    // https://github.com/jagenjo/litegraph.js/blob/master/guides/README.md#custom-node-behaviour
+    /**
+     * https://github.com/lenML/litegraph.ts/blob/master/GUIDE.md#custom-node-appearance
+     */
     onMouseDown?(
         event: MouseEventExt,
         pos: Vector2,

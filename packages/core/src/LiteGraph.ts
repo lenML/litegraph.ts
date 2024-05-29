@@ -542,7 +542,7 @@ export default class LiteGraph {
                     node.addCustomWidget(widget);
                 } else {
                     const { name, type, value, callback, options } = item;
-                    node.addWidget(type, name, value, callback, options);
+                    node.addWidget(type as any, name, value, callback, options);
                 }
             }
         }

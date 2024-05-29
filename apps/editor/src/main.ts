@@ -24,9 +24,9 @@ LiteGraph.node_images_path = "litegraph-ts/nodes_data";
 
 const editor = new Editor("main", { miniwindow: false });
 editor.graphCanvas.pause_rendering = false;
-(window as any).editor = editor;
 
 window["editor"] = editor;
+window["LiteGraph"] = LiteGraph;
 
 window.addEventListener("resize", () => {
     editor.graphCanvas.resize();

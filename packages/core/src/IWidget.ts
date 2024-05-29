@@ -70,7 +70,7 @@ export default interface IWidget<TOptions = any, TValue = any> {
 
     onRemoved?(): void;
 }
-export interface IButtonWidget extends IWidget<{}, null> {
+export interface IButtonWidget extends IWidget<WidgetPanelOptions, null> {
     type: "button";
 }
 export interface IToggleWidgetOptions extends WidgetPanelOptions {
@@ -109,7 +109,7 @@ export interface ITextWidgetOptions extends WidgetPanelOptions {
     inputStyle?: Partial<CSSStyleDeclaration>;
     max_length?: number;
 }
-export interface ITextWidget extends IWidget<{}, string> {
+export interface ITextWidget extends IWidget<WidgetPanelOptions, string> {
     type: "text";
 }
 export interface IEnumWidgetOptions extends WidgetPanelOptions {
@@ -118,3 +118,12 @@ export interface IEnumWidgetOptions extends WidgetPanelOptions {
 export interface IEnumWidget extends IWidget<IEnumWidgetOptions, string[]> {
     type: "enum";
 }
+
+export type AllBuiltinWidget =
+    | IButtonWidget
+    | IComboWidget
+    | IEnumWidget
+    | ITextWidget
+    | INumberWidget
+    | ISliderWidget
+    | IToggleWidget;
