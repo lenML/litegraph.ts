@@ -800,7 +800,10 @@ export default class LGraphCanvas
             this._mousedown_callback,
             true,
         ); //down do not need to store the binded
-        canvas.addEventListener("mousewheel", this._mousewheel_callback, false);
+        canvas.addEventListener("mousewheel", this._mousewheel_callback, {
+            capture: false,
+            passive: false,
+        });
 
         LiteGraph.pointerListenerAdd(
             canvas,
