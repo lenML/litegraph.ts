@@ -2490,6 +2490,9 @@ export default class LGraphCanvas_Rendering {
         var secondary_text_color = LiteGraph.WIDGET_SECONDARY_TEXT_COLOR;
         var margin = 15;
 
+        const never_node =
+            node.mode === NodeMode.NEVER || node.mode === NodeMode.BY_PASS;
+
         for (var i = 0; i < widgets.length; ++i) {
             var w = widgets[i];
             if (w.hidden) continue;
@@ -2503,7 +2506,7 @@ export default class LGraphCanvas_Rendering {
             ctx.fillStyle = "#222";
             ctx.textAlign = "left";
             //ctx.lineWidth = 2;
-            if (w.disabled) ctx.globalAlpha *= 0.5;
+            if (w.disabled || never_node) ctx.globalAlpha *= 0.5;
             var widget_width = w.width || width;
 
             switch (w.type) {

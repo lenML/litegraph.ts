@@ -366,6 +366,7 @@ export default class LGraphNode {
         nodeOptionalOutputAdd: (slot: INodeOutputSlot) => void;
         resize: (size: Vector2) => void;
         propertyChanged: (k: string, v: any, prev_v: any) => void;
+        changeMode: (mode: NodeMode, before: NodeMode) => void;
     }>({
         signal: this.disposed.signal,
     });
@@ -1325,11 +1326,13 @@ export default class LGraphNode {
             default:
                 return false;
         }
+        const before = this.mode;
         this.mode = modeTo;
 
         this.widgets?.forEach((w) => {
             w.onNodeModeChange?.(this, this.mode);
         });
+        this.events.emit("changeMode", modeTo, before);
 
         return true;
     }

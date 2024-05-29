@@ -329,7 +329,7 @@ export class DOMWidget implements IWidget {
             node.events.on(
                 "selected",
                 () => {
-                    this.$el.style.pointerEvents = "auto";
+                    this.$el.style.pointerEvents = "";
                 },
                 {
                     signal: this.disposed.signal,
@@ -348,6 +348,28 @@ export class DOMWidget implements IWidget {
             // default to disabled
             this.$el.style.pointerEvents = "none";
         }
+
+        node.events.on(
+            "changeMode",
+            (mode) => {
+                switch (mode) {
+                    case NodeMode.NEVER:
+                    case NodeMode.BY_PASS: {
+                        this.$el.style.pointerEvents = "none";
+                        this.$el.style.opacity = "0.5";
+                        break;
+                    }
+                    default: {
+                        this.$el.style.pointerEvents = "";
+                        this.$el.style.opacity = "";
+                        break;
+                    }
+                }
+            },
+            {
+                signal: this.disposed.signal,
+            },
+        );
     }
 
     get canvas() {

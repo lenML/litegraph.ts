@@ -4,7 +4,7 @@ import LGraphCanvas, { IContextMenuTarget } from "./LGraphCanvas";
 import LGraphNode from "./LGraphNode";
 import LLink from "./LLink";
 import LiteGraph from "./LiteGraph";
-import { type Vector2 } from "./types";
+import { NodeMode, type Vector2 } from "./types";
 
 export default class LGraphCanvas_Events {
     processMouseDown(this: LGraphCanvas, _e: MouseEvent): boolean | undefined {
@@ -336,14 +336,19 @@ export default class LGraphCanvas_Events {
                     ];
 
                     //widgets
-                    var widget = this.processNodeWidgets(
-                        node,
-                        this.graph_mouse,
-                        e,
-                    );
-                    if (widget) {
-                        block_drag_node = true;
-                        this.node_widget = [node, widget];
+                    const skip_widget_action =
+                        node.mode === NodeMode.NEVER ||
+                        node.mode === NodeMode.BY_PASS;
+                    if (!skip_widget_action) {
+                        var widget = this.processNodeWidgets(
+                            node,
+                            this.graph_mouse,
+                            e,
+                        );
+                        if (widget) {
+                            block_drag_node = true;
+                            this.node_widget = [node, widget];
+                        }
                     }
 
                     //double clicking
