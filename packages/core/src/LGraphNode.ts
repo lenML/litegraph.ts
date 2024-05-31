@@ -235,6 +235,9 @@ export default class LGraphNode {
             this.widgets?.forEach((w) => {
                 w.onNodeRemoved?.(this);
             });
+            Object.values(this.dom_anchors).forEach((dom) => {
+                dom?.remove();
+            });
         });
     }
 
