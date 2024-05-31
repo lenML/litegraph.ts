@@ -42,7 +42,7 @@ import {
     type Vector4,
 } from "./types";
 import { clamp } from "./utils";
-import { EventEmitter } from "./misc/EventEmitter";
+import { EventEmitter } from "@zzkit/eventemitter";
 
 export interface IGraphPanel extends HTMLDivElement {
     header: HTMLDivElement;

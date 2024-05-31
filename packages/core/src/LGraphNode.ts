@@ -44,8 +44,8 @@ import { getStaticPropertyOnInstance } from "./utils";
 import { UUID } from "./types";
 import { v4 as uuidv4 } from "uuid";
 import Subgraph, { GraphIDMapping } from "./nodes/Subgraph";
-import { Disposed } from "./misc/Disposed";
-import { EventEmitter } from "./misc/EventEmitter";
+import { Disposable } from "@zzkit/disposable";
+import { EventEmitter } from "@zzkit/eventemitter";
 
 export type NodeTypeOpts = {
     node: string;
@@ -346,7 +346,7 @@ export default class LGraphNode {
     last_errors: any[] | null = null;
     last_execution_error: any = null;
 
-    disposed = new Disposed();
+    disposed = new Disposable();
     events = new EventEmitter<{
         removed: (options?: LGraphRemoveNodeOptions) => void;
         execute: () => void;
@@ -368,7 +368,7 @@ export default class LGraphNode {
         propertyChanged: (k: string, v: any, prev_v: any) => void;
         changeMode: (mode: NodeMode, before: NodeMode) => void;
     }>({
-        signal: this.disposed.signal,
+        signal: this.disposed.disposed,
     });
 
     // sync position with the node

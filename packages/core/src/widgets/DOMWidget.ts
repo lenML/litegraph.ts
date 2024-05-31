@@ -3,7 +3,7 @@ import LGraph from "../LGraph";
 import LGraphCanvas from "../LGraphCanvas";
 import LGraphNode, { SerializedLGraphNode } from "../LGraphNode";
 import LiteGraph from "../LiteGraph";
-import { Disposed } from "../misc/Disposed";
+import { Disposable } from "@zzkit/disposable";
 import { NodeMode, Vector2 } from "../types";
 
 type LDomRect = {
@@ -246,7 +246,7 @@ export class DOMWidget implements IWidget {
 
     node: LGraphNode;
 
-    disposed = new Disposed();
+    disposed = new Disposable();
 
     constructor({
         name,
@@ -332,7 +332,7 @@ export class DOMWidget implements IWidget {
                     this.$el.style.pointerEvents = "";
                 },
                 {
-                    signal: this.disposed.signal,
+                    signal: this.disposed.disposed,
                 },
             );
             node.events.on(
@@ -341,7 +341,7 @@ export class DOMWidget implements IWidget {
                     this.$el.style.pointerEvents = "none";
                 },
                 {
-                    signal: this.disposed.signal,
+                    signal: this.disposed.disposed,
                 },
             );
 
@@ -352,24 +352,13 @@ export class DOMWidget implements IWidget {
         node.events.on(
             "changeMode",
             (mode) => {
-                switch (mode) {
-                    case NodeMode.NEVER:
-                    case NodeMode.BY_PASS: {
-                        this.$el.style.pointerEvents = "none";
-                        this.$el.style.opacity = "0.5";
-                        break;
-                    }
-                    default: {
-                        this.$el.style.pointerEvents = "";
-                        this.$el.style.opacity = "";
-                        break;
-                    }
-                }
+                this.sync_ui();
             },
             {
-                signal: this.disposed.signal,
+                signal: this.disposed.disposed,
             },
         );
+        this.sync_ui();
     }
 
     get canvas() {
@@ -383,6 +372,22 @@ export class DOMWidget implements IWidget {
     set value(v: any) {
         this.options.setValue?.(v);
         // this.callback?.(this.value);
+    }
+
+    sync_ui() {
+        switch (this.node.mode) {
+            case NodeMode.NEVER:
+            case NodeMode.BY_PASS: {
+                this.$el.style.pointerEvents = "none";
+                this.$el.style.opacity = "0.5";
+                break;
+            }
+            default: {
+                this.$el.style.pointerEvents = "";
+                this.$el.style.opacity = "";
+                break;
+            }
+        }
     }
 
     draw(

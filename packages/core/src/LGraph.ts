@@ -22,7 +22,7 @@ import {
 } from "./types";
 import { LayoutDirection, NodeMode } from "./types";
 import { v4 as uuidv4 } from "uuid";
-import { EventEmitter } from "./misc/EventEmitter";
+import { EventEmitter } from "@zzkit/eventemitter";
 
 export type LGraphAddNodeMode =
     | "configure"

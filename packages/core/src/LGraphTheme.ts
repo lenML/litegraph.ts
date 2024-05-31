@@ -13,6 +13,7 @@ type UIVars<T extends string> = Record<T, string | number>;
 
 const default_style_vars = {
     lg_menu_fg: "#aaf",
+    lg_menu_bg: "#2e2e2e",
     lg_menu_bg_dark: "#000",
     lg_menu_bar_fg: "#999",
     lg_menu_bar_hover_bg: "#777",
