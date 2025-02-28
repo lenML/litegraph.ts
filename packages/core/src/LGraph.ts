@@ -360,12 +360,11 @@ export default class LGraph {
             this.execution_timer_id = setInterval(function () {
                 //execute
                 if (that.onBeforeStep) that.onBeforeStep();
-                this.events.emit("beforeStep");
+                that.events.emit("beforeStep");
 
                 that.runStep(1, !that.catch_errors);
 
                 if (that.onAfterStep) that.onAfterStep();
-                this.events.emit("afterStep");
             }, interval);
         }
     }
