@@ -1,32 +1,35 @@
-import { ITextWidget, LGraphNode, LiteGraph, OptionalSlots, PropertyLayout, SlotLayout, Vector2 } from "@litegraph-ts/core"
+import {
+    ITextWidget,
+    LGraphNode,
+    LiteGraph,
+    OptionalSlots,
+    PropertyLayout,
+    SlotLayout,
+    Vector2,
+} from "@litegraph-ts/core";
 
 export interface ConstantFileProperties extends Record<string, any> {
-    url: string,
-    type: "arraybuffer" | "text" | "json" | "blob",
+    url: string;
+    type: "arraybuffer" | "text" | "json" | "blob";
 }
 
 export default class ConstantFile extends LGraphNode {
     override properties: ConstantFileProperties = {
         url: "",
-        type: "text"
-    }
+        type: "text",
+    };
 
     static slotLayout: SlotLayout = {
-        inputs: [
-            { name: "url", type: "string" }
-        ],
-        outputs: [
-            { name: "file", type: "string" }
-        ]
-    }
+        inputs: [{ name: "url", type: "string" }],
+        outputs: [{ name: "file", type: "string" }],
+    };
 
     static propertyLayout: PropertyLayout = [
         { name: "url", defaultValue: "" },
-        { name: "type", defaultValue: "text" }
-    ]
+        { name: "type", defaultValue: "text" },
+    ];
 
-    static optionalSlots: OptionalSlots = {
-    }
+    static optionalSlots: OptionalSlots = {};
 
     widget: ITextWidget;
 
@@ -35,7 +38,7 @@ export default class ConstantFile extends LGraphNode {
     private _type: string | null = null;
 
     constructor(title?: string) {
-        super(title)
+        super(title);
         this.widget = this.addWidget("text", "url", "", "url");
         this._data = null;
         this.widgets_up = true;
@@ -44,9 +47,8 @@ export default class ConstantFile extends LGraphNode {
     override onPropertyChanged(name: string, value: any) {
         if (name == "url") {
             if (value == null || value == "") {
-                this._data = null
-            }
-            else {
+                this._data = null;
+            } else {
                 this.fetchFile(value);
             }
         }
@@ -64,10 +66,9 @@ export default class ConstantFile extends LGraphNode {
     }
 
     async fetchFile(url: string) {
-        var that = this;
         if (!url || url.constructor !== String) {
-            that._data = null;
-            that.boxcolor = null;
+            this._data = null;
+            this.boxcolor = null;
             return;
         }
 
@@ -77,26 +78,22 @@ export default class ConstantFile extends LGraphNode {
             url = LiteGraph.proxy + url.substr(url.indexOf(":") + 3);
         }
         await fetch(url)
-            .then(function(response) {
-                if (!response.ok)
-                    throw new Error("File not found");
+            .then((response) => {
+                if (!response.ok) throw new Error("File not found");
 
-                if (that.properties.type == "arraybuffer")
+                if (this.properties.type == "arraybuffer")
                     return response.arrayBuffer();
-                else if (that.properties.type == "text")
-                    return response.text();
-                else if (that.properties.type == "json")
-                    return response.json();
-                else if (that.properties.type == "blob")
-                    return response.blob();
+                else if (this.properties.type == "text") return response.text();
+                else if (this.properties.type == "json") return response.json();
+                else if (this.properties.type == "blob") return response.blob();
             })
-            .then(function(data) {
-                that._data = data;
-                that.boxcolor = "#AEA";
+            .then((data) => {
+                this._data = data;
+                this.boxcolor = "#AEA";
             })
-            .catch(function(error) {
-                that._data = null;
-                that.boxcolor = "red";
+            .catch((error) => {
+                this._data = null;
+                this.boxcolor = "red";
                 console.error("error fetching file:", error, url);
             });
     }
@@ -109,13 +106,15 @@ export default class ConstantFile extends LGraphNode {
         reader.onload = (_e: ProgressEvent) => {
             this.boxcolor = "#AEA";
             var v = reader.result;
-            if (this.properties.type == "json")
-                v = JSON.parse(v as string);
+            if (this.properties.type == "json") v = JSON.parse(v as string);
             this._data = v;
-        }
+        };
         if (this.properties.type == "arraybuffer")
             reader.readAsArrayBuffer(file);
-        else if (this.properties.type == "text" || this.properties.type == "json")
+        else if (
+            this.properties.type == "text" ||
+            this.properties.type == "json"
+        )
             reader.readAsText(file);
         else if (this.properties.type == "blob")
             return reader.readAsBinaryString(file);
@@ -126,5 +125,5 @@ LiteGraph.registerNodeType({
     class: ConstantFile,
     title: "Const File",
     desc: "Fetches a file from an url",
-    type: "basic/file"
-})
+    type: "basic/file",
+});

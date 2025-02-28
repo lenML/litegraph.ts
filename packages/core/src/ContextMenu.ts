@@ -131,7 +131,6 @@ export default class ContextMenu {
         window?: Window,
     ) {
         this.options = options;
-        var that = this;
 
         //to link a menu with its parent
         if (options.parentMenu) {
@@ -207,10 +206,10 @@ export default class ContextMenu {
         LiteGraph.pointerListenerAdd(
             root,
             "down",
-            function (e: MouseEvent) {
+            (e: MouseEvent) => {
                 //console.log("pointerevents: ContextMenu down");
                 if (e.button == 2) {
-                    that.close();
+                    this.close();
                     e.preventDefault();
                     return true;
                 }
@@ -271,7 +270,7 @@ export default class ContextMenu {
           //that.close(e);
           });*/
 
-        LiteGraph.pointerListenerAdd(root, "enter", function (e) {
+        LiteGraph.pointerListenerAdd(root, "enter", (e) => {
             //console.log("pointerevents: ContextMenu enter");
             if (root.closing_timer) {
                 clearTimeout(root.closing_timer);
@@ -347,8 +346,6 @@ export default class ContextMenu {
         value: ContextMenuItem,
         options: IContextMenuOptions = {},
     ): HTMLDivElement {
-        var that = this;
-
         var element = document.createElement("div") as HTMLDivElement;
         element.className = "litemenu-entry submenu";
 
@@ -385,29 +382,11 @@ export default class ContextMenu {
         }
 
         this.values.push(value);
-
         this.root.appendChild(element);
-        if (!disabled) {
-            element.addEventListener("click", inner_onclick);
-        }
-        if (options.autoopen) {
-            LiteGraph.pointerListenerAdd(element, "enter", inner_over);
-        }
-
-        let ctxMenu = this;
-
-        function inner_over(e: MouseEvent) {
-            var value = this.value;
-            if (!value || !value.has_submenu) {
-                return;
-            }
-            //if it is a submenu, autoopen like the item was clicked
-            inner_onclick.call(this, e);
-        }
 
         //menu option clicked
-        function inner_onclick(_e: MouseEvent) {
-            let index = parseInt(this.dataset["value"]);
+        const inner_onclick = (_e: MouseEvent) => {
+            let index = parseInt(element.dataset["value"]);
             var value = ctxMenu.values[index];
             if (LiteGraph.debug)
                 console.debug("ContextMenu inner_onclick", index, value);
@@ -418,8 +397,8 @@ export default class ContextMenu {
 
             var close_parent = true;
 
-            if (that.current_submenu) {
-                that.current_submenu.close(e);
+            if (this.current_submenu) {
+                this.current_submenu.close(e);
             }
 
             //global callback
@@ -429,7 +408,7 @@ export default class ContextMenu {
                     value,
                     options,
                     e,
-                    that,
+                    this,
                     options.node,
                 );
                 if (r === true) {
@@ -450,7 +429,7 @@ export default class ContextMenu {
                         value,
                         options,
                         e,
-                        that,
+                        this,
                         options.extra,
                     );
                     if (r === true) {
@@ -464,7 +443,7 @@ export default class ContextMenu {
                     var submenu = new ContextMenu(value.submenu.options, {
                         callback: value.submenu.callback,
                         event: e,
-                        parentMenu: that,
+                        parentMenu: this,
                         ignore_item_callbacks:
                             value.submenu.ignore_item_callbacks,
                         title: value.submenu.title,
@@ -475,9 +454,27 @@ export default class ContextMenu {
                 }
             }
 
-            if (close_parent && !that.lock) {
-                that.close();
+            if (close_parent && !this.lock) {
+                this.close();
             }
+        };
+
+        if (!disabled) {
+            element.addEventListener("click", inner_onclick);
+        }
+        if (options.autoopen) {
+            LiteGraph.pointerListenerAdd(element, "enter", inner_over);
+        }
+
+        let ctxMenu = this;
+
+        function inner_over(e: MouseEvent) {
+            var value = this.value;
+            if (!value || !value.has_submenu) {
+                return;
+            }
+            //if it is a submenu, autoopen like the item was clicked
+            inner_onclick(e);
         }
 
         return element;

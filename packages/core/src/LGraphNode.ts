@@ -2012,6 +2012,13 @@ export default class LGraphNode {
         callback?: WidgetCallback<IButtonWidget> | string,
         options?: IButtonWidget["options"],
     ): IButtonWidget;
+    addWidget(
+        type: "combo",
+        name: string,
+        value: IComboWidget["value"],
+        callback?: WidgetCallback<IComboWidget> | string,
+        options?: IComboWidget["options"],
+    ): IComboWidget;
     addWidget<T extends AllBuiltinWidget>(
         type: T["type"],
         name: string,
@@ -3381,9 +3388,8 @@ export default class LGraphNode {
         var img = new Image();
         img.src = LiteGraph.node_images_path + url;
 
-        var that = this;
-        img.onload = function () {
-            that.setDirtyCanvas(true);
+        img.onload = () => {
+            this.setDirtyCanvas(true);
         };
         return img;
     }

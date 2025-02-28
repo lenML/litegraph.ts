@@ -109,7 +109,7 @@ export interface ITextWidgetOptions extends WidgetPanelOptions {
     inputStyle?: Partial<CSSStyleDeclaration>;
     max_length?: number;
 }
-export interface ITextWidget extends IWidget<WidgetPanelOptions, string> {
+export interface ITextWidget extends IWidget<ITextWidgetOptions, string> {
     type: "text";
 }
 export interface IEnumWidgetOptions extends WidgetPanelOptions {

@@ -65,7 +65,7 @@ export default class GraphOutput extends LGraphNode {
         );
 
         if (LiteGraph.graph_inputs_outputs_use_combo_widget) {
-            this.typeWidget = this.addWidget<IComboWidget>(
+            this.typeWidget = this.addWidget(
                 "combo",
                 "Type",
                 getLitegraphTypeName(this.properties.type),
@@ -73,7 +73,7 @@ export default class GraphOutput extends LGraphNode {
                 { values: getSlotTypesOutFormatted },
             );
         } else {
-            this.typeWidget = this.addWidget<ITextWidget>(
+            this.typeWidget = this.addWidget(
                 "text",
                 "Type",
                 getLitegraphTypeName(this.properties.type),

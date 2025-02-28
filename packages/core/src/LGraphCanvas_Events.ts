@@ -21,7 +21,6 @@ export default class LGraphCanvas_Events {
         var ref_window = this.getCanvasWindow();
         var document = ref_window.document;
         LGraphCanvas.active_canvas = this;
-        var that = this;
 
         var x = e.clientX;
         var y = e.clientY;

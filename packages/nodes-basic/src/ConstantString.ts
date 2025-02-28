@@ -1,34 +1,39 @@
-import { ITextWidget, LGraphNode, LiteGraph, OptionalSlots, PropertyLayout, SlotLayout, Vector2 } from "@litegraph-ts/core"
+import {
+    ITextWidget,
+    LGraphNode,
+    LiteGraph,
+    OptionalSlots,
+    PropertyLayout,
+    SlotLayout,
+    Vector2,
+} from "@litegraph-ts/core";
 
 export interface ConstantStringProperties extends Record<string, any> {
-    value: string,
+    value: string;
 }
 
 export default class ConstantString extends LGraphNode {
     override properties: ConstantStringProperties = {
-        value: ""
-    }
+        value: "",
+    };
 
     static slotLayout: SlotLayout = {
         inputs: [],
-        outputs: [
-            { name: "string", type: "string" }
-        ]
-    }
+        outputs: [{ name: "string", type: "string" }],
+    };
 
     static propertyLayout: PropertyLayout = [
-        { name: "value", defaultValue: "" }
-    ]
+        { name: "value", defaultValue: "" },
+    ];
 
-    static optionalSlots: OptionalSlots = {
-    }
+    static optionalSlots: OptionalSlots = {};
 
     widget: ITextWidget;
 
     override size: Vector2 = [180, 30];
 
     constructor(title?: string) {
-        super(title)
+        super(title);
         this.widget = this.addWidget("text", "value", "", "value");
         this.widgets_up = true;
     }
@@ -49,11 +54,10 @@ export default class ConstantString extends LGraphNode {
     }
 
     override onDropFile(file: File) {
-        var that = this;
         var reader = new FileReader();
-        reader.onload = function(e: ProgressEvent) {
-            that.setProperty("value", reader.result as string);
-        }
+        reader.onload = (e: ProgressEvent) => {
+            this.setProperty("value", reader.result as string);
+        };
         reader.readAsText(file);
     }
 }
@@ -62,5 +66,5 @@ LiteGraph.registerNodeType({
     class: ConstantString,
     title: "Const String",
     desc: "Constant string",
-    type: "basic/string"
-})
+    type: "basic/string",
+});

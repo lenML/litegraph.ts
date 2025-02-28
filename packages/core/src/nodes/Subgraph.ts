@@ -254,9 +254,8 @@ export default class Subgraph extends LGraphNode {
         pos: Vector2,
         graphCanvas: LGraphCanvas,
     ) {
-        var that = this;
-        setTimeout(function () {
-            graphCanvas.openSubgraph(that.subgraph);
+        setTimeout(() => {
+            graphCanvas.openSubgraph(this.subgraph);
         }, 10);
     }
 
@@ -535,12 +534,11 @@ export default class Subgraph extends LGraphNode {
         graphCanvas: LGraphCanvas,
         options: ContextMenuItem[],
     ): ContextMenuItem[] {
-        var that = this;
         return [
             {
                 content: "Open",
-                callback: function () {
-                    graphCanvas.openSubgraph(that.subgraph);
+                callback: () => {
+                    graphCanvas.openSubgraph(this.subgraph);
                 },
             },
         ];

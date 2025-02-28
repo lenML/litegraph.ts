@@ -1,9 +1,19 @@
-import { BuiltInSlotShape, ITextWidget, IWidget, LGraphNode, LiteGraph, OptionalSlots, PropertyLayout, SlotLayout, Vector2 } from "@litegraph-ts/core"
-import Watch from "./Watch"
+import {
+    BuiltInSlotShape,
+    ITextWidget,
+    IWidget,
+    LGraphNode,
+    LiteGraph,
+    OptionalSlots,
+    PropertyLayout,
+    SlotLayout,
+    Vector2,
+} from "@litegraph-ts/core";
+import Watch from "./Watch";
 
 export interface ConstantJSONProperties extends Record<string, any> {
-    value: string,
-    type: string,
+    value: string;
+    type: string;
 }
 
 /*
@@ -13,24 +23,21 @@ export default class ConstantJSON extends LGraphNode {
     override properties: ConstantJSONProperties = {
         json: "",
         value: "",
-        type: "object"
-    }
+        type: "object",
+    };
 
     static slotLayout: SlotLayout = {
         inputs: [],
-        outputs: [
-            { name: "data", type: "object" }
-        ]
-    }
+        outputs: [{ name: "data", type: "object" }],
+    };
 
     static propertyLayout: PropertyLayout = [
         { name: "json", defaultValue: "", options: { multiline: true } },
         { name: "value", defaultValue: "" },
-        { name: "type", defaultValue: "object" }
-    ]
+        { name: "type", defaultValue: "object" },
+    ];
 
-    static optionalSlots: OptionalSlots = {
-    }
+    static optionalSlots: OptionalSlots = {};
 
     jsonWidget: ITextWidget;
     valueWidget: IWidget;
@@ -42,11 +49,19 @@ export default class ConstantJSON extends LGraphNode {
     private _type: any;
 
     constructor(title?: string) {
-        super(title)
-        this.jsonWidget = this.addWidget("text", "json", "", "json", { multiline: true, inputStyle: { fontFamily: "monospace" } });
+        super(title);
+        this.jsonWidget = this.addWidget("text", "json", "", "json", {
+            multiline: true,
+            inputStyle: { fontFamily: "monospace" },
+        });
         this.valueWidget = this.addWidget("text", "value", "", "value");
         this.valueWidget.disabled = true;
-        this.typeWidget = this.addWidget("text", "type", this.properties.type, "type");
+        this.typeWidget = this.addWidget(
+            "text",
+            "type",
+            this.properties.type,
+            "type",
+        );
         this.typeWidget.disabled = true;
         this.widgets_up = true;
         this._value = null;
@@ -55,8 +70,7 @@ export default class ConstantJSON extends LGraphNode {
     getType(): string {
         if (Array.isArray(this._value)) {
             return "array";
-        }
-        else {
+        } else {
             return typeof this._value;
         }
     }
@@ -77,21 +91,17 @@ export default class ConstantJSON extends LGraphNode {
 
         if (type == "number") {
             this.valueWidget.type = "number";
-        }
-        else if (type == "boolean") {
+        } else if (type == "boolean") {
             this.valueWidget.type = "toggle";
-        }
-        else if (type == "string") {
+        } else if (type == "string") {
             this.valueWidget.type = "text";
-        }
-        else if (type == "object" || type == "array") {
+        } else if (type == "object" || type == "array") {
             this.valueWidget.type = "text";
             this.valueWidget.value = Watch.toString(this._value);
             if (type == "array") {
                 this.outputs[0].shape = BuiltInSlotShape.GRID_SHAPE;
             }
-        }
-        else {
+        } else {
             this.valueWidget.type = null;
         }
         this.properties.value = this.valueWidget.value;
@@ -101,19 +111,17 @@ export default class ConstantJSON extends LGraphNode {
         if (name == "json") {
             this.jsonWidget.value = value;
             if (value == null || value == "") {
-                return
+                return;
             }
 
             try {
                 this._value = JSON.parse(value);
                 this.boxcolor = "#AEA";
                 this.updateType();
-            }
-            catch (err) {
+            } catch (err) {
                 this.boxcolor = "red";
             }
-        }
-        else if (name == "type") {
+        } else if (name == "type") {
             this.updateType();
         }
     }
@@ -127,11 +135,10 @@ export default class ConstantJSON extends LGraphNode {
     }
 
     override onDropFile(file: File) {
-        var that = this;
         var reader = new FileReader();
-        reader.onload = function(e: ProgressEvent) {
-            that.setProperty("value", reader.result as string);
-        }
+        reader.onload = (e: ProgressEvent) => {
+            this.setProperty("value", reader.result as string);
+        };
         reader.readAsText(file);
     }
 }
@@ -140,5 +147,5 @@ LiteGraph.registerNodeType({
     class: ConstantJSON,
     title: "Const JSON",
     desc: "Parses a string to JSON object",
-    type: "basic/json"
-})
+    type: "basic/json",
+});

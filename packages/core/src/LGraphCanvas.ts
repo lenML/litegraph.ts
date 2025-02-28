@@ -672,8 +672,6 @@ export default class LGraphCanvas
         canvas: HTMLCanvasElement | string,
         skipEvents: boolean = false,
     ): void {
-        var that = this;
-
         if (canvas) {
             if (typeof canvas === "string") {
                 canvas = document.getElementById(canvas) as HTMLCanvasElement;
@@ -1003,8 +1001,6 @@ export default class LGraphCanvas
         opts: LCreateDefaultNodeForSlotOptions = {},
     ): boolean {
         // addNodeMenu for connection
-        var that = this;
-
         var isFrom = opts.nodeFrom && opts.slotFrom !== null;
         var isTo = !isFrom && opts.nodeTo && opts.slotTo !== null;
 
@@ -1173,7 +1169,7 @@ export default class LGraphCanvas
                             ? opts.posSizeFix[1] * newNode.size[1]
                             : 0);
                     const pos: Vector2 = [posX, posY]; //that.last_click_position; //[e.canvasX+30, e.canvasX+5];*/
-                    that.graph.add(newNode, { pos });
+                    this.graph.add(newNode, { pos });
 
                     //that.graph.afterChange();
 
@@ -2032,7 +2028,6 @@ export default class LGraphCanvas
         var x = pos[0] - node.pos[0];
         var y = pos[1] - node.pos[1];
         var width = node.size[0];
-        var that = this;
         var ref_window = this.getCanvasWindow();
 
         for (var i = 0; i < node.widgets.length; ++i) {
@@ -2064,8 +2059,8 @@ export default class LGraphCanvas
                         LiteGraph.pointerevents_method + "down"
                     ) {
                         if (w.callback) {
-                            setTimeout(function () {
-                                w.callback(w, that, node, pos, event);
+                            setTimeout(() => {
+                                w.callback(w, this, node, pos, event);
                             }, 20);
                         }
                         w.clicked = true;
@@ -2175,7 +2170,20 @@ export default class LGraphCanvas
                             let choices = Array.from(text_values).map((n) => {
                                 return { content: n };
                             });
-                            var menu = new ContextMenu(
+                            const inner_clicked = (
+                                v: IContextMenuItem,
+                                option,
+                                event,
+                            ) => {
+                                let newValue: any = v.content;
+                                if (values != values_list)
+                                    newValue = text_values.indexOf(newValue);
+                                w.value = newValue;
+                                inner_value_change(w, newValue);
+                                this.dirty_canvas = true;
+                                return false;
+                            };
+                            const menu = new ContextMenu(
                                 choices,
                                 {
                                     scale: Math.max(1, this.ds.scale),
@@ -2185,19 +2193,6 @@ export default class LGraphCanvas
                                 },
                                 ref_window,
                             );
-                            function inner_clicked(
-                                v: IContextMenuItem,
-                                option,
-                                event,
-                            ) {
-                                let newValue: any = v.content;
-                                if (values != values_list)
-                                    newValue = text_values.indexOf(newValue);
-                                this.value = newValue;
-                                inner_value_change(this, newValue);
-                                that.dirty_canvas = true;
-                                return false;
-                            }
                         }
                     } //end mousedown
                     else if (
@@ -2268,6 +2263,7 @@ export default class LGraphCanvas
             return w;
         } //end for
 
+        const thisCanvas = this;
         function inner_value_change(widget: IWidget, value: any) {
             widget.value = value;
             if (
@@ -2278,7 +2274,7 @@ export default class LGraphCanvas
                 node.setProperty(widget.options.property, value);
             }
             if (widget.callback) {
-                widget.callback(widget.value, that, node, pos, event);
+                widget.callback(widget.value, thisCanvas, node, pos, event);
             }
         }
 

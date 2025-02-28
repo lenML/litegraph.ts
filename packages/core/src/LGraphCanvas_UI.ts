@@ -480,7 +480,6 @@ export default class LGraphCanvas_UI {
             return;
         }
 
-        var that = this;
         var canvas = LGraphCanvas.active_canvas;
         var ref_window = canvas.getCanvasWindow();
 
@@ -505,7 +504,7 @@ export default class LGraphCanvas_UI {
                 }
 
                 opts.removable = true;
-                var data: IContextMenuItem = { content: label, value: entry };
+                const data: IContextMenuItem = { content: label, value: entry };
                 if (slotType == BuiltInSlotType.ACTION) {
                     data.className = "event";
                 }
@@ -514,7 +513,7 @@ export default class LGraphCanvas_UI {
         }
 
         if (node.onMenuNodeInputs) {
-            var retEntries = node.onMenuNodeInputs(entries);
+            const retEntries = node.onMenuNodeInputs(entries);
             if (retEntries) entries = retEntries;
         }
 
@@ -523,33 +522,22 @@ export default class LGraphCanvas_UI {
             return;
         }
 
-        var menu = new ContextMenu(
-            entries,
-            {
-                event: mouseEvent,
-                callback: inner_clicked,
-                parentMenu: prevMenu,
-                node: node,
-            },
-            ref_window,
-        );
-
-        function inner_clicked(
+        const inner_clicked = (
             v: IContextMenuItem,
             options,
             e: MouseEventExt,
             prev: ContextMenu,
-        ) {
+        ) => {
             if (!node) {
                 return;
             }
 
             if (v.callback) {
-                v.callback.call(that, node, v, e, prev);
+                v.callback.call(this, node, v, e, prev);
             }
 
             if (v.value) {
-                let value = v.value as InputSlotLayout;
+                const value = v.value as InputSlotLayout;
                 node.graph.beforeChange();
                 node.addInput(value.name, value.type, value.options);
 
@@ -561,7 +549,18 @@ export default class LGraphCanvas_UI {
                 node.setDirtyCanvas(true, true);
                 node.graph.afterChange();
             }
-        }
+        };
+
+        const menu = new ContextMenu(
+            entries,
+            {
+                event: mouseEvent,
+                callback: inner_clicked,
+                parentMenu: prevMenu,
+                node: node,
+            },
+            ref_window,
+        );
 
         return false;
     };
@@ -577,7 +576,6 @@ export default class LGraphCanvas_UI {
             return;
         }
 
-        var that = this;
         var canvas = LGraphCanvas.active_canvas;
         var ref_window = canvas.getCanvasWindow();
 
@@ -635,7 +633,7 @@ export default class LGraphCanvas_UI {
                 }); //, opts: {}
             }
         }
-        // add callback for modifing the menu elements onMenuNodeOutputs
+        // add callback for modifying the menu elements onMenuNodeOutputs
         if (node.onMenuNodeOutputs) {
             var retEntries = node.onMenuNodeOutputs(entries);
             if (retEntries) entries = retEntries;
@@ -645,18 +643,18 @@ export default class LGraphCanvas_UI {
             return;
         }
 
-        let innerClicked: ContextMenuEventListener = function (
+        let innerClicked: ContextMenuEventListener = (
             v: IContextMenuItem,
             _options,
             e: MouseEventExt,
             prev: ContextMenu,
-        ) {
+        ) => {
             if (!node) {
                 return;
             }
 
             if (v.callback) {
-                v.callback.call(that, node, v, e, prev);
+                v.callback.call(this, node, v, e, prev);
             }
 
             if (!v.value) {
@@ -670,8 +668,8 @@ export default class LGraphCanvas_UI {
                 (value.constructor === Object || value.constructor === Array)
             ) {
                 //submenu why?
-                var entries: ContextMenuItem[] = [];
-                for (var i in value) {
+                const entries: ContextMenuItem[] = [];
+                for (let i in value) {
                     entries.push({ content: i, value: value[i] });
                 }
                 new ContextMenu(entries, {
@@ -759,7 +757,6 @@ export default class LGraphCanvas_UI {
             return;
         }
 
-        var that = this;
         var canvas = LGraphCanvas.active_canvas;
         var ref_window = canvas.getCanvasWindow();
 
@@ -1291,7 +1288,7 @@ export default class LGraphCanvas_UI {
         graphcanvas.cloneSelection();
     };
 
-    // refactor: there are different dialogs, some uses createDialog some dont
+    // refactor: there are different dialogs, some uses createDialog some do not
     prompt(
         this: LGraphCanvas,
         title: string = "",
@@ -1301,9 +1298,7 @@ export default class LGraphCanvas_UI {
         multiline: boolean = false,
         inputStyle: Partial<CSSStyleDeclaration> | null = null,
     ): IGraphDialog {
-        var that = this;
-
-        var dialog = document.createElement("div") as IGraphDialog;
+        const dialog = document.createElement("div") as IGraphDialog;
         dialog.is_modified = false;
         dialog.className = "graphdialog rounded";
 
@@ -1327,8 +1322,8 @@ export default class LGraphCanvas_UI {
 <button class='rounded'>OK</button>`;
         }
 
-        dialog.close = function () {
-            that.prompt_box = null;
+        dialog.close = () => {
+            this.prompt_box = null;
             if (dialog.parentNode) {
                 dialog.parentNode.removeChild(dialog);
             }
@@ -1385,10 +1380,10 @@ export default class LGraphCanvas_UI {
             });
         }
 
-        if (that.prompt_box) {
-            that.prompt_box.close();
+        if (this.prompt_box) {
+            this.prompt_box.close();
         }
-        that.prompt_box = dialog;
+        this.prompt_box = dialog;
 
         var first = null;
         var timeout = null;
@@ -1425,11 +1420,11 @@ export default class LGraphCanvas_UI {
             for (const [k, v] of Object.entries(inputStyle)) input.style[k] = v;
 
         var button = dialog.querySelector("button");
-        button.addEventListener("click", function (e) {
+        button.addEventListener("click", (e) => {
             if (callback) {
                 callback(input.value);
             }
-            that.setDirty(true);
+            this.setDirty(true);
             dialog.close();
         });
 
@@ -1495,7 +1490,6 @@ export default class LGraphCanvas_UI {
 
         //console.log(options);
 
-        var that = this;
         var input_html = "";
         var graphcanvas = LGraphCanvas.active_canvas;
         var canvas = graphcanvas.canvas;
@@ -1530,14 +1524,14 @@ export default class LGraphCanvas_UI {
             selOut = dialog.querySelector(".slot_out_type_filter");
         }
 
-        dialog.close = function () {
-            that.search_box = null;
-            this.blur();
+        dialog.close = () => {
+            this.search_box = null;
+            dialog.blur();
             canvas.focus();
             root_document.body.style.overflow = "";
 
-            setTimeout(function () {
-                that.canvas.focus();
+            setTimeout(() => {
+                this.canvas.focus();
             }, 20); //important, if canvas loses focus keys wont be captured
             if (dialog.parentNode) {
                 dialog.parentNode.removeChild(dialog);
@@ -1589,10 +1583,10 @@ export default class LGraphCanvas_UI {
             }
         }
 
-        if (that.search_box) {
-            that.search_box.close();
+        if (this.search_box) {
+            this.search_box.close();
         }
-        that.search_box = dialog;
+        this.search_box = dialog;
 
         var helper = dialog.querySelector(".helper") as HTMLElement;
 
@@ -1602,8 +1596,8 @@ export default class LGraphCanvas_UI {
 
         const select = (name: string) => {
             if (name) {
-                if (that.onSearchBoxSelection) {
-                    that.onSearchBoxSelection(name, event, graphcanvas);
+                if (this.onSearchBoxSelection) {
+                    this.onSearchBoxSelection(name, event, graphcanvas);
                 } else {
                     var extra = LiteGraph.searchbox_extras[name.toLowerCase()];
                     if (extra) {
@@ -1862,8 +1856,8 @@ export default class LGraphCanvas_UI {
                 return;
             }
 
-            if (that.onSearchBox) {
-                var list = that.onSearchBox(helper, str, graphcanvas);
+            if (this.onSearchBox) {
+                var list = this.onSearchBox(helper, str, graphcanvas);
                 if (list) {
                     for (var i = 0; i < list.length; ++i) {
                         addResult(list[i]);
@@ -1878,11 +1872,11 @@ export default class LGraphCanvas_UI {
                 let sOut: HTMLSelectElement | null;
 
                 // filter by type preprocess
-                if (options.do_type_filter && that.search_box) {
-                    sIn = that.search_box.querySelector(
+                if (options.do_type_filter && this.search_box) {
+                    sIn = this.search_box.querySelector(
                         ".slot_in_type_filter",
                     ) as HTMLSelectElement;
-                    sOut = that.search_box.querySelector(
+                    sOut = this.search_box.querySelector(
                         ".slot_out_type_filter",
                     ) as HTMLSelectElement;
                 } else {
@@ -2154,7 +2148,6 @@ export default class LGraphCanvas_UI {
         // this.SELECTED_NODE = node;
         this.closePanels();
         var ref_window = this.getCanvasWindow();
-        var that = this;
         var graphcanvas = this;
         var panel = this.createPanel(node.title || "", {
             closable: true,
@@ -2468,7 +2461,6 @@ export default class LGraphCanvas_UI {
 
     showSubgraphPropertiesDialogRight(this: LGraphCanvas, node: LGraphNode) {
         // console.log("showing subgraph properties dialog");
-        var that = this;
         // old_panel if old_panel is exist close it
         var old_panel = this.canvas.parentNode.querySelector(
             ".subgraph_dialog",
@@ -2917,8 +2909,6 @@ export default class LGraphCanvas_UI {
             return;
         }
 
-        var that = this;
-
         var info = node.getPropertyInfo(property);
         var type = info.type;
 
@@ -3199,7 +3189,6 @@ export default class LGraphCanvas_UI {
 
     getCanvasMenuOptions(this: LGraphCanvas): ContextMenuItem[] {
         var options = null;
-        var that = this;
         if (this.getMenuOptions) {
             options = this.getMenuOptions(this);
         } else {

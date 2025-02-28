@@ -104,6 +104,7 @@ export default class LGraph {
         executeStep: () => void;
         afterExecute: () => void;
         beforeStep: () => void;
+        afterStep: () => void;
         nodeAdded: (node: LGraphNode, options: LGraphAddNodeOptions) => void;
         nodeRemoved: (
             node: LGraphNode,
@@ -331,7 +332,6 @@ export default class LGraph {
         this.starttime = LiteGraph.getTime();
         this.last_update_time = this.starttime;
         interval = interval || 0;
-        var that = this;
 
         //execute once per frame
         if (
@@ -339,11 +339,11 @@ export default class LGraph {
             typeof window != "undefined" &&
             window.requestAnimationFrame
         ) {
-            function on_frame() {
+            const on_frame = () => {
                 if (this.execution_timer_id != -1) {
                     return;
                 }
-                window.requestAnimationFrame(on_frame.bind(this));
+                window.requestAnimationFrame(on_frame);
 
                 if (this.onBeforeStep) this.onBeforeStep();
                 this.events.emit("beforeStep");
@@ -352,19 +352,20 @@ export default class LGraph {
 
                 if (this.onAfterStep) this.onAfterStep();
                 this.events.emit("afterStep");
-            }
+            };
             this.execution_timer_id = -1;
-            on_frame.call(that);
+            on_frame();
         } else {
             //execute every 'interval' ms
-            this.execution_timer_id = setInterval(function () {
+            this.execution_timer_id = setInterval(() => {
                 //execute
-                if (that.onBeforeStep) that.onBeforeStep();
-                that.events.emit("beforeStep");
+                if (this.onBeforeStep) this.onBeforeStep();
+                this.events.emit("beforeStep");
 
-                that.runStep(1, !that.catch_errors);
+                this.runStep(1, !this.catch_errors);
 
-                if (that.onAfterStep) that.onAfterStep();
+                if (this.onAfterStep) this.onAfterStep();
+                this.events.emit("afterStep");
             }, interval);
         }
     }
@@ -1993,14 +1994,12 @@ export default class LGraph {
     }
 
     load(url: string | Blob, callback?: (any) => void): void {
-        var that = this;
-
         //from file
         if (url instanceof Blob) {
-            var reader = new FileReader();
-            reader.addEventListener("load", function (event) {
-                var data = JSON.parse(reader.result as string);
-                that.configure(data);
+            const reader = new FileReader();
+            reader.addEventListener("load", (event) => {
+                const data = JSON.parse(reader.result as string);
+                this.configure(data);
                 if (callback) callback(data);
             });
 
@@ -2009,16 +2008,16 @@ export default class LGraph {
         }
 
         //is a string, then an URL
-        var req = new XMLHttpRequest();
+        const req = new XMLHttpRequest();
         req.open("GET", url, true);
         req.send(null);
-        req.onload = function (_oEvent) {
+        req.onload = (_oEvent) => {
             if (req.status !== 200) {
                 console.error("Error loading graph:", req.status, req.response);
                 return;
             }
-            var data = JSON.parse(req.response);
-            that.configure(data);
+            const data = JSON.parse(req.response);
+            this.configure(data);
             if (callback) callback(data);
         };
         req.onerror = function (err) {

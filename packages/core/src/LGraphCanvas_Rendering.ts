@@ -849,7 +849,6 @@ export default class LGraphCanvas_Rendering {
                     this._bg_img = new Image();
                     this._bg_img.name = this.background_image;
                     this._bg_img.src = this.background_image;
-                    var that = this;
                     this._bg_img.onload = () => {
                         this.draw(true, true);
                     };

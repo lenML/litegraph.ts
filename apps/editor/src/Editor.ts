@@ -242,15 +242,14 @@ export default class Editor {
             return;
         }
 
-        var that = this;
         for (let i = 0; i < e.dataTransfer.files.length; ++i) {
             let file = e.dataTransfer.files[i];
             let ext = LGraphCanvas.getFileExtension(file.name);
             let reader = new FileReader();
             if (ext == "json") {
-                reader.onload = function (_event: Event) {
+                reader.onload = (_event: Event) => {
                     var data = JSON.parse(reader.result as string);
-                    that.graph.configure(data);
+                    this.graph.configure(data);
                 };
                 reader.readAsText(file);
             }
