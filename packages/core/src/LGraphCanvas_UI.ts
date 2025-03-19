@@ -2148,24 +2148,23 @@ export default class LGraphCanvas_UI {
         // this.SELECTED_NODE = node;
         this.closePanels();
         var ref_window = this.getCanvasWindow();
-        var graphcanvas = this;
         var panel = this.createPanel(node.title || "", {
             closable: true,
             window: ref_window,
             onOpen: function () {
                 // graphcanvas.NODEPANEL_IS_OPEN = true;
             },
-            onClose: function () {
+            onClose: () => {
                 // graphcanvas.NODEPANEL_IS_OPEN = false;
-                graphcanvas.node_panel = null;
+                this.node_panel = null;
             },
         }) as INodePanel;
-        graphcanvas.node_panel = panel;
+        this.node_panel = panel;
         panel.id = "node-panel";
         panel.node = node;
         panel.classList.add("settings");
 
-        function inner_refresh() {
+        const inner_refresh = () => {
             panel.content.innerHTML = ""; //clear
             panel.addHTML(
                 "<span class='node_type'>" +
@@ -2177,8 +2176,8 @@ export default class LGraphCanvas_UI {
 
             panel.addHTML("<h3>Properties</h3>");
 
-            var fUpdate = function (name: string, value: any) {
-                graphcanvas.graph.beforeChange(node);
+            var fUpdate = (name: string, value: any) => {
+                this.graph.beforeChange(node);
                 switch (name) {
                     case "Title":
                         node.title = value;
@@ -2206,8 +2205,8 @@ export default class LGraphCanvas_UI {
                         node.setProperty(name, value);
                         break;
                 }
-                graphcanvas.graph.afterChange();
-                graphcanvas.dirty_canvas = true;
+                this.graph.afterChange();
+                this.dirty_canvas = true;
             };
 
             panel.addWidget("string", "Title", node.title, {}, fUpdate);
@@ -2270,9 +2269,9 @@ export default class LGraphCanvas_UI {
                     panel.close();
                 })
                 .classList.add("delete");
-        }
+        };
 
-        panel.inner_showCodePad = function (propname: string): void {
+        panel.inner_showCodePad = (propname: string): void => {
             panel.classList.remove("settings");
             panel.classList.add("centered");
 
@@ -2289,7 +2288,7 @@ export default class LGraphCanvas_UI {
               {*/
             panel.alt_content.innerHTML = "<textarea class='code'></textarea>";
             var textarea = panel.alt_content.querySelector("textarea");
-            var fDoneWith = function () {
+            var fDoneWith = () => {
                 panel.toggleAltContent(false); //if(node_prop_div) node_prop_div.style.display = "block"; // panel.close();
                 panel.toggleFooterVisibility(true);
                 textarea.parentNode.removeChild(textarea);
@@ -2298,7 +2297,7 @@ export default class LGraphCanvas_UI {
                 inner_refresh();
             };
             textarea.value = node.properties[propname];
-            textarea.addEventListener("keydown", function (e) {
+            textarea.addEventListener("keydown", (e) => {
                 if (e.code == "Enter" && e.ctrlKey) {
                     node.setProperty(propname, textarea.value);
                     fDoneWith();
@@ -2308,7 +2307,7 @@ export default class LGraphCanvas_UI {
             panel.toggleFooterVisibility(false);
             textarea.style.height = "calc(100% - 40px)";
             /*}*/
-            var assign = panel.addButton("Assign", function () {
+            var assign = panel.addButton("Assign", () => {
                 node.setProperty(propname, textarea.value);
                 fDoneWith();
             });
@@ -3851,7 +3850,6 @@ export default class LGraphCanvas_UI {
                         }
                         let parentNode = this.parentNode as HTMLElement;
                         var propname = parentNode.dataset["property"];
-                        var elem_that = this;
                         let choices = Array.from(values).map((v) => {
                             return { content: v };
                         });
@@ -3860,21 +3858,20 @@ export default class LGraphCanvas_UI {
                             {
                                 event: event as MouseEventExt,
                                 className: "dark combo-menu",
-                                callback: inner_clicked,
+                                callback: (
+                                    v: IContextMenuItem,
+                                    option: IContextMenuOptions,
+                                    event: MouseEventExt,
+                                ) => {
+                                    //node.setProperty(propname,v);
+                                    //graphcanvas.dirty_canvas = true;
+                                    this.innerText = v.content;
+                                    innerChange(propname, v.content);
+                                    return false;
+                                },
                             },
                             ref_window,
                         );
-                        function inner_clicked(
-                            v: IContextMenuItem,
-                            option: IContextMenuOptions,
-                            event: MouseEventExt,
-                        ) {
-                            //node.setProperty(propname,v);
-                            //graphcanvas.dirty_canvas = true;
-                            elem_that.innerText = v.content;
-                            innerChange(propname, v.content);
-                            return false;
-                        }
                     },
                 );
             }

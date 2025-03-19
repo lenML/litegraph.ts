@@ -61,8 +61,6 @@ export default class GraphInput extends LGraphNode {
     constructor(title?: string) {
         super(title);
 
-        let that = this;
-
         this.nameWidget = this.addWidget(
             "text",
             "Name",
@@ -91,8 +89,8 @@ export default class GraphInput extends LGraphNode {
             "number",
             "Value",
             this.properties.value,
-            function (v) {
-                that.setProperty("value", v);
+            (v) => {
+                this.setProperty("value", v);
             },
         );
 

@@ -387,7 +387,7 @@ export default class ContextMenu {
         //menu option clicked
         const inner_onclick = (_e: MouseEvent) => {
             let index = parseInt(element.dataset["value"]);
-            var value = ctxMenu.values[index];
+            var value = this.values[index];
             if (LiteGraph.debug)
                 console.debug("ContextMenu inner_onclick", index, value);
 
@@ -466,8 +466,6 @@ export default class ContextMenu {
             LiteGraph.pointerListenerAdd(element, "enter", inner_over);
         }
 
-        let ctxMenu = this;
-
         function inner_over(e: MouseEvent) {
             var value = this.value;
             if (!value || !value.has_submenu) {
@@ -527,7 +525,6 @@ export default class ContextMenu {
     }
 
     protected setupComboFilter() {
-        const menuThis = this;
         const { values, options, root: $root } = this;
         const is_long_combo =
             this.options.className?.includes("combo-menu") &&
@@ -649,7 +646,7 @@ export default class ContextMenu {
                         selectedItem?.click();
                         break;
                     case "Escape":
-                        menuThis.close();
+                        this.close();
                         break;
                 }
             });

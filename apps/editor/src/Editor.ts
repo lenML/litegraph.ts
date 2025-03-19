@@ -150,16 +150,14 @@ export default class Editor {
         this.root
             .querySelector<HTMLDivElement>(".header .tools-left")!
             .appendChild(this.meter);
-        var self = this;
-
         setInterval(() => {
             this.meter!.querySelector<HTMLDivElement>(
                 ".cpuload .fgload",
-            )!.style.width = 2 * self.graph.execution_time * 90 + "px";
-            if (self.graph.status == LGraphStatus.STATUS_RUNNING) {
+            )!.style.width = 2 * this.graph.execution_time * 90 + "px";
+            if (this.graph.status == LGraphStatus.STATUS_RUNNING) {
                 this.meter!.querySelector<HTMLDivElement>(
                     ".gpuload .fgload",
-                )!.style.width = self.graphCanvas.render_time * 10 * 90 + "px";
+                )!.style.width = this.graphCanvas.render_time * 10 * 90 + "px";
             } else {
                 this.meter!.querySelector<HTMLDivElement>(
                     ".gpuload .fgload",
@@ -265,9 +263,8 @@ export default class Editor {
             throw "Fullscreen not supported";
         }
 
-        var self = this;
-        setTimeout(function () {
-            self.graphCanvas.resize();
+        setTimeout(() => {
+            this.graphCanvas.resize();
         }, 100);
     }
 

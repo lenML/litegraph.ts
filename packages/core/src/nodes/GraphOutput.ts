@@ -55,8 +55,6 @@ export default class GraphOutput extends LGraphNode {
     constructor(title?: string) {
         super(title);
 
-        let that = this;
-
         this.nameWidget = this.addWidget(
             "text",
             "Name",

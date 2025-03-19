@@ -2030,6 +2030,20 @@ export default class LGraphCanvas
         var width = node.size[0];
         var ref_window = this.getCanvasWindow();
 
+        const inner_value_change = (widget: IWidget, value: any) => {
+            widget.value = value;
+            if (
+                widget.options &&
+                widget.options.property &&
+                node.properties[widget.options.property] !== undefined
+            ) {
+                node.setProperty(widget.options.property, value);
+            }
+            if (widget.callback) {
+                widget.callback(widget.value, this, node, pos, event);
+            }
+        };
+
         for (var i = 0; i < node.widgets.length; ++i) {
             var w = node.widgets[i];
             if (!w || w.disabled) continue;
@@ -2263,21 +2277,6 @@ export default class LGraphCanvas
             return w;
         } //end for
 
-        const thisCanvas = this;
-        function inner_value_change(widget: IWidget, value: any) {
-            widget.value = value;
-            if (
-                widget.options &&
-                widget.options.property &&
-                node.properties[widget.options.property] !== undefined
-            ) {
-                node.setProperty(widget.options.property, value);
-            }
-            if (widget.callback) {
-                widget.callback(widget.value, thisCanvas, node, pos, event);
-            }
-        }
-
         return null;
     }
 
@@ -2341,27 +2340,26 @@ export default class LGraphCanvas
             return;
         }
 
-        var self = this;
         var delta = this.live_mode ? 1.1 : 0.9;
         if (this.live_mode) {
             this.live_mode = false;
             this.editor_alpha = 0.1;
         }
 
-        var t = setInterval(function () {
-            self.editor_alpha *= delta;
-            self.dirty_canvas = true;
-            self.dirty_bgcanvas = true;
+        var t = setInterval(() => {
+            this.editor_alpha *= delta;
+            this.dirty_canvas = true;
+            this.dirty_bgcanvas = true;
 
-            if (delta < 1 && self.editor_alpha < 0.01) {
+            if (delta < 1 && this.editor_alpha < 0.01) {
                 clearInterval(t);
                 if (delta < 1) {
-                    self.live_mode = true;
+                    this.live_mode = true;
                 }
             }
-            if (delta > 1 && self.editor_alpha > 0.99) {
+            if (delta > 1 && this.editor_alpha > 0.99) {
                 clearInterval(t);
-                self.editor_alpha = 1;
+                this.editor_alpha = 1;
             }
         }, 1);
     }
