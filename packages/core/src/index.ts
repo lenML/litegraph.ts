@@ -72,3 +72,6 @@ export type * from "./widgets/DOMWidget";
 
 export * from "./LGraphTheme";
 export type * from "./LGraphTheme";
+
+export * from "./nodes/GetSet";
+export type * from "./nodes/GetSet";
