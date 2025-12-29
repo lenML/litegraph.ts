@@ -751,7 +751,7 @@ export default class LiteGraph {
     }
 
     static getTime(): number {
-        return Date.now();
+        return globalThis?.performance?.now?.() ?? Date.now();
     }
 
     // static LLink: typeof LLink;
