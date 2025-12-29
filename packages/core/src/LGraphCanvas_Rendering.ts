@@ -204,7 +204,8 @@ export default class LGraphCanvas_Rendering {
                 ctx.restore();
             }
 
-            const invisible_nodes = this.graph._nodes.filter(
+            const all_nodes = this._graph_stack.flatMap((x) => x.graph._nodes);
+            const invisible_nodes = all_nodes.filter(
                 (n) => !visible_nodes.includes(n),
             );
 
@@ -2722,9 +2723,7 @@ export default class LGraphCanvas_Rendering {
                     }
                     break;
                 default:
-                    if (w.draw) {
-                        w.draw(ctx, node, widget_width, y, H);
-                    }
+                    w.draw?.(ctx, node, widget_width, y, H);
                     break;
             }
             posY += (w.computeSize ? w.computeSize(widget_width)[1] : H) + 4;
