@@ -23,7 +23,8 @@ export const NODE_MODE_NAMES = [
 ]; // helper, will add "On Request" and more in the future
 export const NODE_MODE_COLORS = ["#666", "#422", "#333", "#224", "#626"]; // use with node_box_coloured_by_mode
 
-export type UUID = string;
+export type UUID = string & {};
+export type GraphID = number | UUID;
 export type NodeID = number | UUID;
 export type LinkID = number | UUID;
 

@@ -12,6 +12,7 @@ import LiteGraph from "./LiteGraph";
 import GraphInput from "./nodes/GraphInput";
 import Subgraph from "./nodes/Subgraph";
 import {
+    GraphID,
     LConnectionKind,
     LinkID,
     NodeID,
@@ -75,6 +76,7 @@ export type SerializedLGraph<
     TLink = SerializedLLink,
     TGroup = ReturnType<LGraphGroup["serialize"]>,
 > = {
+    id: LGraph["id"];
     last_node_id: LGraph["last_node_id"];
     last_link_id: LGraph["last_link_id"];
     nodes: TNode[];
@@ -96,6 +98,7 @@ export type LGraphNodeExecutable = LGraphNode & {
 
 export default class LGraph {
     static DEFAULT_SUPPORTED_TYPES: string[] = ["number", "string", "boolean"];
+    static last_graph_id: number = 0;
     supported_types: string[] | null = null;
 
     events = new EventEmitter<{
@@ -148,6 +151,7 @@ export default class LGraph {
         }
     }
 
+    id: GraphID = LiteGraph.use_uuids ? uuidv4() : ++LGraph.last_graph_id;
     filter: string;
     catch_errors: boolean;
     /** custom data */
@@ -1875,6 +1879,7 @@ export default class LGraph {
         }
 
         var data: SerializedLGraph = {
+            id: this.id,
             last_node_id: this.last_node_id,
             last_link_id: this.last_link_id,
             nodes: nodes_info,
