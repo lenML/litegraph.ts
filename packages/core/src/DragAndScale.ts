@@ -13,7 +13,7 @@ export interface EventExt {
     deltaY?: number;
     wheelDeltaY?: number;
     click_time?: number;
-    layerY?: number;
+    readonly layerY: number;
 }
 
 export interface MouseEventExt extends MouseEvent, EventExt {}
