@@ -21,7 +21,7 @@ export interface GraphOutputProperties extends Record<string, any> {
 }
 
 export function getSlotTypesOut(): string[] {
-    let result = [];
+    let result = [] as string[];
     result = result.concat(BASE_SLOT_TYPES);
     result = result.concat([BuiltInSlotType.EVENT]);
     result = result.concat(LiteGraph.slot_types_out);
@@ -110,9 +110,13 @@ export default class GraphOutput extends LGraphNode {
     }
 
     getParentSubgraph(): Subgraph | null {
-        return this.graph._subgraph_node?.graph?.getNodeById(
-            this.properties.subgraphID,
-        );
+        const {
+            graph,
+            properties: { subgraphID },
+        } = this;
+        if (!graph) return null;
+        if (!subgraphID) return null;
+        return graph._subgraph_node?.graph?.getNodeById(subgraphID) ?? null;
     }
 
     updateType() {
@@ -218,7 +222,7 @@ export default class GraphOutput extends LGraphNode {
 
     override onExecute() {
         const value = this.getInputData(0);
-        this.graph.setOutputData(this.properties.name, value);
+        this.graph?.setOutputData(this.properties.name, value);
     }
 
     override onRemoved() {

@@ -7,7 +7,7 @@
         "outDir": "./build",
         "moduleResolution": "node",
         "strict": false,
-        "strictNullChecks": false,
+        "strictNullChecks": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,

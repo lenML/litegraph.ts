@@ -66,32 +66,6 @@ function multiConnection(graph: LGraph) {
     demo_node.setProperty("text", "change value in real time...");
     graph.add(demo_node);
 
-    demo_node.progress = {
-        message: "loading...",
-        current: 50,
-        total: 100,
-        running: true,
-    };
-
-    const icon = document.createElement("span");
-    icon.innerHTML = `🌑`;
-    const icon_arr = "🌑,🌒,🌓,🌔,🌕,🌖,🌗,🌘".split(",");
-    icon.style.marginTop = `-32px`;
-
-    const status_bar = document.createElement("span");
-    status_bar.innerHTML = "🤗 please wait a moment...";
-    status_bar.style.color = "rgba(255,255,255,0.6)";
-    status_bar.style.marginTop = "10px";
-
-    demo_node.dom_anchors = {
-        top_left: icon,
-        bottom_left: status_bar,
-    };
-    setInterval(() => {
-        const idx = (icon_arr.indexOf(icon.innerHTML) + 1) % icon_arr.length;
-        icon.innerHTML = icon_arr[idx];
-    }, 100);
-
     var node_watch3 = LiteGraph.createNode(Watch);
     node_watch3.pos = [500, 450];
     graph.add(node_watch3);

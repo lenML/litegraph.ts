@@ -69,6 +69,8 @@ export default interface IWidget<TOptions = any, TValue = any> {
     onPropertyChange?(value: any): void;
 
     onRemoved?(): void;
+
+    [key: string]: any;
 }
 export interface IButtonWidget extends IWidget<WidgetPanelOptions, null> {
     type: "button";

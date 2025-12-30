@@ -23,7 +23,7 @@ export interface GraphInputProperties extends Record<string, any> {
 }
 
 export function getSlotTypesIn(): string[] {
-    let result = [];
+    let result = [] as string[];
     result = result.concat(BASE_SLOT_TYPES);
     result = result.concat([BuiltInSlotType.ACTION]);
     result = result.concat(
@@ -125,9 +125,13 @@ export default class GraphInput extends LGraphNode {
     }
 
     getParentSubgraph(): Subgraph | null {
-        return this.graph._subgraph_node?.graph?.getNodeById(
-            this.properties.subgraphID,
-        );
+        const {
+            graph,
+            properties: { subgraphID },
+        } = this;
+        if (!graph) return null;
+        if (!subgraphID) return null;
+        return graph._subgraph_node?.graph?.getNodeById(subgraphID) ?? null;
     }
 
     /** ensures the type in the node output and the type in the associated graph input are the same */
@@ -165,7 +169,7 @@ export default class GraphInput extends LGraphNode {
             this.valueWidget.type = "text";
             this.valueWidget.value = "";
         } else {
-            this.valueWidget.type = null;
+            this.valueWidget.type = undefined;
             this.valueWidget.value = null;
         }
         this.properties.value = this.valueWidget.value;
@@ -228,7 +232,7 @@ export default class GraphInput extends LGraphNode {
     override onExecute() {
         var name = this.properties.name;
         //read from global input
-        var data = this.graph.inputs[name];
+        var data = this.graph?.inputs[name];
         if (!data) {
             this.setOutputData(0, this.properties.value);
             return;

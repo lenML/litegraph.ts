@@ -594,7 +594,8 @@ export default class LGraphCanvas_Events {
                     }
                 }
             }
-        } else if (e.which == 3 || this.pointer_is_double) {
+            // } else if (e.which == 3 || this.pointer_is_double) {
+        } else if (e.which == 3) {
             //right button
             if (this.allow_interaction && !skip_action && !this.read_only) {
                 let target: IContextMenuTarget | null = null;
@@ -1097,7 +1098,7 @@ export default class LGraphCanvas_Events {
 
         //console.log("pointerevents: processMouseUp which: "+e.which);
 
-        if (e.which == 1) {
+        if (e.button == 0) {
             if (this.node_widget) {
                 this.processNodeWidgets(
                     this.node_widget[0],
@@ -1320,7 +1321,6 @@ export default class LGraphCanvas_Events {
                 ) {
                     node.collapse();
                 }
-
                 this.dirty_canvas = true;
                 this.dirty_bgcanvas = true;
                 this.node_dragged.pos[0] = Math.round(this.node_dragged.pos[0]);
@@ -1371,12 +1371,12 @@ export default class LGraphCanvas_Events {
                     this.node_capturing_input.events.emit("mouseUp", e);
                 }
             }
-        } else if (e.which == 2) {
+        } else if (e.button === 1) {
             //middle button
             //trace("middle");
             this.dirty_canvas = true;
             this.dragging_canvas = false;
-        } else if (e.which == 3) {
+        } else if (e.button === 2) {
             //right button
             //trace("right");
             this.dirty_canvas = true;

@@ -1,13 +1,12 @@
-
 # litegraph.ts
 
 > This project is an experimental port and refactor of litegraph.js (based on [litegraph.ts](https://github.com/space-nuko/litegraph.ts)) to TypeScript with ESM module support.
 
 **litegraph.ts** is a TypeScript library designed to create graphs in the browser, akin to Unreal Blueprints. Users can easily program nodes, and the library includes an editor for constructing and testing graphs.
 
-- Seamless integration with existing web applications
-- Capability to run graphs independently of the editor
-- Extensive [documentation](https://lenml.github.io/litegraph.ts/) available
+-   Seamless integration with existing web applications
+-   Capability to run graphs independently of the editor
+-   Extensive [documentation](https://lenml.github.io/litegraph.ts/) available
 
 ![Preview](./assets/preview.png)
 
@@ -15,37 +14,37 @@
 
 > **Note 2:** This project's primary objective is to publish litegraph.ts to npm while carrying out ongoing renovations and refactoring.
 
-
 ## Features
-- Renders on Canvas2D (zoom in/out and panning, easy to render complex interfaces, can be used inside a WebGLTexture)
-- Easy to use editor (searchbox, keyboard shortcuts, multiple selection, context menu, ...)
-- Optimized to support hundreds of nodes per graph (on editor but also on execution)
-- Customizable theme (colors, shapes, background)
-- Callbacks to personalize every action/drawing/event of nodes
-- Subgraphs (nodes that contain graphs themselves)
-- Live mode system (hides the graph but calls nodes to render whatever they want, useful to create UIs)
-- Graphs can be executed in NodeJS
-- Highly customizable nodes (color, shape, slots vertical or horizontal, widgets, custom rendering)
-- Easy to integrate in any JS application (one single file, no dependencies)
-- Typescript support
+
+-   Renders on Canvas2D (zoom in/out and panning, easy to render complex interfaces, can be used inside a WebGLTexture)
+-   Easy to use editor (searchbox, keyboard shortcuts, multiple selection, context menu, ...)
+-   Optimized to support hundreds of nodes per graph (on editor but also on execution)
+-   Customizable theme (colors, shapes, background)
+-   Callbacks to personalize every action/drawing/event of nodes
+-   Subgraphs (nodes that contain graphs themselves)
+-   Live mode system (hides the graph but calls nodes to render whatever they want, useful to create UIs)
+-   Graphs can be executed in NodeJS
+-   Highly customizable nodes (color, shape, slots vertical or horizontal, widgets, custom rendering)
+-   Easy to integrate in any JS application (one single file, no dependencies)
+-   Typescript support
 
 > The above are the features of litegraph.js, which this library fully inherits. Below are the new features continuously updated in this library.
 >
 > (A checkmark indicates implemented features)
 
-- [x] DOMWidget: Internally implemented widgets that support DOM, making it easy to create various UIs
-- [ ] ReactWidget: Integrate support for using React components as widgets, allowing for more dynamic and complex UIs within nodes
-- [ ] Getter Setter Node: Implement getter and setter nodes that determine node connections in a hidden form
-- [x] Event Bus: LGraph / LGraphCanvas / LGraphNode support event subscription, making it easy to customize various features
-- [x] Progress: draw node progress / highlight
-- [x] Dom Anchors: You can freely insert DOM elements in any direction of the node's top, bottom, left, right, center, and middle to enhance UI functions, such as tooltip or error message
-- [ ] Customize ContextMenu: Provide interfaces to customize all context menus in the graph
-- [ ] Customize Dialog: Provide interfaces to customize all dialogs in the graph
-- [ ] Graph Scheduler: Provide graph connection parsing based on graph theory, decompose component, and control different component(sub-graphs)
-- [ ] Core Code `strictNullChecks`: Type safe everywhere!
-- [ ] Input/Output widget: Provide widgets for easier handling of input and output within nodes.
-- [ ] Control Flow: Introduce nodes that manage control flow like conditional branches and loops.
-- [ ] UI testing
+-   [x] DOMWidget: Internally implemented widgets that support DOM, making it easy to create various UIs
+-   [ ] (Deprecated) ~~ReactWidget: Integrate support for using React components as widgets, allowing for more dynamic and complex UIs within nodes~~
+-   [x] Getter Setter Node: Implement getter and setter nodes that determine node connections in a hidden form
+-   [x] Event Bus: LGraph / LGraphCanvas / LGraphNode support event subscription, making it easy to customize various features
+-   [x] Progress: draw node progress / highlight
+-   [x] Dom Anchors: You can freely insert DOM elements in any direction of the node's top, bottom, left, right, center, and middle to enhance UI functions, such as tooltip or error message
+-   [ ] Customize ContextMenu: Provide interfaces to customize all context menus in the graph
+-   [ ] Customize Dialog: Provide interfaces to customize all dialogs in the graph
+-   [ ] Graph Scheduler: Provide graph connection parsing based on graph theory, decompose component, and control different component(sub-graphs)
+-   [x] Core Code `strictNullChecks`: Type safe everywhere!
+-   [ ] Input/Output widget: Provide widgets for easier handling of input and output within nodes.
+-   [ ] Control Flow: Introduce nodes that manage control flow like conditional branches and loops.
+-   [ ] UI testing
 
 ## Installation
 
@@ -55,12 +54,12 @@ npm install @litegraph-ts/core @litegraph-ts/nodes-basic
 
 ## Example Usage
 
-``` typescript
-import { LiteGraph, LGraph, LGraphCanvas } from "@litegraph-ts/core"
-import { ConstantNumber, Watch } from "@litegraph-ts/nodes-basic"
+```typescript
+import { LiteGraph, LGraph, LGraphCanvas } from "@litegraph-ts/core";
+import { ConstantNumber, Watch } from "@litegraph-ts/nodes-basic";
 
 // Include litegraph's CSS, required for the UI to function properly
-import "@litegraph-ts/core/css/litegraph.css"
+import "@litegraph-ts/core/css/litegraph.css";
 
 // Grab canvas element from the index.html
 const root = document.getElementById("main") as HTMLDivElement;
@@ -102,48 +101,48 @@ graph.start();
 
 ```ts
 export class SumNode extends LGraphNode {
-  static slotLayout: SlotLayout = {
-    inputs: [
-      {
-        type: "number",
-        name: "num_a",
-      },
-      {
-        type: "number",
-        name: "num_b",
-      },
-    ],
-    outputs: [
-        {
-            type: 'number',
-            name: 'sum'
-        }
-    ]
-  };
+    static slotLayout: SlotLayout = {
+        inputs: [
+            {
+                type: "number",
+                name: "num_a",
+            },
+            {
+                type: "number",
+                name: "num_b",
+            },
+        ],
+        outputs: [
+            {
+                type: "number",
+                name: "sum",
+            },
+        ],
+    };
 
-  override onExecute(param: any, options: object): void {
-    const input0 = this.getInputData(0) ?? 0;
-    const input1 = this.getInputData(1) ?? 0;
-    this.setOutputData(0, input0 + input1)
-  }
+    override onExecute(param: any, options: object): void {
+        const input0 = this.getInputData(0) ?? 0;
+        const input1 = this.getInputData(1) ?? 0;
+        this.setOutputData(0, input0 + input1);
+    }
 }
 
 LiteGraph.registerNodeType({
-  class: SumNode,
-  title: "Sum Node",
-  desc: "Add number A number b",
-  type: "demo/sum",
+    class: SumNode,
+    title: "Sum Node",
+    desc: "Add number A number b",
+    type: "demo/sum",
 });
 ```
 
 Or you can wrap an existing function:
 
 ```js
-function sum(a,b){
-   return a+b;
+function sum(a, b) {
+    return a + b;
 }
 
-LiteGraph.wrapFunctionAsNode("demo/sum",sum, ["Number","Number"],"Number");
+LiteGraph.wrapFunctionAsNode("demo/sum", sum, ["Number", "Number"], "Number");
 ```
 
 # How to code DomWidget ?
@@ -187,4 +186,5 @@ class TextareaWidget extends DOMWidget {
 ```
 
 # GUIDE
+
 [GUIDE.md](./GUIDE.md)

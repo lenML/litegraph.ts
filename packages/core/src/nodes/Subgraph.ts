@@ -109,12 +109,12 @@ export function reassignGraphIDs(graph: SerializedLGraph): GraphIDMapping {
 
     // Reconnect links
     for (const node of graph.nodes) {
-        for (const input of node.inputs) {
+        for (const input of node.inputs || []) {
             if (input.link) {
                 input.link = idMap.linkIDs[input.link];
             }
         }
-        for (const output of node.outputs) {
+        for (const output of node.outputs || []) {
             if (output.links) {
                 output.links = output.links.map((l) => idMap.linkIDs[l]);
             }
@@ -182,54 +182,65 @@ export default class Subgraph extends LGraphNode {
             } as any;
         };
 
-        this.subgraph.onTrigger = wrap(
-            this.subgraph.onTrigger,
-            this.onSubgraphTrigger,
-        );
+        if (this.subgraph.onTrigger)
+            this.subgraph.onTrigger = wrap(
+                this.subgraph.onTrigger,
+                this.onSubgraphTrigger,
+            );
 
-        this.subgraph.onNodeAdded = wrap(
-            this.subgraph.onNodeAdded,
-            this.onSubgraphNodeAdded,
-        );
-        this.subgraph.onNodeRemoved = wrap(
-            this.subgraph.onNodeRemoved,
-            this.onSubgraphNodeRemoved,
-        );
+        if (this.subgraph.onNodeAdded)
+            this.subgraph.onNodeAdded = wrap(
+                this.subgraph.onNodeAdded,
+                this.onSubgraphNodeAdded,
+            );
+        if (this.subgraph.onNodeRemoved)
+            this.subgraph.onNodeRemoved = wrap(
+                this.subgraph.onNodeRemoved,
+                this.onSubgraphNodeRemoved,
+            );
 
         //nodes input node added inside
-        this.subgraph.onInputAdded = wrap(
-            this.subgraph.onInputAdded,
-            this.onSubgraphNewInput,
-        );
-        this.subgraph.onInputRenamed = wrap(
-            this.subgraph.onInputRenamed,
-            this.onSubgraphRenamedInput,
-        );
-        this.subgraph.onInputTypeChanged = wrap(
-            this.subgraph.onInputTypeChanged,
-            this.onSubgraphTypeChangeInput,
-        );
-        this.subgraph.onInputRemoved = wrap(
-            this.subgraph.onInputRemoved,
-            this.onSubgraphRemovedInput,
-        );
+        if (this.subgraph.onInputAdded)
+            this.subgraph.onInputAdded = wrap(
+                this.subgraph.onInputAdded,
+                this.onSubgraphNewInput,
+            );
+        if (this.subgraph.onInputRenamed)
+            this.subgraph.onInputRenamed = wrap(
+                this.subgraph.onInputRenamed,
+                this.onSubgraphRenamedInput,
+            );
+        if (this.subgraph.onInputTypeChanged)
+            this.subgraph.onInputTypeChanged = wrap(
+                this.subgraph.onInputTypeChanged,
+                this.onSubgraphTypeChangeInput,
+            );
+        if (this.subgraph.onInputRemoved)
+            this.subgraph.onInputRemoved = wrap(
+                this.subgraph.onInputRemoved,
+                this.onSubgraphRemovedInput,
+            );
 
-        this.subgraph.onOutputAdded = wrap(
-            this.subgraph.onOutputAdded,
-            this.onSubgraphNewOutput,
-        );
-        this.subgraph.onOutputRenamed = wrap(
-            this.subgraph.onOutputRenamed,
-            this.onSubgraphRenamedOutput,
-        );
-        this.subgraph.onOutputTypeChanged = wrap(
-            this.subgraph.onOutputTypeChanged,
-            this.onSubgraphTypeChangeOutput,
-        );
-        this.subgraph.onOutputRemoved = wrap(
-            this.subgraph.onOutputRemoved,
-            this.onSubgraphRemovedOutput,
-        );
+        if (this.subgraph.onOutputAdded)
+            this.subgraph.onOutputAdded = wrap(
+                this.subgraph.onOutputAdded,
+                this.onSubgraphNewOutput,
+            );
+        if (this.subgraph.onOutputRenamed)
+            this.subgraph.onOutputRenamed = wrap(
+                this.subgraph.onOutputRenamed,
+                this.onSubgraphRenamedOutput,
+            );
+        if (this.subgraph.onOutputTypeChanged)
+            this.subgraph.onOutputTypeChanged = wrap(
+                this.subgraph.onOutputTypeChanged,
+                this.onSubgraphTypeChangeOutput,
+            );
+        if (this.subgraph.onOutputRemoved)
+            this.subgraph.onOutputRemoved = wrap(
+                this.subgraph.onOutputRemoved,
+                this.onSubgraphRemovedOutput,
+            );
     }
 
     // getRootGraph(): LGraph | null {
@@ -245,7 +256,7 @@ export default class Subgraph extends LGraphNode {
         let graph = this.graph;
         while (graph) {
             yield graph;
-            graph = graph._subgraph_node?.graph;
+            graph = graph._subgraph_node?.graph ?? null;
         }
     }
 
@@ -270,7 +281,7 @@ export default class Subgraph extends LGraphNode {
 
         const graphInput = this.getInnerGraphInputByIndex(targetSlot);
         // console.debug("[Subgraph] Trigger slot!", graphInput, targetSlot, link, originNode, action, param);
-        graphInput.triggerSlot(0, param);
+        graphInput?.triggerSlot(0, param);
     }
 
     override onExecute() {
@@ -451,7 +462,7 @@ export default class Subgraph extends LGraphNode {
 
     private onSubgraphNewInput(name: string, type: string) {
         // console.warn("onSubgraphNewInput", name, type)
-        var slot = this.findInputSlotIndexByName(name);
+        const slot = this.findInputSlotIndexByName(name);
         if (slot == -1) {
             //add input to the node
             this.addInput(name, type);
@@ -459,12 +470,12 @@ export default class Subgraph extends LGraphNode {
     }
 
     private onSubgraphRenamedInput(oldname: string, name: string) {
-        var slot = this.findInputSlotIndexByName(oldname);
+        const slot = this.findInputSlotIndexByName(oldname);
         if (slot == -1) {
             return;
         }
-        var info = this.getInputInfo(slot);
-        info.name = name;
+        const info = this.getInputInfo(slot);
+        if (info) info.name = name;
     }
 
     private onSubgraphTypeChangeInput(
@@ -472,17 +483,17 @@ export default class Subgraph extends LGraphNode {
         oldType: string,
         type: string,
     ) {
-        var slot = this.findInputSlotIndexByName(name);
+        const slot = this.findInputSlotIndexByName(name);
         if (slot == -1) {
             return;
         }
-        var info = this.getInputInfo(slot);
+        const info = this.getInputInfo(slot);
         // console.warn("CHANGEINPUT!", info.type, oldType, "=>", type)
-        info.type = type;
+        if (info) info.type = type;
     }
 
     private onSubgraphRemovedInput(name: string) {
-        var slot = this.findInputSlotIndexByName(name);
+        const slot = this.findInputSlotIndexByName(name);
         if (slot == -1) {
             return;
         }
@@ -492,19 +503,19 @@ export default class Subgraph extends LGraphNode {
     //**** OUTPUTS ***********************************
     private onSubgraphNewOutput(name: string, type: string) {
         // console.warn("onSubgraphNewOutput", name, type)
-        var slot = this.findOutputSlotIndexByName(name);
+        const slot = this.findOutputSlotIndexByName(name);
         if (slot == -1) {
             this.addOutput(name, type);
         }
     }
 
     private onSubgraphRenamedOutput(oldname: string, name: string) {
-        var slot = this.findOutputSlotIndexByName(oldname);
+        const slot = this.findOutputSlotIndexByName(oldname);
         if (slot == -1) {
             return;
         }
-        var info = this.getOutputInfo(slot);
-        info.name = name;
+        const info = this.getOutputInfo(slot);
+        if (info) info.name = name;
     }
 
     private onSubgraphTypeChangeOutput(
@@ -512,17 +523,17 @@ export default class Subgraph extends LGraphNode {
         oldType: string,
         type: string,
     ) {
-        var slot = this.findOutputSlotIndexByName(name);
+        const slot = this.findOutputSlotIndexByName(name);
         if (slot == -1) {
             return;
         }
-        var info = this.getOutputInfo(slot);
+        const info = this.getOutputInfo(slot);
         // console.warn("CHANGEOUTPUT!", info.type, oldType, "=>", type)
-        info.type = type;
+        if (info) info.type = type;
     }
 
     private onSubgraphRemovedOutput(name: string) {
-        var slot = this.findOutputSlotIndexByName(name);
+        const slot = this.findOutputSlotIndexByName(name);
         if (slot == -1) {
             return;
         }
@@ -575,6 +586,7 @@ export default class Subgraph extends LGraphNode {
     }
 
     override clone(cloneData: LGraphNodeCloneData = { forNode: {} }) {
+        if (!this.type) throw new Error("Node type is not set");
         var node = LiteGraph.createNode(this.type);
         var data = this.serialize();
 
@@ -587,6 +599,7 @@ export default class Subgraph extends LGraphNode {
             (data as any).subgraph = subgraph;
         }
 
+        // @ts-ignore
         delete data["id"];
         delete data["inputs"];
         delete data["outputs"];
@@ -594,7 +607,8 @@ export default class Subgraph extends LGraphNode {
 
         // At this point the subgraph is instantiated, so notify child nodes of
         // their new IDs.
-        if (LiteGraph.use_uuids) notifyReassignedIDs(node.subgraph, mapping);
+        if (LiteGraph.use_uuids && node.subgraph && mapping)
+            notifyReassignedIDs(node.subgraph, mapping);
 
         cloneData.forNode[this.id] ||= {};
         cloneData.forNode[this.id].subgraphNewIDMapping = mapping;
@@ -653,7 +667,7 @@ export default class Subgraph extends LGraphNode {
                     if (isSelected) {
                         innerLinks[link.id] = [link, pos];
                     } else {
-                        linksIn[link.id] = [link, pos, input.name];
+                        if (input) linksIn[link.id] = [link, pos, input.name];
                     }
                 }
             }
@@ -664,7 +678,7 @@ export default class Subgraph extends LGraphNode {
                 for (const link of links) {
                     const pos = node.getConnectionPos(false, index);
                     const output = node.getOutputInfo(index);
-                    const outputNode = node.graph.getNodeById(link.target_id);
+                    const outputNode = node.graph?.getNodeById(link.target_id);
 
                     if (outputNode) nodeIdToNewNode[outputNode.id] = outputNode;
 
@@ -672,7 +686,8 @@ export default class Subgraph extends LGraphNode {
                     if (isSelected) {
                         innerLinks[link.id] = [link, pos];
                     } else {
-                        linksOut[link.id] = [link, pos, output.name];
+                        if (output)
+                            linksOut[link.id] = [link, pos, output.name];
                     }
                 }
             }
@@ -705,7 +720,7 @@ export default class Subgraph extends LGraphNode {
         for (const node of nodes) {
             const newPos: Vector2 = [node.pos[0] - min_x, node.pos[1] - min_y];
             const prevNodeID = node.id;
-            node.graph.remove(node, { removedBy: "moveIntoSubgraph" });
+            node.graph?.remove(node, { removedBy: "moveIntoSubgraph" });
             this.subgraph.add(node, {
                 addedBy: "moveIntoSubgraph",
                 prevNodeID,
@@ -721,7 +736,7 @@ export default class Subgraph extends LGraphNode {
 
         // Reconnect links from outside the subgraph -> inside
         for (const [linkIn, _pos, inputName] of sortedLinksIn) {
-            let pair = null;
+            let pair: SubgraphInputPair | null = null;
             if (inputSlotsCreated[linkIn.origin_id])
                 pair = inputSlotsCreated[linkIn.origin_id][linkIn.origin_slot];
             if (!pair) {
@@ -729,8 +744,9 @@ export default class Subgraph extends LGraphNode {
                     -200,
                     inputNodeY,
                 ]);
-                inputNodeY +=
-                    pair.innerNode.size[1] + LiteGraph.NODE_SLOT_HEIGHT;
+                if (pair)
+                    inputNodeY +=
+                        pair.innerNode.size[1] + LiteGraph.NODE_SLOT_HEIGHT;
                 if (!pair) {
                     console.error(
                         "Failed creating subgraph output pair!",
@@ -756,7 +772,7 @@ export default class Subgraph extends LGraphNode {
 
         // Reconnect links from inside the subgraph -> outside
         for (const [linkOut, _pos, outputName] of sortedLinksOut) {
-            let pair = null;
+            let pair: SubgraphOutputPair | null = null;
             if (outputSlotsCreated[linkOut.target_id])
                 pair =
                     outputSlotsCreated[linkOut.target_id][linkOut.target_slot];
@@ -765,8 +781,9 @@ export default class Subgraph extends LGraphNode {
                     max_x - min_x + 200,
                     outputNodeY,
                 ]);
-                outputNodeY +=
-                    pair.innerNode.size[1] + LiteGraph.NODE_SLOT_HEIGHT;
+                if (pair)
+                    outputNodeY +=
+                        pair.innerNode.size[1] + LiteGraph.NODE_SLOT_HEIGHT;
                 if (!pair) {
                     console.error(
                         "Failed creating subgraph output pair!",
@@ -982,9 +999,11 @@ export default class Subgraph extends LGraphNode {
         return this.getInnerGraphInput(inputSlot.name);
     }
 
-    moveNodesToParentGraph(nodes: LGraphNode[]): Record<NodeID, LGraphNode> {
+    moveNodesToParentGraph(
+        nodes: LGraphNode[],
+    ): Record<NodeID, LGraphNode> | null {
         nodes = nodes.filter((n) => !n.is(GraphInput) && !n.is(GraphOutput));
-        if (nodes.length === 0) return;
+        if (nodes.length === 0) return null;
 
         const subgraphNode = this;
         const parentGraph = subgraphNode.graph;
@@ -1040,8 +1059,11 @@ export default class Subgraph extends LGraphNode {
                 node.pos[1] - min_y + place_y,
             ];
             const prevNodeID = node.id;
-            node.graph.remove(node, { removedBy: "moveOutOfSubgraph" });
-            parentGraph.add(node, { addedBy: "moveOutOfSubgraph", prevNodeID });
+            node.graph?.remove(node, { removedBy: "moveOutOfSubgraph" });
+            parentGraph?.add(node, {
+                addedBy: "moveOutOfSubgraph",
+                prevNodeID,
+            });
             node.pos = newPos;
             prevNodeIDtoNewNode[prevNodeID] = node;
         }
@@ -1094,17 +1116,17 @@ export default class Subgraph extends LGraphNode {
 
         for (const link of parentIntoSubgraphLinks) {
             const innerNode = innerGraph.getNodeById(link.target_id);
-            const innerInput = innerNode.getInputInfo(link.target_slot);
+            const innerInput = innerNode?.getInputInfo(link.target_slot);
 
             innerNodeSlotToGraphInput[link.origin_id] ||= {};
-            let pair =
+            let pair: null | SubgraphInputPair =
                 innerNodeSlotToGraphInput[link.origin_id][link.origin_slot];
-            if (pair == null) {
+            if (pair === null && innerInput) {
                 const name = this.getValidGraphInputName(innerInput.name);
                 pair = this.addGraphInput(name, innerInput.type);
+                if (!pair) continue;
                 innerNodeSlotToGraphInput[link.origin_id][link.origin_slot] =
                     pair;
-
                 // Align graph input's slot over previous slot position
                 const [pos, connPos] = prevPositions[link.origin_id];
                 const newPos = pair.innerNode.pos;
@@ -1133,9 +1155,12 @@ export default class Subgraph extends LGraphNode {
                 pair.innerNode.pos = placePos;
             }
 
-            const outerNode = oldIdsToNodes[link.origin_id];
-            outerNode.connect(link.origin_slot, this, pair.outerInputIndex);
-            pair.innerNode.connect(0, innerNode, link.target_slot);
+            if (oldIdsToNodes) {
+                const outerNode = oldIdsToNodes[link.origin_id];
+                outerNode.connect(link.origin_slot, this, pair.outerInputIndex);
+            }
+            if (innerNode)
+                pair.innerNode.connect(0, innerNode, link.target_slot);
         }
     }
 
@@ -1176,13 +1201,14 @@ export default class Subgraph extends LGraphNode {
 
         for (const link of parentIntoSubgraphLinks) {
             const innerNode = innerGraph.getNodeById(link.origin_id);
-            const innerOutput = innerNode.getOutputInfo(link.origin_slot);
+            const innerOutput = innerNode?.getOutputInfo(link.origin_slot);
 
             innerNodeSlotToGraphOutput[link.target_id] ||= {};
-            let pair =
+            let pair: SubgraphOutputPair | null =
                 innerNodeSlotToGraphOutput[link.target_id][link.target_slot];
-            if (pair == null) {
+            if (pair == null && innerOutput) {
                 pair = this.addGraphOutput("output", innerOutput.type);
+                if (!pair) continue;
                 innerNodeSlotToGraphOutput[link.target_id][link.target_slot] =
                     pair;
 
@@ -1200,9 +1226,15 @@ export default class Subgraph extends LGraphNode {
                 pair.innerNode.pos = placePos;
             }
 
-            const outerNode = oldIdsToNodes[link.target_id];
-            innerNode.connect(link.origin_slot, pair.innerNode, 0);
-            this.connect(pair.outerOutputIndex, outerNode, link.target_slot);
+            if (oldIdsToNodes) {
+                const outerNode = oldIdsToNodes[link.target_id];
+                this.connect(
+                    pair.outerOutputIndex,
+                    outerNode,
+                    link.target_slot,
+                );
+            }
+            innerNode?.connect(link.origin_slot, pair.innerNode, 0);
         }
     }
 }

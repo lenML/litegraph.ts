@@ -77,6 +77,16 @@ function getClipPath(node: LGraphNode, element: HTMLElement) {
     return "";
 }
 
+function isNaN(x: unknown) {
+    return globalThis.isNaN(x as any);
+}
+
+type WDomSize = {
+    minHeight: number;
+    prefHeight: number;
+    w: IWidget<any, any>;
+    diff?: number;
+};
 function computeSize(this: LGraphNode, size: Vector2) {
     if (this.widgets?.[0]?.last_y == null) return;
 
@@ -84,7 +94,7 @@ function computeSize(this: LGraphNode, size: Vector2) {
     let freeSpace = size[1] - y;
 
     let widgetHeight = 0;
-    let dom = [];
+    let dom: WDomSize[] = [];
     for (const w of this.widgets) {
         if (w.computeSize) {
             widgetHeight += w.computeSize(size[0])[1] + 4;
@@ -101,14 +111,14 @@ function computeSize(this: LGraphNode, size: Vector2) {
                         100);
             } else {
                 prefHeight = parseInt(prefHeight as any);
-                if (isNaN(minHeight)) {
+                if (Number.isNaN(minHeight)) {
                     minHeight = prefHeight;
                 }
             }
             if (isNaN(minHeight)) {
                 minHeight = 50;
             }
-            if (!isNaN(maxHeight)) {
+            if (maxHeight && !isNaN(maxHeight)) {
                 if (!isNaN(prefHeight)) {
                     prefHeight = Math.min(prefHeight, maxHeight);
                 } else {
@@ -116,7 +126,7 @@ function computeSize(this: LGraphNode, size: Vector2) {
                 }
             }
             dom.push({
-                minHeight,
+                minHeight: minHeight!,
                 prefHeight,
                 w,
             });
@@ -128,8 +138,8 @@ function computeSize(this: LGraphNode, size: Vector2) {
     freeSpace -= widgetHeight;
 
     // Calculate sizes with all widgets at their min height
-    const prefGrow = []; // Nodes that want to grow to their prefd size
-    const canGrow = []; // Nodes that can grow to auto size
+    const prefGrow: WDomSize[] = []; // Nodes that want to grow to their prefd size
+    const canGrow: WDomSize[] = []; // Nodes that can grow to auto size
     let growBy = 0;
     for (const d of dom) {
         freeSpace -= d.minHeight;
@@ -151,7 +161,7 @@ function computeSize(this: LGraphNode, size: Vector2) {
     if (freeSpace < 0) {
         // Not enough space for all widgets so we need to grow
         size[1] -= freeSpace;
-        this.graph.setDirtyCanvas(true);
+        this.graph?.setDirtyCanvas(true);
     } else {
         // Share the space between each
         const growDiff = freeSpace - growBy;
@@ -238,6 +248,7 @@ export class DOMWidget implements IWidget {
     hidden?: boolean;
     callback?: WidgetCallback<this>;
     onPropertyChange?(value: any): void;
+    computeSize?(width: number): [number, number];
 
     $el: HTMLElement;
 
@@ -278,17 +289,18 @@ export class DOMWidget implements IWidget {
         };
 
         if (options.onBlur) {
-            this.mouseDownHandler = (event) => {
-                if (!element.contains(event.target)) {
+            this.mouseDownHandler = (event: MouseEvent) => {
+                if (!element.contains(event.target as any)) {
                     options.onBlur?.(event);
                 }
             };
             document.addEventListener("mousedown", this.mouseDownHandler);
             this.disposed.connect(() => {
-                document.removeEventListener(
-                    "mousedown",
-                    this.mouseDownHandler,
-                );
+                if (this.mouseDownHandler)
+                    document.removeEventListener(
+                        "mousedown",
+                        this.mouseDownHandler,
+                    );
             });
         }
 
@@ -362,7 +374,7 @@ export class DOMWidget implements IWidget {
     }
 
     get canvas() {
-        return this.node.graph.list_of_graphcanvas[0];
+        return this.node.graph?.list_of_graphcanvas[0];
     }
 
     get value() {
@@ -401,16 +413,17 @@ export class DOMWidget implements IWidget {
             computeSize.call(node, node.size);
         }
         const graph = node.graph;
+        if (!graph) return;
 
         const { $el: element } = this;
 
         const hidden =
             node.flags?.collapsed ||
             (!!this.options?.hideOnZoom &&
-                LGraphCanvas.active_canvas?.ds.scale < 0.5) ||
-            this.computedHeight <= 0;
+                (LGraphCanvas.active_canvas?.ds.scale || 1) < 0.5) ||
+            this.computedHeight! <= 0;
         element.hidden = hidden;
-        element.style.display = hidden ? "none" : null;
+        element.style.display = hidden ? "none" : "";
         if (hidden) {
             this.options.onHide?.(this);
             return;
@@ -498,7 +511,7 @@ export class DOMWidget implements IWidget {
                 break;
             default: {
                 this.$el.style.opacity = "1";
-                this.$el.style.pointerEvents = undefined;
+                this.$el.style.pointerEvents = "";
                 break;
             }
         }

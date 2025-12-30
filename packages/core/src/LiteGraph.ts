@@ -169,7 +169,7 @@ export default class LiteGraph {
             console.log("Node registered: " + config.type);
         }
 
-        const classname = config.name;
+        const classname = config.class.name;
         const type = config.type;
 
         if (!type) {
@@ -259,6 +259,7 @@ export default class LiteGraph {
         out: boolean = false,
     ) {
         let regConfig: LGraphNodeConstructor;
+        let aTypes: string[];
 
         if (typeof type === "string") {
             // if (LiteGraph.registered_node_types[type] !== "anonymous") {
@@ -277,25 +278,25 @@ export default class LiteGraph {
             throw "Node not registered!" + type;
         }
 
-        var sCN = (regConfig.class as any).__litegraph_type__;
+        let sCN = (regConfig.class as any).__litegraph_type__;
 
         if (typeof slot_type == "string") {
-            var aTypes = slot_type.split(",");
+            aTypes = slot_type.split(",");
         } else if (
             slot_type == BuiltInSlotType.EVENT ||
             slot_type == BuiltInSlotType.ACTION
         ) {
-            var aTypes = ["_event_"];
+            aTypes = ["_event_"];
         } else {
-            var aTypes = ["*"];
+            aTypes = ["*"];
         }
 
-        for (var i = 0; i < aTypes.length; ++i) {
-            var sT = aTypes[i]; //.toLowerCase();
+        for (let i = 0; i < aTypes.length; ++i) {
+            let sT = aTypes[i]; //.toLowerCase();
             if (sT === "") {
                 sT = "*";
             }
-            var registerTo = out
+            let registerTo = out
                 ? "registered_slot_out_types"
                 : "registered_slot_in_types";
             if (typeof this[registerTo][sT] == "undefined")
@@ -372,12 +373,12 @@ export default class LiteGraph {
         properties?: object,
     ): void {
         const params = Array(func.length);
-        const title = type.split("/").pop();
+        const title = type.split("/").pop() ?? "func";
         const class_impl = class extends LGraphNode {
             static slotLayout: SlotLayout = {
                 inputs: arg_names.map((name, i) => ({
                     name,
-                    type: param_types && param_types[i],
+                    type: param_types?.[i] ?? "*",
                 })),
                 outputs: [{ name: "out", type: return_type ?? "*" }],
             };
@@ -406,8 +407,8 @@ export default class LiteGraph {
      */
     // static addNodeMethod(name: string, func: (...args: any[]) => any): void {
     //     LGraphNode.prototype[name] = func;
-    //     for (var i in LiteGraph.registered_node_types) {
-    //         var type = LiteGraph.registered_node_types[i];
+    //     for (let i in LiteGraph.registered_node_types) {
+    //         let type = LiteGraph.registered_node_types[i];
     //         if (type.prototype[name]) {
     //             type.prototype["_" + name] = type.prototype[name];
     //         } //keep old in case of replacing
@@ -425,7 +426,7 @@ export default class LiteGraph {
         type: string | LGraphNodeConstructorFactory<T>,
         title?: string,
         options: LiteGraphCreateNodeOptions = {},
-    ): T {
+    ): T | null {
         let regConfig: LGraphNodeConstructor | null = null;
         let typeID: string; // serialization ID like "basic/const"
 
@@ -448,7 +449,7 @@ export default class LiteGraph {
 
         title = title || regConfig.title || typeID;
 
-        var node: T = null;
+        let node: T | null = null;
         const args = options.constructorArgs || [];
 
         if (LiteGraph.catch_exceptions) {
@@ -493,7 +494,7 @@ export default class LiteGraph {
 
         //extra options
         if (options.instanceProps) {
-            for (var i in options.instanceProps) {
+            for (let i in options.instanceProps) {
                 node[i] = options.instanceProps[i];
             }
         }
@@ -581,9 +582,9 @@ export default class LiteGraph {
         category: string,
         filter: string,
     ): LGraphNodeConstructor[] {
-        var r = [];
-        for (var i in LiteGraph.registered_node_types) {
-            var type = LiteGraph.registered_node_types[i];
+        let r: LGraphNodeConstructor<LGraphNode>[] = [];
+        for (let i in LiteGraph.registered_node_types) {
+            let type = LiteGraph.registered_node_types[i];
             if (type.filter != filter) {
                 continue;
             }
@@ -617,16 +618,16 @@ export default class LiteGraph {
      * @return {Array} array with all the names of the categories
      */
     static getNodeTypesCategories(filter: string): string[] {
-        var categories = { "": 1 };
-        for (var i in LiteGraph.registered_node_types) {
-            var type = LiteGraph.registered_node_types[i];
+        let categories = { "": 1 };
+        for (let i in LiteGraph.registered_node_types) {
+            let type = LiteGraph.registered_node_types[i];
             if (type.category && !type.hide_in_node_lists) {
                 if (type.filter != filter) continue;
                 categories[type.category] = 1;
             }
         }
-        var result = [];
-        for (var i in categories) {
+        let result: string[] = [];
+        for (let i in categories) {
             result.push(i);
         }
         return LiteGraph.auto_sort_node_types ? result.sort() : result;
@@ -634,18 +635,18 @@ export default class LiteGraph {
 
     /** debug purposes: reloads all the js scripts that matches a wildcard */
     static reloadNodes(folder_wildcard: string): void {
-        var tmp = document.getElementsByTagName("script");
+        let tmp = document.getElementsByTagName("script");
         //weird, this array changes by its own, so we use a copy
-        var script_files = [];
-        for (var i = 0; i < tmp.length; i++) {
+        let script_files: HTMLScriptElement[] = [];
+        for (let i = 0; i < tmp.length; i++) {
             script_files.push(tmp[i]);
         }
 
-        var docHeadObj = document.getElementsByTagName("head")[0];
+        let docHeadObj = document.getElementsByTagName("head")[0];
         folder_wildcard = document.location.href + folder_wildcard;
 
-        for (var i = 0; i < script_files.length; i++) {
-            var src = script_files[i].src;
+        for (let i = 0; i < script_files.length; i++) {
+            let src = script_files[i].src;
             if (
                 !src ||
                 src.substr(0, folder_wildcard.length) != folder_wildcard
@@ -657,7 +658,7 @@ export default class LiteGraph {
                 if (LiteGraph.debug) {
                     console.log("Reloading: " + src);
                 }
-                var dynamicScript = document.createElement("script");
+                let dynamicScript = document.createElement("script");
                 dynamicScript.type = "text/javascript";
                 dynamicScript.src = src;
                 docHeadObj.appendChild(dynamicScript);
@@ -680,18 +681,23 @@ export default class LiteGraph {
     // TODO move
 
     //separated just to improve if it doesn't work
-    static cloneObject<T>(obj?: T, target?: T): T {
+
+    static cloneObject(obj: undefined): null;
+    static cloneObject(obj: null): null;
+    static cloneObject<T>(obj: T): T;
+    static cloneObject<T>(obj: T, target: T): T;
+    static cloneObject<T>(obj?: T, target?: T): T | null {
         if (obj == null) {
             return null;
         }
-        var r = globalThis.structuredClone
+        let r = globalThis.structuredClone
             ? globalThis.structuredClone(obj)
             : JSON.parse(JSON.stringify(obj));
         if (!target) {
             return r;
         }
 
-        for (var i in r) {
+        for (let i in r) {
             target[i] = r[i];
         }
         return target;
@@ -708,8 +714,8 @@ export default class LiteGraph {
         if (type_a == "" || type_a === "*") type_a = BuiltInSlotType.DEFAULT;
         if (type_b == "" || type_b === "*") type_b = BuiltInSlotType.DEFAULT;
         if (
-            !type_a || //generic output
-            !type_b || // generic input
+            type_a === BuiltInSlotType.DEFAULT ||
+            type_b === BuiltInSlotType.DEFAULT ||
             type_a == type_b || //same type (is valid for triggers)
             (type_a == BuiltInSlotType.EVENT &&
                 type_b == BuiltInSlotType.ACTION) ||
@@ -731,10 +737,10 @@ export default class LiteGraph {
         }
 
         // Check all permutations to see if one is valid
-        var supported_types_a = type_a.split(",");
-        var supported_types_b = type_b.split(",");
-        for (var i = 0; i < supported_types_a.length; ++i) {
-            for (var j = 0; j < supported_types_b.length; ++j) {
+        let supported_types_a = type_a.split(",");
+        let supported_types_b = type_b.split(",");
+        for (let i = 0; i < supported_types_a.length; ++i) {
+            for (let j = 0; j < supported_types_b.length; ++j) {
                 if (
                     this.isValidConnection(
                         supported_types_a[i],
@@ -759,7 +765,7 @@ export default class LiteGraph {
     // static DragAndScale: typeof DragAndScale;
 
     static compareObjects(a: object, b: object): boolean {
-        for (var i in a) {
+        for (let i in a) {
             if (a[i] != b[i]) {
                 return false;
             }
@@ -832,10 +838,10 @@ export default class LiteGraph {
 
     // bounding overlap, format: [ startx, starty, width, height ]
     static overlapBounding(a: Float32Array, b: Float32Array) {
-        var A_end_x = a[0] + a[2];
-        var A_end_y = a[1] + a[3];
-        var B_end_x = b[0] + b[2];
-        var B_end_y = b[1] + b[3];
+        let A_end_x = a[0] + a[2];
+        let A_end_y = a[1] + a[3];
+        let B_end_x = b[0] + b[2];
+        let B_end_y = b[1] + b[3];
 
         if (
             a[0] > B_end_x ||
@@ -856,11 +862,11 @@ export default class LiteGraph {
             hex = hex.slice(1);
         } //Remove the '#' char - if there is one.
         hex = hex.toUpperCase();
-        var hex_alphabets = "0123456789ABCDEF";
-        let value: [number, number, number];
-        var k = 0;
-        var int1, int2;
-        for (var i = 0; i < 6; i += 2) {
+        let hex_alphabets = "0123456789ABCDEF";
+        let value: [number, number, number] = [0, 0, 0];
+        let k = 0;
+        let int1, int2;
+        for (let i = 0; i < 6; i += 2) {
             int1 = hex_alphabets.indexOf(hex.charAt(i));
             int2 = hex_alphabets.indexOf(hex.charAt(i + 1));
             value[k] = int1 * 16 + int2;
@@ -872,10 +878,10 @@ export default class LiteGraph {
     //Give a array with three values as the argument and the function will return
     //	the corresponding hex triplet.
     static num2hex(triplet: [number, number, number]): string {
-        var hex_alphabets = "0123456789ABCDEF";
-        var hex = "#";
-        var int1, int2;
-        for (var i = 0; i < 3; i++) {
+        let hex_alphabets = "0123456789ABCDEF";
+        let hex = "#";
+        let int1, int2;
+        for (let i = 0; i < 3; i++) {
             int1 = triplet[i] / 16;
             int2 = triplet[i] % 16;
 
@@ -917,8 +923,8 @@ export default class LiteGraph {
             return; // -- break --
         }
 
-        var sMethod = LiteGraph.pointerevents_method;
-        var sEvent = sEvIn;
+        let sMethod = LiteGraph.pointerevents_method;
+        let sEvent = sEvIn;
 
         // UNDER CONSTRUCTION
         // convert pointerevents to touch event when not available

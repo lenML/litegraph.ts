@@ -188,7 +188,7 @@ export class LGraphTheme {
             default_link_color:          LiteGraph.LINK_COLOR,
     
             background_image:            LGraphCanvas.DEFAULT_BACKGROUND_IMAGE,
-            clear_background_color:      null,
+            clear_background_color:      "",
         },
         ui: {
             ...default_style_vars,

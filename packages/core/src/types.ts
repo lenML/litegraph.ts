@@ -83,10 +83,10 @@ export enum TitleMode {
 
 export enum BuiltInSlotType {
     // The string names of the two event types are "_event_" for filtering purposes.
-    EVENT = -2, //for outputs
-    ACTION = -1, //for inputs
+    EVENT = "_EVENT_", //for outputs
+    ACTION = "_ACTION_", //for inputs
 
-    DEFAULT = 0,
+    DEFAULT = "_DEFAULT_",
 }
 
 export type SlotType =

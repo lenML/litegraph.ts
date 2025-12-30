@@ -46,7 +46,12 @@ export class SetNode extends LGraphNode {
     }
 
     get varName() {
-        return this.widgets[0].value;
+        return this.widgets?.[0].value;
+    }
+    set varName(name: string) {
+        if (this.widgets?.[0]) {
+            this.widgets[0].value = name;
+        }
     }
 
     get inputType() {
@@ -57,19 +62,19 @@ export class SetNode extends LGraphNode {
         const name = checkForPreviousName
             ? this.properties.previousName
             : this.varName;
-        return this.graph._nodes.filter(
+        return (this.graph?._nodes.filter(
             (n) => n instanceof GetNode && n.varName === name && name !== "",
-        ) as GetNode[];
+        ) || []) as GetNode[];
     }
 
     private validateName() {
-        let widgetValue = this.widgets[0].value;
+        let widgetValue = this.widgets?.[0].value;
 
         if (widgetValue === "") return;
         let tries = 0;
         const existingValues = new Set();
 
-        this.graph._nodes.forEach((n) => {
+        this.graph?._nodes.forEach((n) => {
             if (n == this) return;
             if (!(n instanceof SetNode)) return;
             existingValues.add(n.varName);
@@ -80,7 +85,7 @@ export class SetNode extends LGraphNode {
             tries++;
         }
 
-        this.widgets[0].value = widgetValue;
+        this.varName = widgetValue;
         this.update();
     }
 
@@ -97,7 +102,7 @@ export class SetNode extends LGraphNode {
         if (this.varName) {
             const gettersWithPreviousName = this.findGetters(true);
             gettersWithPreviousName.forEach((getter) => {
-                getter.setName(this.varName);
+                getter.varName = this.varName;
             });
         }
 
@@ -141,6 +146,7 @@ export class GetNode extends LGraphNode {
             },
             {
                 values: () => {
+                    if (!this.graph) return [];
                     const nodes = this.graph._nodes.filter(
                         (n) => n instanceof SetNode,
                     ) as SetNode[];
@@ -151,10 +157,12 @@ export class GetNode extends LGraphNode {
     }
 
     get combo() {
-        return this.widgets[0] as IComboWidget;
+        return this.widgets![0] as IComboWidget;
     }
 
     private validateLinks() {
+        const { graph } = this;
+        if (!graph) return;
         const out0 = this.outputs[0];
         const type0 = out0.type.toString();
         const links = out0.links || [];
@@ -162,7 +170,7 @@ export class GetNode extends LGraphNode {
         if (links.length === 0) return;
         links
             .filter((linkId) => {
-                const link = this.graph.links[linkId];
+                const link = graph.links[linkId];
                 return (
                     link &&
                     // FIXME: 其实我们不支持多类型
@@ -171,24 +179,23 @@ export class GetNode extends LGraphNode {
                 );
             })
             .forEach((linkId) => {
-                this.graph.removeLink(linkId);
+                graph.removeLink(linkId);
             });
     }
 
     get varName() {
-        return this.widgets[0].value;
+        return this.widgets![0].value;
+    }
+    set varName(value: string) {
+        this.widgets![0].value = value;
+        this.onRename();
+        this.serialize();
     }
 
     public setType(type: any) {
         this.outputs[0].name = type;
         this.outputs[0].type = type;
         this.validateLinks();
-    }
-
-    public setName(name: string) {
-        this.widgets[0].value = name;
-        this.onRename();
-        this.serialize();
     }
 
     public setComboValues() {
@@ -208,8 +215,10 @@ export class GetNode extends LGraphNode {
     }
 
     private findSetter() {
+        const { graph } = this;
+        if (!graph) return;
         const name = this.varName;
-        const foundNode = this.graph._nodes.find(
+        const foundNode = graph._nodes.find(
             (n) => n instanceof SetNode && n.varName === name && name !== "",
         );
         return foundNode as SetNode;
@@ -217,10 +226,7 @@ export class GetNode extends LGraphNode {
 
     override onExecute(param: any, options: object): void {
         const upNode = this.findSetter();
-        let data = null;
-        if (upNode) {
-            data = upNode.getInputData(0);
-        }
+        const data = upNode?.getInputData(0) ?? null;
         this.setOutputData(0, data);
     }
 }

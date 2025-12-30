@@ -75,7 +75,7 @@ export default class ContextMenu {
         params: any,
         origin?: any,
     ): Event {
-        var evt = document.createEvent("CustomEvent");
+        let evt = document.createEvent("CustomEvent");
         evt.initCustomEvent(event_name, true, true, params); //canBubble, cancelable, detail
         (evt as any).target = origin;
         if (element.dispatchEvent) {
@@ -90,9 +90,9 @@ export default class ContextMenu {
         event: MouseEventExt,
         element: HTMLElement,
     ): boolean {
-        var left = event.clientX;
-        var top = event.clientY;
-        var rect = element.getBoundingClientRect();
+        let left = event.clientX;
+        let top = event.clientY;
+        let rect = element.getBoundingClientRect();
         if (!rect) {
             return false;
         }
@@ -110,7 +110,7 @@ export default class ContextMenu {
     static closeAllContextMenus(refWindow: Window): void {
         refWindow = refWindow || window;
 
-        var elements =
+        let elements =
             refWindow.document.querySelectorAll<ContextMenuRoot>(
                 ".litecontextmenu",
             );
@@ -118,7 +118,7 @@ export default class ContextMenu {
             return;
         }
 
-        var result = Array.from(elements);
+        let result = Array.from(elements);
 
         for (const ctxMenu of result) {
             ctxMenu.close();
@@ -138,7 +138,7 @@ export default class ContextMenu {
                 console.error(
                     "parentMenu must be of class ContextMenu, ignoring it",
                 );
-                options.parentMenu = null;
+                options.parentMenu = undefined;
             } else {
                 this.parentMenu = options.parentMenu;
                 this.parentMenu.lock = true;
@@ -146,7 +146,7 @@ export default class ContextMenu {
             }
         }
 
-        var eventClass = null;
+        let eventClass: string | null = null;
         if (options.event)
             //use strings because comparing classes between windows doesnt work
             eventClass = options.event.constructor.name;
@@ -160,10 +160,10 @@ export default class ContextMenu {
                     eventClass +
                     ")",
             );
-            options.event = null;
+            options.event = undefined;
         }
 
-        var root = document.createElement("div") as ContextMenuRoot;
+        let root = document.createElement("div") as ContextMenuRoot;
         root.className = "litegraph litecontextmenu litemenubar-panel";
         if (options.className) {
             root.className += " " + options.className;
@@ -200,7 +200,7 @@ export default class ContextMenu {
         );
 
         root.close = () => {
-            root.parentNode.removeChild(root);
+            root.parentNode?.removeChild(root);
         };
 
         LiteGraph.pointerListenerAdd(
@@ -218,9 +218,9 @@ export default class ContextMenu {
         );
 
         function on_mouse_wheel(e) {
-            var pos = parseInt(root.style.top);
+            let pos = parseInt(root.style.top);
             root.style.top =
-                (pos + e.deltaY * options.scroll_speed).toFixed() + "px";
+                (pos + e.deltaY * (options.scroll_speed || 1)).toFixed() + "px";
             e.preventDefault();
             return true;
         }
@@ -239,7 +239,7 @@ export default class ContextMenu {
 
         //title
         if (options.title) {
-            var element = document.createElement("div");
+            let element = document.createElement("div");
             element.className = "litemenu-title";
             element.innerHTML = options.title;
             root.appendChild(element);
@@ -278,9 +278,9 @@ export default class ContextMenu {
         });
 
         //insert before checking position
-        var root_document = document;
+        let root_document = document;
         if (options.event && options.event.target instanceof Node) {
-            root_document = options.event.target.ownerDocument;
+            root_document = options.event.target.ownerDocument!;
         }
 
         if (!root_document) {
@@ -292,8 +292,8 @@ export default class ContextMenu {
         else root_document.body.appendChild(root);
 
         //compute best position
-        var left = options.left || 0;
-        var top = options.top || 0;
+        let left = options.left || 0;
+        let top = options.top || 0;
         if (options.event) {
             left = (options.event as any).clientX - 10;
             top = (options.event as any).clientY - 10;
@@ -302,12 +302,12 @@ export default class ContextMenu {
             }
 
             if (options.parentMenu) {
-                var rect = options.parentMenu.root.getBoundingClientRect();
+                let rect = options.parentMenu.root.getBoundingClientRect();
                 left = rect.left + rect.width;
             }
 
-            var body_rect = document.body.getBoundingClientRect();
-            var root_rect = root.getBoundingClientRect();
+            let body_rect = document.body.getBoundingClientRect();
+            let root_rect = root.getBoundingClientRect();
             if (body_rect.height == 0)
                 console.error(
                     "document.body height is 0. That is dangerous, set html,body { height: 100%; }",
@@ -346,10 +346,10 @@ export default class ContextMenu {
         value: ContextMenuItem,
         options: IContextMenuOptions = {},
     ): HTMLDivElement {
-        var element = document.createElement("div") as HTMLDivElement;
+        let element = document.createElement("div") as HTMLDivElement;
         element.className = "litemenu-entry submenu";
 
-        var disabled = false;
+        let disabled = false;
 
         if (typeof value === "string") value = { content: value };
 
@@ -386,8 +386,8 @@ export default class ContextMenu {
 
         //menu option clicked
         const inner_onclick = (_e: MouseEvent) => {
-            let index = parseInt(element.dataset["value"]);
-            var value = this.values[index];
+            let index = parseInt(element.dataset["value"]!);
+            let value = this.values[index];
             if (LiteGraph.debug)
                 console.debug("ContextMenu inner_onclick", index, value);
 
@@ -395,7 +395,7 @@ export default class ContextMenu {
             if (!graphCanvas) return;
             const e = graphCanvas.adjustMouseEvent(_e);
 
-            var close_parent = true;
+            let close_parent = true;
 
             if (this.current_submenu) {
                 this.current_submenu.close(e);
@@ -403,7 +403,7 @@ export default class ContextMenu {
 
             //global callback
             if (options.callback) {
-                var r = options.callback.call(
+                let r = options.callback.call(
                     this,
                     value,
                     options,
@@ -424,7 +424,7 @@ export default class ContextMenu {
                     value.disabled !== true
                 ) {
                     //item callback
-                    var r = value.callback.call(
+                    let r = value.callback.call(
                         this,
                         value,
                         options,
@@ -440,7 +440,7 @@ export default class ContextMenu {
                     if (!value.submenu.options) {
                         throw "ContextMenu submenu needs options";
                     }
-                    var submenu = new ContextMenu(value.submenu.options, {
+                    let submenu = new ContextMenu(value.submenu.options, {
                         callback: value.submenu.callback,
                         event: e,
                         parentMenu: this,
@@ -467,7 +467,7 @@ export default class ContextMenu {
         }
 
         function inner_over(e: MouseEvent) {
-            var value = this.value;
+            let value = this.value;
             if (!value || !value.has_submenu) {
                 return;
             }
@@ -484,7 +484,7 @@ export default class ContextMenu {
         }
         if (this.parentMenu && !ignore_parent_menu) {
             this.parentMenu.lock = false;
-            this.parentMenu.current_submenu = null;
+            this.parentMenu.current_submenu = undefined;
             if (e === undefined) {
                 this.parentMenu.close();
             } else if (
@@ -517,7 +517,7 @@ export default class ContextMenu {
         return this;
     }
 
-    getFirstEvent(): EventExt {
+    getFirstEvent(): EventExt | undefined {
         if (this.options.parentMenu) {
             return this.options.parentMenu.getFirstEvent();
         }
@@ -557,8 +557,8 @@ export default class ContextMenu {
         requestAnimationFrame(filter_update);
 
         function filter_update() {
-            const currentNode = LGraphCanvas.active_canvas.current_node;
-            const clickedComboValue = currentNode.widgets
+            const currentNode = LGraphCanvas.active_canvas?.current_node;
+            const clickedComboValue = currentNode?.widgets
                 ?.filter(
                     (w) =>
                         w.type === "combo" &&
@@ -658,7 +658,7 @@ export default class ContextMenu {
                 displayedItems = $items.filter((item) => {
                     const isVisible =
                         !term ||
-                        item.textContent.toLocaleLowerCase().includes(term);
+                        item.textContent?.toLocaleLowerCase().includes(term);
                     item.style.display = isVisible ? "block" : "none";
                     return isVisible;
                 });

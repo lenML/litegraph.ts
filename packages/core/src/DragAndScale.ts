@@ -50,31 +50,40 @@ export default class DragAndScale {
 
         this._binded_mouse_callback = this.onMouse.bind(this);
 
-        LiteGraph.pointerListenerAdd(
-            element,
-            "down",
-            this._binded_mouse_callback,
-        );
-        LiteGraph.pointerListenerAdd(
-            element,
-            "move",
-            this._binded_mouse_callback,
-        );
-        LiteGraph.pointerListenerAdd(
-            element,
-            "up",
-            this._binded_mouse_callback,
-        );
+        if (this._binded_mouse_callback)
+            LiteGraph.pointerListenerAdd(
+                element,
+                "down",
+                this._binded_mouse_callback,
+            );
+        if (this._binded_mouse_callback)
+            LiteGraph.pointerListenerAdd(
+                element,
+                "move",
+                this._binded_mouse_callback,
+            );
+        if (this._binded_mouse_callback)
+            LiteGraph.pointerListenerAdd(
+                element,
+                "up",
+                this._binded_mouse_callback,
+            );
 
-        element.addEventListener(
-            "mousewheel",
-            this._binded_mouse_callback,
-            false,
-        );
-        element.addEventListener("wheel", this._binded_mouse_callback, false);
+        if (this._binded_mouse_callback)
+            element.addEventListener(
+                "mousewheel",
+                this._binded_mouse_callback,
+                false,
+            );
+        if (this._binded_mouse_callback)
+            element.addEventListener(
+                "wheel",
+                this._binded_mouse_callback,
+                false,
+            );
     }
 
-    computeVisibleArea(viewport?: Vector4): void {
+    computeVisibleArea(viewport?: Vector4 | null): void {
         if (!this.element) {
             this.visible_area[0] =
                 this.visible_area[1] =
@@ -101,13 +110,14 @@ export default class DragAndScale {
         this.visible_area[3] = endy - starty;
     }
 
-    onMouse(_e: MouseEvent): boolean | null {
+    onMouse(_e: MouseEvent): boolean {
         if (!this.enabled) {
-            return;
+            return false;
         }
 
         var canvas = this.element;
-        var rect = canvas.getBoundingClientRect();
+        var rect = canvas?.getBoundingClientRect();
+        if (!rect || !canvas) return false;
         let e = _e as MouseEventExt;
         var x = e.clientX - rect.left;
         var y = e.clientY - rect.top;
@@ -137,16 +147,18 @@ export default class DragAndScale {
                 "move",
                 this._binded_mouse_callback,
             );
-            LiteGraph.pointerListenerAdd(
-                document,
-                "move",
-                this._binded_mouse_callback,
-            );
-            LiteGraph.pointerListenerAdd(
-                document,
-                "up",
-                this._binded_mouse_callback,
-            );
+            if (this._binded_mouse_callback)
+                LiteGraph.pointerListenerAdd(
+                    document,
+                    "move",
+                    this._binded_mouse_callback,
+                );
+            if (this._binded_mouse_callback)
+                LiteGraph.pointerListenerAdd(
+                    document,
+                    "up",
+                    this._binded_mouse_callback,
+                );
         } else if (e.type == LiteGraph.pointerevents_method + "move") {
             if (!ignore) {
                 var deltax = x - this.last_mouse[0];
@@ -167,11 +179,12 @@ export default class DragAndScale {
                 "up",
                 this._binded_mouse_callback,
             );
-            LiteGraph.pointerListenerAdd(
-                canvas,
-                "move",
-                this._binded_mouse_callback,
-            );
+            if (this._binded_mouse_callback)
+                LiteGraph.pointerListenerAdd(
+                    canvas,
+                    "move",
+                    this._binded_mouse_callback,
+                );
         } else if (
             is_inside &&
             (e.type == "mousewheel" ||
@@ -180,7 +193,7 @@ export default class DragAndScale {
         ) {
             e.eventType = "mousewheel";
             if (e.type == "wheel") {
-                e.wheel = -e.deltaY;
+                if (e.deltaY) e.wheel = -e.deltaY;
             } else {
                 e.wheel =
                     e.wheelDeltaY != null ? e.wheelDeltaY : e.detail * -60;
@@ -203,6 +216,7 @@ export default class DragAndScale {
             e.stopPropagation();
             return false;
         }
+        return false;
     }
 
     toCanvasContext(ctx: CanvasRenderingContext2D): void {
