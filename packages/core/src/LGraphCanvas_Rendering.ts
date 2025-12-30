@@ -34,24 +34,26 @@ export default class LGraphCanvas_Rendering {
 
     /** brings a node to front (above all other nodes) */
     bringToFront(this: LGraphCanvas, node: LGraphNode): void {
-        let i = (this.graph as any)._nodes.indexOf(node);
+        if (!this.graph) return;
+        let i = this.graph._nodes.indexOf(node);
         if (i == -1) {
             return;
         }
 
-        (this.graph as any)._nodes.splice(i, 1);
-        (this.graph as any)._nodes.push(node);
+        this.graph._nodes.splice(i, 1);
+        this.graph._nodes.push(node);
     }
 
     /** sends a node to the back (below all other nodes) */
     sendToBack(this: LGraphCanvas, node: LGraphNode): void {
-        let i = (this.graph as any)._nodes.indexOf(node);
+        if (!this.graph) return;
+        let i = this.graph._nodes.indexOf(node);
         if (i == -1) {
             return;
         }
 
-        (this.graph as any)._nodes.splice(i, 1);
-        (this.graph as any)._nodes.unshift(node);
+        this.graph._nodes.splice(i, 1);
+        this.graph._nodes.unshift(node);
     }
 
     private static temp = new Float32Array(4);
@@ -64,7 +66,7 @@ export default class LGraphCanvas_Rendering {
     ): LGraphNode[] {
         let visible_nodes = out;
         visible_nodes.length = 0;
-        const nodes = _nodes || (this.graph as any)._nodes;
+        const nodes = _nodes || this.graph?._nodes || [];
         for (let i = 0, l = nodes.length; i < l; ++i) {
             let n = nodes[i];
 
@@ -664,7 +666,7 @@ export default class LGraphCanvas_Rendering {
             return;
         }
 
-        let groups = (this.graph as any)._groups;
+        let groups = this.graph._groups;
 
         ctx.save();
         ctx.globalAlpha = 0.5 * this.editor_alpha;
@@ -695,8 +697,7 @@ export default class LGraphCanvas_Rendering {
             ctx.lineTo(pos[0] + size[0], pos[1] + size[1] - 10);
             ctx.fill();
 
-            let font_size =
-                group.font_size || LiteGraph.DEFAULT_GROUP_FONT_SIZE;
+            let font_size = group.fontSize || LiteGraph.DEFAULT_GROUP_FONT_SIZE;
             ctx.font = font_size + "px Arial";
             ctx.textAlign = "left";
             ctx.fillText(group.title, pos[0] + 4, pos[1] + font_size);
@@ -729,14 +730,14 @@ export default class LGraphCanvas_Rendering {
             ctx.fillText("I: " + this.graph.iteration, 5, 13 * 2);
             ctx.fillText(
                 "N: " +
-                    (this.graph as any)._nodes.length +
+                    this.graph._nodes.length +
                     " [" +
                     this.visible_nodes.length +
                     "]",
                 5,
                 13 * 3,
             );
-            ctx.fillText("V: " + (this.graph as any)._version, 5, 13 * 4);
+            ctx.fillText("V: " + this.graph._version, 5, 13 * 4);
             ctx.fillText("FPS:" + this.fps.toFixed(2), 5, 13 * 5);
         } else {
             ctx.fillText("No graph selected", 5, 13 * 1);
@@ -885,7 +886,7 @@ export default class LGraphCanvas_Rendering {
             }
 
             //groups
-            if ((this.graph as any)._groups.length && !this.live_mode) {
+            if (this.graph._groups.length && !this.live_mode) {
                 this.drawGroups(canvas, ctx);
             }
 

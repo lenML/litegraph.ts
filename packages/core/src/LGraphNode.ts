@@ -400,7 +400,7 @@ export default class LGraphNode {
     /** configure a node from an object containing the serialized info */
     configure(info: SerializedLGraphNode): void {
         if (this.graph) {
-            (this.graph as any)._version++;
+            this.graph._version++;
         }
         for (let j in info) {
             if (j == "properties") {
@@ -2989,7 +2989,7 @@ export default class LGraphNode {
         //connect in input
         targetNode.inputs[targetSlot].link = linkInfo.id;
         if (this.graph) {
-            (this.graph as any)._version++;
+            this.graph._version++;
         }
         if (this.onConnectionsChange) {
             this.onConnectionsChange(
@@ -3088,7 +3088,7 @@ export default class LGraphNode {
                     input.link = null; //remove there
                     delete this.graph?.links[link_id]; //remove the link from the links pool
                     if (this.graph) {
-                        (this.graph as any)._version++;
+                        this.graph._version++;
                     }
                     if (targetNode.onConnectionsChange) {
                         targetNode.onConnectionsChange(
@@ -3143,7 +3143,7 @@ export default class LGraphNode {
                 let targetNode = this.graph?.getNodeById(link_info.target_id);
                 let input: INodeInputSlot | null = null;
                 if (this.graph) {
-                    (this.graph as any)._version++;
+                    this.graph._version++;
                 }
                 if (targetNode) {
                     input = targetNode.inputs[link_info.target_slot];
@@ -3274,7 +3274,7 @@ export default class LGraphNode {
 
                 delete this.graph?.links[link_id]; //remove from the pool
                 if (this.graph) {
-                    (this.graph as any)._version++;
+                    this.graph._version++;
                 }
                 if (this.onConnectionsChange) {
                     this.onConnectionsChange(
@@ -3463,7 +3463,7 @@ export default class LGraphNode {
 
     /** Collapse the node to make it smaller on the canvas */
     collapse(force: boolean = false): void {
-        (this.graph as any)._version++;
+        if (this.graph) this.graph._version++;
         if (this.collapsable === false && !force) {
             return;
         }
@@ -3480,7 +3480,7 @@ export default class LGraphNode {
 
     /** Forces the node to do not move or realign on Z */
     pin(v?: boolean): void {
-        (this.graph as any)._version++;
+        if (this.graph) this.graph._version++;
         if (v === undefined) {
             this.flags.pinned = !this.flags.pinned;
         } else {

@@ -18,13 +18,13 @@ export default class LGraphGroup {
     fontSize: number = LiteGraph.DEFAULT_GROUP_FONT_SIZE;
     private _nodes: LGraphNode[] = [];
     graph: LGraph | null = null;
-    private _bounding: Float32Array = new Float32Array([10, 10, 140, 80]);
+    _bounding: Float32Array = new Float32Array([10, 10, 140, 80]);
 
     get bounding(): Float32Array {
         return this._bounding;
     }
 
-    private _pos: Float32Array;
+    public _pos: Float32Array;
 
     get pos(): Vector2 {
         return [this._pos[0], this._pos[1]];
@@ -38,7 +38,7 @@ export default class LGraphGroup {
         this._pos[1] = v[1];
     }
 
-    private _size: Float32Array;
+    public _size: Float32Array;
 
     get size(): Vector2 {
         return [this._size[0], this._size[1]];
@@ -99,7 +99,7 @@ export default class LGraphGroup {
 
     recomputeInsideNodes(): void {
         this._nodes.length = 0;
-        var nodes = (this.graph as any)._nodes;
+        var nodes = this.graph?._nodes || [];
         var node_bounding = new Float32Array(4);
 
         for (var i = 0; i < nodes.length; ++i) {

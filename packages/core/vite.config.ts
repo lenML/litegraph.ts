@@ -1,6 +1,7 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 import checker from "vite-plugin-checker";
+import dts from "vite-plugin-dts";
 
 export default defineConfig({
     build: {
@@ -16,5 +17,10 @@ export default defineConfig({
         // checker({
         //     typescript: true
         // })
+        // dts({
+        //     entryRoot: "src",
+        //     outputDir: "dist",
+        //     insertTypesEntry: true,
+        // }),
     ],
 });

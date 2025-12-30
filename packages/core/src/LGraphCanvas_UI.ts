@@ -1589,9 +1589,7 @@ export default class LGraphCanvas_UI {
             }
         }
 
-        if (this.search_box) {
-            this.search_box.close();
-        }
+        this.search_box?.close();
         this.search_box = dialog;
 
         let helper = dialog.querySelector(".helper") as HTMLElement;
@@ -1601,145 +1599,143 @@ export default class LGraphCanvas_UI {
         let selected: Element | null = null;
 
         const select = (name: string) => {
-            if (!graphcanvas) return;
-            if (name) {
-                if (this.onSearchBoxSelection) {
-                    this.onSearchBoxSelection(name, event, graphcanvas);
-                } else {
-                    let extra = LiteGraph.searchbox_extras[name.toLowerCase()];
-                    if (extra) {
-                        name = extra.type;
-                    }
+            if (!graphcanvas) {
+                dialog.close();
+                return;
+            }
+            if (!name) {
+                dialog.close();
+                return;
+            }
+            if (this.onSearchBoxSelection) {
+                this.onSearchBoxSelection(name, event, graphcanvas);
+            } else {
+                let extra = LiteGraph.searchbox_extras[name.toLowerCase()];
+                if (extra) {
+                    name = extra.type;
+                }
 
-                    graphcanvas.graph?.beforeChange();
-                    let node = LiteGraph.createNode(name);
-                    if (!node) return;
-                    if (node) {
-                        node.pos =
-                            graphcanvas.convertEventToCanvasOffset(event);
-                        graphcanvas.graph?.add(node);
-                    }
+                graphcanvas.graph?.beforeChange();
+                let node = LiteGraph.createNode(name);
+                if (!node) return;
+                if (node) {
+                    node.pos = graphcanvas.convertEventToCanvasOffset(event);
+                    graphcanvas.graph?.add(node);
+                }
 
-                    if (extra && extra.data) {
-                        if (extra.data.properties) {
-                            for (let i in extra.data.properties) {
-                                node.addProperty(
-                                    "" + i,
-                                    extra.data.properties[i],
-                                );
-                            }
-                        }
-                        if (extra.data.inputs) {
-                            node.inputs = [];
-                            for (let i in extra.data.inputs) {
-                                node.addInput(
-                                    extra.data.inputs[i][0],
-                                    extra.data.inputs[i][1],
-                                );
-                            }
-                        }
-                        if (extra.data.outputs) {
-                            node.outputs = [];
-                            for (let i in extra.data.outputs) {
-                                node.addOutput(
-                                    extra.data.outputs[i][0],
-                                    extra.data.outputs[i][1],
-                                );
-                            }
-                        }
-                        if (extra.data.title) {
-                            node.title = extra.data.title;
-                        }
-                        if (extra.data.json) {
-                            node.configure(extra.data.json);
+                if (extra && extra.data) {
+                    if (extra.data.properties) {
+                        for (let i in extra.data.properties) {
+                            node.addProperty("" + i, extra.data.properties[i]);
                         }
                     }
+                    if (extra.data.inputs) {
+                        node.inputs = [];
+                        for (let i in extra.data.inputs) {
+                            node.addInput(
+                                extra.data.inputs[i][0],
+                                extra.data.inputs[i][1],
+                            );
+                        }
+                    }
+                    if (extra.data.outputs) {
+                        node.outputs = [];
+                        for (let i in extra.data.outputs) {
+                            node.addOutput(
+                                extra.data.outputs[i][0],
+                                extra.data.outputs[i][1],
+                            );
+                        }
+                    }
+                    if (extra.data.title) {
+                        node.title = extra.data.title;
+                    }
+                    if (extra.data.json) {
+                        node.configure(extra.data.json);
+                    }
+                }
 
-                    // join node after inserting
-                    if (options.node_from) {
-                        let iS: SlotNameOrIndex | null = null;
-                        switch (typeof options.slotFrom) {
-                            case "string":
+                // join node after inserting
+                if (options.node_from) {
+                    let iS: SlotNameOrIndex | null = null;
+                    switch (typeof options.slotFrom) {
+                        case "string":
+                            iS = options.node_from.findOutputSlotIndexByName(
+                                options.slotFrom,
+                            );
+                            break;
+                        case "object":
+                            if (options.slotFrom.name) {
                                 iS =
                                     options.node_from.findOutputSlotIndexByName(
-                                        options.slotFrom,
+                                        options.slotFrom.name,
                                     );
-                                break;
-                            case "object":
-                                if (options.slotFrom.name) {
-                                    iS =
-                                        options.node_from.findOutputSlotIndexByName(
-                                            options.slotFrom.name,
-                                        );
-                                } else {
-                                    iS = -1;
-                                }
-                                if (
-                                    iS == -1 &&
-                                    typeof options.slotFrom.slot_index !==
-                                        "undefined"
-                                )
-                                    iS = options.slotFrom.slot_index;
-                                break;
-                            case "number":
-                                iS = options.slotFrom;
-                                break;
-                            default:
-                                iS = 0; // try with first if no name set
-                        }
-                        iS = iS as SlotIndex;
-                        if (
-                            typeof options.node_from.outputs[iS] !== undefined
-                        ) {
-                            if (iS !== null && iS > -1) {
-                                options.node_from.connectByTypeInput(
-                                    iS,
-                                    node,
-                                    options.node_from.outputs[iS].type,
-                                );
+                            } else {
+                                iS = -1;
                             }
-                        } else {
-                            // console.warn("cant find slot " + options.slotFrom);
-                        }
+                            if (
+                                iS == -1 &&
+                                typeof options.slotFrom.slot_index !==
+                                    "undefined"
+                            )
+                                iS = options.slotFrom.slot_index;
+                            break;
+                        case "number":
+                            iS = options.slotFrom;
+                            break;
+                        default:
+                            iS = 0; // try with first if no name set
                     }
-                    if (options.node_to) {
-                        let iS: SlotNameOrIndex | null = null;
-                        switch (typeof options.slotFrom) {
-                            case "string":
-                                iS = options.node_to.findInputSlotIndexByName(
-                                    options.slotFrom,
-                                );
-                                break;
-                            // case "object":
-                            //     if (options.slotFrom.name){
-                            //         iS = options.node_to.findInputSlot(options.slotFrom.name);
-                            //     }else{
-                            //         iS = -1;
-                            //     }
-                            //     if (iS==-1 && typeof options.slotFrom.slot_index !== "undefined") iS = options.slotFrom.slot_index;
-                            // break;
-                            case "number":
-                                iS = options.slotFrom;
-                                break;
-                            default:
-                                iS = 0; // try with first if no name set
+                    iS = iS as SlotIndex;
+                    if (typeof options.node_from.outputs[iS] !== undefined) {
+                        if (iS !== null && iS > -1) {
+                            options.node_from.connectByTypeInput(
+                                iS,
+                                node,
+                                options.node_from.outputs[iS].type,
+                            );
                         }
-                        if (typeof options.node_to.inputs[iS] !== undefined) {
-                            if (iS !== null && iS > -1) {
-                                // try connection
-                                options.node_to.connectByTypeOutput(
-                                    iS,
-                                    node,
-                                    options.node_to.inputs[iS].type,
-                                );
-                            }
-                        } else {
-                            // console.warn("cant find slot_nodeTO " + options.slotFrom);
-                        }
+                    } else {
+                        // console.warn("cant find slot " + options.slotFrom);
                     }
-
-                    graphcanvas.graph?.afterChange();
                 }
+                if (options.node_to) {
+                    let iS: SlotNameOrIndex | null = null;
+                    switch (typeof options.slotFrom) {
+                        case "string":
+                            iS = options.node_to.findInputSlotIndexByName(
+                                options.slotFrom,
+                            );
+                            break;
+                        // case "object":
+                        //     if (options.slotFrom.name){
+                        //         iS = options.node_to.findInputSlot(options.slotFrom.name);
+                        //     }else{
+                        //         iS = -1;
+                        //     }
+                        //     if (iS==-1 && typeof options.slotFrom.slot_index !== "undefined") iS = options.slotFrom.slot_index;
+                        // break;
+                        case "number":
+                            iS = options.slotFrom;
+                            break;
+                        default:
+                            iS = 0; // try with first if no name set
+                    }
+                    if (typeof options.node_to.inputs[iS] !== undefined) {
+                        if (iS !== null && iS > -1) {
+                            // try connection
+                            options.node_to.connectByTypeOutput(
+                                iS,
+                                node,
+                                options.node_to.inputs[iS].type,
+                            );
+                        }
+                    } else {
+                        // console.warn("cant find slot_nodeTO " + options.slotFrom);
+                    }
+                }
+
+                graphcanvas.graph?.afterChange();
             }
 
             dialog.close();
@@ -1915,21 +1911,10 @@ export default class LGraphCanvas_UI {
                     }
                 }
 
-                let filtered: string[] = [];
-                // @ts-ignore
-                if (Array.prototype.filter) {
-                    //filter supported
-                    let keys = Object.keys(LiteGraph.registered_node_types); //types
-                    let filtered = keys.filter((k) =>
-                        inner_test_filter(k, filter, str, sIn, sOut),
-                    );
-                } else {
-                    filtered = [];
-                    for (const i in LiteGraph.registered_node_types) {
-                        if (inner_test_filter(i, filter, str, sIn, sOut))
-                            filtered.push(i);
-                    }
-                }
+                let keys = Object.keys(LiteGraph.registered_node_types); //types
+                const filtered = keys.filter((k) =>
+                    inner_test_filter(k, filter, str, sIn, sOut),
+                );
 
                 for (let i = 0; i < filtered.length; i++) {
                     addResult(filtered[i]);

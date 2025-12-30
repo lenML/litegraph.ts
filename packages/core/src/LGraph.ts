@@ -1440,6 +1440,7 @@ export default class LGraph {
             }
             // console.log("node being replaced by newer version: " + node.type);
             let newnode = LiteGraph.createNode(node.type);
+            if (!newnode) continue;
             changes = true;
             this._nodes[i] = newnode;
             newnode.configure(node.serialize());

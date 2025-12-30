@@ -588,6 +588,7 @@ export default class Subgraph extends LGraphNode {
     override clone(cloneData: LGraphNodeCloneData = { forNode: {} }) {
         if (!this.type) throw new Error("Node type is not set");
         var node = LiteGraph.createNode(this.type);
+        if (!node) return null;
         var data = this.serialize();
 
         let mapping: GraphIDMapping | null = null;

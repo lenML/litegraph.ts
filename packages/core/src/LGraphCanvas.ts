@@ -657,7 +657,8 @@ export default class LGraphCanvas
         if (!this._graph_stack || this._graph_stack.length == 0) {
             return;
         }
-        let subgraph_node = (this.graph as any)._subgraph_node;
+        if (!this.graph) return;
+        let subgraph_node = this.graph._subgraph_node;
         let entry = this._graph_stack.pop();
         if (!entry) return;
         const { graph, offset, scale } = entry;
@@ -1848,12 +1849,12 @@ export default class LGraphCanvas
     }
 
     /** selects several nodes (or adds them to the current selection) */
-    selectNodes(nodes?: LGraphNode[], add: boolean = false): void {
+    selectNodes(_nodes?: LGraphNode[], add: boolean = false): void {
         if (!add) {
             this.deselectAllNodes();
         }
 
-        nodes = nodes || (this.graph as any)._nodes;
+        let nodes = _nodes || this.graph?._nodes || [];
         if (typeof nodes == "string") nodes = [nodes];
         for (let i in nodes) {
             let node = nodes[i];
@@ -1871,7 +1872,8 @@ export default class LGraphCanvas
 
             if (node.inputs) {
                 for (let j = 0; j < node.inputs.length; ++j) {
-                    this.highlighted_links[node.inputs[j].link] = true;
+                    const link = node.inputs[j].link;
+                    if (link) this.highlighted_links[link] = true;
                 }
             }
             if (node.outputs) {
@@ -2327,7 +2329,7 @@ export default class LGraphCanvas
     }
 
     adjustNodesSize(): void {
-        let nodes = (this.graph as any)._nodes;
+        let nodes = this.graph?._nodes || [];
         for (let i = 0; i < nodes.length; ++i) {
             nodes[i].size = nodes[i].computeSize();
         }
